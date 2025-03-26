@@ -1,0 +1,36 @@
+#searchBox {
+    width: 92%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 16px;
+    
+}
+
+.movie-card {
+    display: inline-block;
+    width:150px;
+    height: 315px;
+    padding: 1px;
+    margin: 8px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    
+}
+
+.movie-card img {
+    width: auto;
+    height: 219px;
+    border-radius: 5px;
+    
+}
+.logo{
+ 
+}
+
+.box{
+	padding: 6px;
+	outline: solid 1px #0DC2E3;
+	border-radius: 5px;
+	background-color: #D8F9FF;
+}
