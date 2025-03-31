@@ -9,7 +9,7 @@
 .movie-card {
     display: inline-block;
     width:149px;
-    height: 315px;
+    height: 318px;
     padding: 1px;
     margin: 8px;
     text-align: center;
@@ -33,9 +33,49 @@
 	outline: solid 1px #0DC2E3;
 	border-radius: 5px;
 	background-color: #D8F9FF;
+	color: #0C4D6A;
+}
+.boxw{
+	padding: 10px;
+	outline: solid 1px #0DC2E3;
+	border-radius: 5px;
+	background-color: #D8F9FF;
+	width: 230px;
+	margin-top: 14px;
+	
+}
+.a{
+ color: #1F63A6;
+ font-size: 1.6em;
 }
 a{
  text-decoration:none;
  color: inherit;
+ font-size: 0.88rem;
+}
 
+.button{
+ outline: solid 0.5px #848080;
+ border-radius:2px;
+ padding-top: 1px;
+ padding-bottom: 1px;
+ padding-left:3px;
+ padding-right: 3px;
+ margin-right: 3px;
+ background-color:#F4F4F4;
+ 
+}
+
+.p{
+ font-size: 1.4em;
+ color: #096458;
+ margin-top: 2px;
+ margin-bottom: 4px;
+}
+
+.latest{
+ margin-left: 10px;
+ font-size: 1.5em;
+ letter-spacing: 1.2px;
+ color:#323232;
 }
