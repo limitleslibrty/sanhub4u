@@ -89,3 +89,11 @@ a{
  color: #1F63A6;
  font-size: 1.3em;
 }
+
+.request{
+ padding: 1px;
+ outline: solid 2px #0984AA;
+ border-radius: 5px;
+ width: 120px;
+
+}
