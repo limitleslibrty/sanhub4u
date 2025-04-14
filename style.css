@@ -92,8 +92,14 @@ a{
 
 .request{
  padding: 1px;
- outline: solid 2px #0984AA;
+ outline: solid 2px #003140;
  border-radius: 5px;
  width: 120px;
 
+}
+.pp{
+ font-size: 1em;
+ color: #E2E2E2;
+ margin-top: 2px;
+ margin-bottom: 4px;
 }
