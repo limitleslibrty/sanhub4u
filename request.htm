@@ -43,17 +43,44 @@ margin-left: 3px;
   <input type="email" id="email" class="txt" name="email" required><br><br>
 
 
-   <font size="4em">Movie:</font>
+   <select name="type" 
+   id="firstSelect" onchange="showInputIfFruits()" style="font-size: 0.9em;margin-left: 28px; width:54px">
+     
+     <option value="Movie">Movie
+     </option>
+     <option value="webseries">webseries</option>
+     
+     
+   </select>:
    
   <input type="movie" id="movie" name="movie" required ><br><br>
+
   
    <font size="4em" style="margin-left: 35px;">Size:</font>
-  <input type="text" id="size" name="size" style="margin-left: 10.3px;" required><br><br>
-
-
-
-
-  <center><button type="submit">Submit</button><center>
+   
+  <select id="size" name="size" style="margin-left: 10.3px;
+  width:192px ;" required>
+    <option value="480p">480p</option>
+    <option value="720p">720p</option>
+    <option value="1080p">1080p</option>
+    <option value="4k">4k</option>
+  </select>
+  <br><br>
+  <font size="4em" style="
+     margin-left: 24px;
+     display: none;"
+     id="fruitText"
+     >Season:</font>
+     
+   <input type="text"
+   id="fruitInput" 
+   style=
+   "display: none; 
+    width:180px;
+    margin-right: 40px;" 
+    class="txt" name="season" ><br><br> 
+    
+    <center><button type="submit">Submit</button><center>
 </form>
 
 <br /><br />
@@ -64,6 +91,26 @@ note: You will be notified by email   once <br /> ur requested movie is live .
  
 </div></center>
 
+
+
+  <!--script-->
+
+
+  <script>
+    function showInputIfFruits() {
+      const value = document.getElementById("firstSelect").value;
+      const text = document.getElementById("fruitText");
+      const input = document.getElementById("fruitInput");
+
+      if (value === "webseries") {
+        text.style.display = "inline";
+        input.style.display = "inline";
+      } else {
+        text.style.display = "none";
+        input.style.display = "none";
+      }
+    }
+  </script>
 
 </body>
 </html>
