@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Movie</title>
-  <link rel="stylesheet" href="style.css">
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
+      background: #f5f5f5;
       margin: 0;
       padding: 0;
       color: #333;
@@ -17,9 +16,9 @@
       max-width: 800px;
       margin: auto;
       padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: #fff;
       border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .poster {
       width: 100%;
@@ -68,8 +67,8 @@
       margin-bottom: 20px;
     }
     h3 {
-      margin-bottom: 10px;
       text-align: center;
+      margin-top: 30px;
     }
     .images {
       display: flex;
@@ -88,12 +87,12 @@
       justify-content: center;
     }
     .related-card {
-      background-color: #f9f9f9;
+      background: #f9f9f9;
       border-radius: 8px;
       width: 120px;
       padding: 10px;
       text-align: center;
-      font-size: 0.8em;
+      font-size: 0.75em;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
     .related-card img {
@@ -105,20 +104,23 @@
 </head>
 <body>
   <div class="container">
-    <div id="movieContent"></div>
+    <div id="movieContent">Loading...</div>
   </div>
 
   <script>
     const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
+
     const params = new URLSearchParams(location.search);
     const title = params.get("title");
     const gdLink = params.get("gd");
 
-    const cacheKey = `movie_${title.toLowerCase().replace(/\s+/g, '_')}`;
+    const cacheKey = `movie_${title?.toLowerCase().replace(/\s+/g, '_')}`;
     const cachedData = JSON.parse(localStorage.getItem(cacheKey) || "null");
     const now = Date.now();
 
-    if (cachedData && now - cachedData.timestamp < 7 * 24 * 60 * 60 * 1000) {
+    if (!title || !gdLink) {
+      document.getElementById("movieContent").innerHTML = `<h3>Movie data missing!</h3>`;
+    } else if (cachedData && now - cachedData.timestamp < 7 * 24 * 60 * 60 * 1000) {
       renderMovie(cachedData.data);
     } else {
       fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&api_key=${apiKey}`)
@@ -175,12 +177,14 @@
       container.innerHTML = `
         <img src="${data.poster}" class="poster" loading="lazy">
         <div class="title">${data.title}</div>
-        <div class="rating">IMDb Rating: ${data.rating}⭐</div>
+        <div class="rating">IMDb Rating: ${data.rating.toFixed(1)} ⭐</div>
         <div class="description">${data.overview}</div>
+
         <div class="buttons">
           <a href="${downloadLink}" onclick="(${updateView.toString()})()">Download</a>
           <a href="${gdLink}" onclick="(${updateView.toString()})()">Watch</a>
         </div>
+
         <div class="views">
           <img src="view.png" height="20"> <span id="viewsCount">${views}</span>
         </div>

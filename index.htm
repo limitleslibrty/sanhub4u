@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
+ <meta http-equiv="Content-Security-Policy" content="default-src * 'self' data: blob: filesystem:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval' *">
  <meta name="google-site-verification" content="2lt-Ebawu2LuCLBPkpbVlZqha4xsuR5nxV49g3i7oRg" />
  
   <title>Sanhub4u</title>
@@ -94,6 +94,24 @@
   
  <!--movies-->
  
+ 
+ 
+ 
+ 
+   
+<a href="movie.html?
+title=Saiyaara
+&
+gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=drivesdk
+">
+ <div class="movie-card">
+ <img src="your_image.jpg" alt="loading">
+ <h3 class="movie-title">
+     Saiyaara
+     </h3>
+  </div>
+</a>
+  
   
   
 <a href="lucy.htm">
@@ -105,16 +123,7 @@
  </div>
 </a>
  
-  
-<a href="saiyaara.htm">
- <div class="movie-card">
- <img src="https://image.tmdb.org/t/p/w500/z98O8Eqk3JDlCfUhXok1kwz24xl.jpg " alt="Joker">
- <h3 class="movie-title">
- Saiyaara <br />hd
- </h3>
- </div>
-</a>
- 
+
  <a href="familyman.htm">
  <div class="movie-card">
  <img src="https://images.justwatch.com/poster/301234715/s718/the-family-man.jpg " alt="Joker">
@@ -530,92 +539,35 @@
   <!-- Project -->
   <script src="main.js"></script>
   <script>
- const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
- 
- 
- 
- 
- 
- 
- 
- 
-   
- /* MOVIE DATA  */
- 
- 
- 
- 
- 
- 
- const movies = [
- "saiyaara,https://drive.google.com/file/d/1RS33P6in_ozSBbjipkK5eBqHHkmfYX-h/view?usp=drivesdk" ,
- "Lucy,https://drive.google.com/file/d/1S6vYyZ9S_d0lbgVQg4MLBv8VjPSOKyx_/view?usp=drivesdk"
- 
- 
- 
- 
- 
- 
- ];
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- window.addEventListener('DOMContentLoaded', async () => {
-  const container = document.getElementById("moviesContainer");
-  if (!container) return console.error("❌ Container with ID 'moviesContainer' not found.");
-  
-  for (let i = movies.length - 1; i >= 0; i--) {
-   const [title, gdrive] = movies[i].split(",");
-   const cleanTitle = title.trim();
-   const gdriveLink = gdrive.trim();
-   const fileId = gdriveLink.split("/file/d/")[1]?.split("/")[0];
-   const moviePageLink = `movie.html?title=${encodeURIComponent(cleanTitle)}&gd=https://drive.google.com/file/d/${fileId}/view`;
-   
-   const poster = await getPosterImage(cleanTitle);
-   
-   const card = document.createElement("a");
-   card.href = moviePageLink;
-   card.innerHTML = `
-      <div class="movie-card">
-        <img src="${poster}" alt="${cleanTitle}" />
-        <h3 class="movie-title">${cleanTitle.replace(/\s+/, "<br>")}</h3>
-      </div>`;
-   container.prepend(card);
-  }
- });
- 
- async function getPosterImage(title) {
-  const cacheKey = "poster_" + title.toLowerCase().replace(/\s+/g, "_");
-  const cached = localStorage.getItem(cacheKey);
-  const now = Date.now();
-  
-  if (cached) {
-   const data = JSON.parse(cached);
-   if (now - data.timestamp < 7 * 24 * 60 * 60 * 1000) {
-    return data.poster;
-   }
-  }
-  
-  try {
-   const res = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&api_key=${apiKey}`);
-   const data = await res.json();
-   const path = data.results?.[0]?.poster_path;
-   const url = path ? `https://image.tmdb.org/t/p/w500${path}` : `https://via.placeholder.com/240x340?text=${encodeURIComponent(title)}`;
-   localStorage.setItem(cacheKey, JSON.stringify({ poster: url, timestamp: now }));
-   return url;
-  } catch (err) {
-   console.error("❌ TMDb fetch failed", err);
-   return `https://via.placeholder.com/240x340?text=${encodeURIComponent(title)}`;
-  }
- }
+  const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
+
+  document.querySelectorAll(".movie-card").forEach(async card => {
+    const h3 = card.querySelector(".movie-title");
+    const img = card.querySelector("img");
+    const title = h3?.innerText?.trim();
+    if (!title || !img) return;
+
+    const cacheKey = `thumb_${title.toLowerCase().replace(/\s+/g, "_")}`;
+    const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
+    const now = Date.now();
+
+    if (cached && now - cached.timestamp < 7 * 24 * 60 * 60 * 1000) {
+      img.src = cached.url;
+    } else {
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&api_key=${apiKey}`);
+        const data = await res.json();
+        const poster = data.results?.[0]?.poster_path;
+        if (poster) {
+          const fullUrl = `https://image.tmdb.org/t/p/w500${poster}`;
+          img.src = fullUrl;
+          localStorage.setItem(cacheKey, JSON.stringify({ url: fullUrl, timestamp: now }));
+        }
+      } catch (e) {
+        console.error("TMDb thumbnail fetch failed for:", title);
+      }
+    }
+  });
 </script>
 </body>
 </html>
