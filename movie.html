@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+    .poster {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .title {
+      text-align: center;
+      font-size: 2em;
+      margin: 10px 0;
+    }
+    .rating {
+      text-align: center;
+      font-size: 0.9em;
+      color: #666;
+    }
+    .description {
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .buttons {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .buttons a {
+      display: inline-block;
+      margin: 0 10px;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      background-color: #0984AA;
+      color: white;
+    }
+    .views {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.9em;
+    }
+    iframe {
+      width: 100%;
+      height: 250px;
+      border-radius: 10px;
+      border: none;
+      margin-bottom: 20px;
+    }
+    h3 {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .images {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .images img {
+      width: 100%;
+      border-radius: 10px;
+      loading: lazy;
+    }
+    .related-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .related-card {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      width: 120px;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.8em;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .related-card img {
+      width: 100%;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="movieContent"></div>
+  </div>
+
+  <script>
+    const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
+    const params = new URLSearchParams(location.search);
+    const title = params.get("title");
+    const gdLink = params.get("gd");
+
+    const cacheKey = `movie_${title.toLowerCase().replace(/\s+/g, '_')}`;
+    const cachedData = JSON.parse(localStorage.getItem(cacheKey) || "null");
+    const now = Date.now();
+
+    if (cachedData && now - cachedData.timestamp < 7 * 24 * 60 * 60 * 1000) {
+      renderMovie(cachedData.data);
+    } else {
+      fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&api_key=${apiKey}`)
+        .then(res => res.json())
+        .then(async data => {
+          const movie = data.results?.[0];
+          if (!movie) return;
+
+          const id = movie.id;
+          const [details, images, videos, similar] = await Promise.all([
+            fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`).then(r => r.json()),
+            fetch(`https://api.themoviedb.org/3/movie/${id}/images?api_key=${apiKey}`).then(r => r.json()),
+            fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`).then(r => r.json()),
+            fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`).then(r => r.json())
+          ]);
+
+          const poster = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+          const backdrops = images.backdrops.slice(0, 8).map(img => `https://image.tmdb.org/t/p/w500${img.file_path}`);
+          const trailerKey = videos.results.find(v => v.type === "Trailer")?.key;
+          const related = similar.results.slice(0, 4).map(m => ({
+            title: m.title,
+            poster: `https://image.tmdb.org/t/p/w300${m.poster_path}`
+          }));
+
+          const result = {
+            title: movie.title,
+            poster,
+            overview: details.overview,
+            rating: details.vote_average,
+            backdrops,
+            trailerKey,
+            related
+          };
+
+          localStorage.setItem(cacheKey, JSON.stringify({ data: result, timestamp: now }));
+          renderMovie(result);
+        });
+    }
+
+    function renderMovie(data) {
+      const container = document.getElementById("movieContent");
+      const fileId = gdLink.split("/file/d/")[1]?.split("/")[0];
+      const downloadLink = `https://drive.google.com/uc?id=${fileId}&export=download`;
+
+      const countKey = `views_${title}`;
+      const views = parseInt(localStorage.getItem(countKey)) || 1;
+
+      const updateView = () => {
+        const newViews = views + 1;
+        localStorage.setItem(countKey, newViews);
+        document.getElementById("viewsCount").textContent = newViews;
+      };
+
+      container.innerHTML = `
+        <img src="${data.poster}" class="poster" loading="lazy">
+        <div class="title">${data.title}</div>
+        <div class="rating">IMDb Rating: ${data.rating}⭐</div>
+        <div class="description">${data.overview}</div>
+        <div class="buttons">
+          <a href="${downloadLink}" onclick="(${updateView.toString()})()">Download</a>
+          <a href="${gdLink}" onclick="(${updateView.toString()})()">Watch</a>
+        </div>
+        <div class="views">
+          <img src="view.png" height="20"> <span id="viewsCount">${views}</span>
+        </div>
+
+        ${data.trailerKey ? `<h3>Trailer</h3><iframe src="https://www.youtube.com/embed/${data.trailerKey}" loading="lazy"></iframe>` : ""}
+
+        <h3>Movie Pics</h3>
+        <div class="images">
+          ${data.backdrops.map(src => `<img src="${src}" loading="lazy">`).join("")}
+        </div>
+
+        <h3>Related Movies</h3>
+        <div class="related-container">
+          ${data.related.map(m => `
+            <div class="related-card">
+              <img src="${m.poster}" loading="lazy">
+              <div>${m.title}</div>
+            </div>`).join("")}
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
