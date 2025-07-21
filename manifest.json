@@ -1,7 +1,7 @@
 {
   "name": "Sanhub4u Movies",
   "short_name": "Sanhub",
-  "start_url": "./index.html",
+  "start_url": "./index.htm",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0984AA",
