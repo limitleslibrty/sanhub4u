@@ -1,5 +1,5 @@
 {
-  "name": "Sanhub4u Movies",
+  "name": "Limitless Entertainment",
   "short_name": "Sanhub",
   "start_url": "./index.html",
   "display": "standalone",
@@ -13,7 +13,7 @@
       "type": "image/png"
     },
     {
-      "src": "logo192.png",
+      "src": "logo196.png",
       "sizes": "512x512",
       "type": "image/png"
     }
