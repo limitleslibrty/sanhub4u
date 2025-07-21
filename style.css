@@ -6,13 +6,6 @@
     
 }
 
-/* For top AppBar or Header */
-header, .app-bar, .top-bar {
-  box-shadow: none !important;
-  border-bottom: none !important;
-  background-color: white !important;
-}
-
 .movie-card {
     display: inline-block;
     width:149px;
