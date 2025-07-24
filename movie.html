@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -105,16 +104,14 @@
 <body>
   <div class="container">
     <div id="movieContent">Loading...</div>
-  </div>
-
-  <script>
+  </div>  <script>
     const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
-
     const params = new URLSearchParams(location.search);
     const title = params.get("title");
     const gdLink = params.get("gd");
+    const year = params.get("year") || "";
 
-    const cacheKey = `movie_${title?.toLowerCase().replace(/\s+/g, '_')}`;
+    const cacheKey = `movie_${title?.toLowerCase().replace(/\s+/g, '_')}_${year}`;
     const cachedData = JSON.parse(localStorage.getItem(cacheKey) || "null");
     const now = Date.now();
 
@@ -123,7 +120,7 @@
     } else if (cachedData && now - cachedData.timestamp < 7 * 24 * 60 * 60 * 1000) {
       renderMovie(cachedData.data);
     } else {
-      fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&api_key=${apiKey}`)
+      fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year ? `&year=${year}` : ""}&api_key=${apiKey}`)
         .then(res => res.json())
         .then(async data => {
           const movie = data.results?.[0];
@@ -206,13 +203,11 @@
         </div>
       `;
     }
-  </script>
-  <script>
+  </script>  <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js')
       .then(() => console.log("✅ Service Worker Registered"))
       .catch(err => console.log("❌ Service Worker Failed", err));
   }
-</script>
-</body>
+</script></body>
 </html>
