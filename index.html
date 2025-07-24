@@ -776,20 +776,7 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
 <script>
 const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
 
-// Retry fetch with fallback
-async function fetchWithRetry(url, retries = 2) {
-  for (let i = 0; i <= retries; i++) {
-    try {
-      const res = await fetch(url, { cache: "force-cache" });
-      if (!res.ok) throw new Error("Fetch error");
-      return await res.json();
-    } catch (e) {
-      if (i === retries) throw e;
-    }
-  }
-}
-
-// Movie poster fetcher
+// Fetch Movie Thumbnail
 async function getMoviePoster(title, year = "") {
   const cacheKey = `thumb_${title.toLowerCase().replace(/\s+/g, "_")}_${year}`;
   const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
@@ -798,83 +785,93 @@ async function getMoviePoster(title, year = "") {
 
   try {
     const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year ? `&year=${year}` : ""}&api_key=${apiKey}`;
-    const data = await fetchWithRetry(url);
+    const res = await fetch(url);
+    const data = await res.json();
     const poster = data.results?.[0]?.poster_path;
     if (poster) {
       const fullUrl = `https://image.tmdb.org/t/p/w500${poster}`;
       localStorage.setItem(cacheKey, JSON.stringify({ url: fullUrl, timestamp: now }));
       return fullUrl;
     }
-  } catch (err) {
-    console.warn("Retry failed for movie:", title);
+  } catch (e) {
+    console.warn("Movie fetch failed:", title);
   }
   return "fallback.jpg";
 }
 
-// TV poster fetcher
+// Fetch TV Thumbnail
 async function getTVPoster(title, year = "") {
   const cacheKey = `tv_thumb_${title.toLowerCase()}_${year}`;
   const cached = localStorage.getItem(cacheKey);
   if (cached) return cached;
-
   try {
     const url = `https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(title)}${year ? `&first_air_date_year=${year}` : ""}&api_key=${apiKey}`;
-    const data = await fetchWithRetry(url);
+    const res = await fetch(url);
+    const data = await res.json();
     const poster = data.results?.[0]?.poster_path;
     if (poster) {
       const fullUrl = `https://image.tmdb.org/t/p/w500${poster}`;
       localStorage.setItem(cacheKey, fullUrl);
       return fullUrl;
     }
-  } catch (err) {
-    console.warn("Retry failed for TV:", title);
+  } catch (e) {
+    console.warn("TV fetch failed:", title);
   }
   return "fallback.jpg";
 }
 
-// Observer to lazy-load posters
+// Load poster into card
+async function loadPoster(card) {
+  const anchor = card.closest("a");
+  const img = card.querySelector("img");
+  const h3 = card.querySelector(".movie-title");
+  const year = card.dataset.year || "";
+  if (!img || !anchor) return;
+
+  let title = "";
+  let posterUrl = "";
+
+  if (anchor.href.includes("webseries.html")) {
+    const url = new URL(anchor.href, location.href);
+    title = url.searchParams.get("title")?.trim();
+    if (title) posterUrl = await getTVPoster(title, year);
+  } else if (anchor.href.includes("movie.html")) {
+    title = h3?.innerText?.trim();
+    if (title) posterUrl = await getMoviePoster(title, year);
+  }
+
+  if (posterUrl) {
+    img.style.filter = "blur(10px)";
+    img.style.transition = "filter 0.4s ease";
+    img.src = posterUrl;
+    img.onload = () => img.style.filter = "blur(0)";
+  }
+}
+
+// Lazy observer
 function observeCards() {
-  const observer = new IntersectionObserver(async (entries, obs) => {
-    for (const entry of entries) {
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(async entry => {
       if (entry.isIntersecting) {
         const card = entry.target;
-        const anchor = card.closest("a");
-        const img = card.querySelector("img");
-        const h3 = card.querySelector(".movie-title");
-        const year = card.dataset.year || "";
-
-        if (!img || !anchor) continue;
-
-        let title = "";
-        let posterUrl = "";
-
-        if (anchor.href.includes("webseries.html")) {
-          const url = new URL(anchor.href, location.href);
-          title = url.searchParams.get("title")?.trim();
-          if (title) posterUrl = await getTVPoster(title, year);
-        } else if (anchor.href.includes("movie.html")) {
-          title = h3?.innerText?.trim();
-          if (title) posterUrl = await getMoviePoster(title, year);
-        }
-
-        if (posterUrl) {
-          img.src = posterUrl;
-          img.onerror = () => {
-            setTimeout(() => {
-              img.src = posterUrl; // retry
-            }, 1500);
-          };
-        }
-
+        await loadPoster(card);
         obs.unobserve(card);
       }
-    }
+    });
   }, {
-    rootMargin: "100px",
+    rootMargin: "150px",
     threshold: 0.1
   });
 
-  document.querySelectorAll(".movie-card").forEach(card => observer.observe(card));
+  const cards = document.querySelectorAll(".movie-card");
+  cards.forEach(card => observer.observe(card));
+
+  // Fallback: load top visible cards immediately
+  setTimeout(() => {
+    cards.forEach((card, idx) => {
+      if (idx < 4) loadPoster(card); // Try loading first 4 immediately
+    });
+  }, 200);
 }
 
 document.addEventListener("DOMContentLoaded", observeCards);
