@@ -771,10 +771,12 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
   <!-- Project -->
   <script src="main.js"></script>
   
+  
+
 <script>
 const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
 
-// Fetch movie poster
+// Utility to fetch movie thumbnail
 async function getMoviePoster(title, year = "") {
   const cacheKey = `thumb_${title.toLowerCase().replace(/\s+/g, "_")}_${year}`;
   const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
@@ -798,10 +800,10 @@ async function getMoviePoster(title, year = "") {
     console.warn("Movie poster fetch failed:", title);
   }
 
-  return "";
+  return "fallback.jpg";
 }
 
-// Fetch webseries poster
+// Utility to fetch web series thumbnail
 async function getTVPoster(title, year = "") {
   const cacheKey = `tv_thumb_${title.toLowerCase()}_${year}`;
   const cached = localStorage.getItem(cacheKey);
@@ -821,38 +823,48 @@ async function getTVPoster(title, year = "") {
     console.warn("TV poster fetch failed:", title);
   }
 
-  return "";
+  return "fallback.jpg";
 }
 
-// Apply thumbnails to all cards
-async function applyThumbnails() {
-  const cards = document.querySelectorAll(".movie-card");
+// Lazy-load poster when in view
+function observeCards() {
+  const observer = new IntersectionObserver(async (entries, obs) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        const card = entry.target;
+        const anchor = card.closest("a");
+        const img = card.querySelector("img");
+        const h3 = card.querySelector(".movie-title");
+        const year = card.dataset.year || "";
 
-  for (const card of cards) {
-    const anchor = card.closest("a");
-    const img = card.querySelector("img");
-    const h3 = card.querySelector(".movie-title");
-    const year = card.dataset.year || "";
+        if (!img || !anchor) continue;
 
-    if (!anchor || !img) continue;
+        let title = "";
+        let posterUrl = "";
 
-    let title = "";
-    let posterUrl = "";
+        if (anchor.href.includes("webseries.html")) {
+          const url = new URL(anchor.href, location.href);
+          title = url.searchParams.get("title")?.trim();
+          if (title) posterUrl = await getTVPoster(title, year);
+        } else if (anchor.href.includes("movie.html")) {
+          title = h3?.innerText?.trim();
+          if (title) posterUrl = await getMoviePoster(title, year);
+        }
 
-    if (anchor.href.includes("webseries.html")) {
-      const url = new URL(anchor.href, location.href);
-      title = url.searchParams.get("title")?.trim();
-      if (title) posterUrl = await getTVPoster(title, year);
-    } else if (anchor.href.includes("movie.html")) {
-      title = h3?.innerText?.trim();
-      if (title) posterUrl = await getMoviePoster(title, year);
+        if (posterUrl) img.src = posterUrl;
+
+        obs.unobserve(card); // Stop observing once loaded
+      }
     }
+  }, {
+    rootMargin: "100px",
+    threshold: 0.1
+  });
 
-    if (posterUrl) img.src = posterUrl;
-  }
+  document.querySelectorAll(".movie-card").forEach(card => observer.observe(card));
 }
 
-document.addEventListener("DOMContentLoaded", applyThumbnails);
+document.addEventListener("DOMContentLoaded", observeCards);
 </script>
 <script>
   if ('serviceWorker' in navigator) {
