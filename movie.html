@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Movie</title>
   <style>
     body {
@@ -30,8 +30,9 @@
     }
     .rating {
       text-align: center;
-      font-size: 0.9em;
+      font-size: 0.95em;
       color: #666;
+      margin: 5px 0;
     }
     .description {
       background: #f0f0f0;
@@ -40,18 +41,41 @@
       margin: 20px 0;
       text-align: center;
     }
+    .meta-box {
+      background: #f4f8fb;
+      border-left: 5px solid #0984AA;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin: 10px 0 20px;
+      font-size: 0.95em;
+      line-height: 1.6;
+      color: #333;
+    }
+    .meta-box div {
+      margin-bottom: 6px;
+    }
+    .meta-box strong {
+      display: inline-block;
+      width: 90px;
+    }
     .buttons {
-      text-align: center;
-      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      margin: 0 20px 20px;
     }
     .buttons a {
-      display: inline-block;
-      margin: 0 10px;
-      padding: 10px 20px;
+      flex: 1;
+      margin: 0 5px;
+      padding: 12px 0;
       border-radius: 5px;
       text-decoration: none;
       background-color: #0984AA;
       color: white;
+      font-weight: bold;
+      text-align: center;
+    }
+    .buttons a:hover {
+      background-color: #066a8a;
     }
     .views {
       text-align: center;
@@ -77,137 +101,224 @@
     .images img {
       width: 100%;
       border-radius: 10px;
-      loading: lazy;
     }
-    .related-container {
+    .related-container,
+    .cast-container,
+    .review-container {
       display: flex;
       gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
+      overflow-x: auto;
+      padding: 10px 0;
     }
-    .related-card {
+    .related-card,
+    .cast-card {
+      flex: 0 0 auto;
       background: #f9f9f9;
       border-radius: 8px;
       width: 120px;
-      padding: 10px;
+      height: 250px;
+      padding: 0;
       text-align: center;
-      font-size: 0.75em;
+      font-size: 0.9em;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
+    .cast-card img,
     .related-card img {
       width: 100%;
-      border-radius: 5px;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 5px 5px 0 0;
+      margin: 0;
+    }
+    .cast-card strong {
+      display: block;
+      font-size: 1em;
+      color: #000;
+      font-weight: bold;
+    }
+    .cast-card div:last-child {
+      font-size: 0.85em;
+      color: #555;
+    }
+    .review-card {
+      flex: 0 0 250px;
+      background: #eef;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.85em;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .review-card strong {
+      display: block;
       margin-bottom: 5px;
+      color: #444;
+    }
+    .hidden {
+      display: none;
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div id="movieContent">Loading...</div>
-  </div>  <script>
+    <div id="movieContent" class="fade-in">Loading...</div>
+  </div>
+  <script>
     const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
     const params = new URLSearchParams(location.search);
     const title = params.get("title");
     const gdLink = params.get("gd");
     const year = params.get("year") || "";
-
+    const container = document.getElementById("movieContent");
     const cacheKey = `movie_${title?.toLowerCase().replace(/\s+/g, '_')}_${year}`;
-    const cachedData = JSON.parse(localStorage.getItem(cacheKey) || "null");
-    const now = Date.now();
+    const now = Date.now();const inr = n => n ? `₹${(n * 83).toLocaleString("en-IN")}` : "Unknown";
 
-    if (!title || !gdLink) {
-      document.getElementById("movieContent").innerHTML = `<h3>Movie data missing!</h3>`;
-    } else if (cachedData && now - cachedData.timestamp < 7 * 24 * 60 * 60 * 1000) {
-      renderMovie(cachedData.data);
-    } else {
-      fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year ? `&year=${year}` : ""}&api_key=${apiKey}`)
-        .then(res => res.json())
-        .then(async data => {
-          const movie = data.results?.[0];
-          if (!movie) return;
+function showError(msg) {
+  container.innerHTML = `<h3>${msg}</h3>`;
+}
 
-          const id = movie.id;
-          const [details, images, videos, similar] = await Promise.all([
-            fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`).then(r => r.json()),
-            fetch(`https://api.themoviedb.org/3/movie/${id}/images?api_key=${apiKey}`).then(r => r.json()),
-            fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`).then(r => r.json()),
-            fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`).then(r => r.json())
-          ]);
-
-          const poster = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
-          const backdrops = images.backdrops.slice(0, 8).map(img => `https://image.tmdb.org/t/p/w500${img.file_path}`);
-          const trailerKey = videos.results.find(v => v.type === "Trailer")?.key;
-          const related = similar.results.slice(0, 4).map(m => ({
-            title: m.title,
-            poster: `https://image.tmdb.org/t/p/w300${m.poster_path}`
-          }));
-
-          const result = {
-            title: movie.title,
-            poster,
-            overview: details.overview,
-            rating: details.vote_average,
-            backdrops,
-            trailerKey,
-            related
-          };
-
-          localStorage.setItem(cacheKey, JSON.stringify({ data: result, timestamp: now }));
-          renderMovie(result);
-        });
-    }
-
-    function renderMovie(data) {
-      const container = document.getElementById("movieContent");
-      const fileId = gdLink.split("/file/d/")[1]?.split("/")[0];
-      const downloadLink = `https://drive.google.com/uc?id=${fileId}&export=download`;
-
-      const countKey = `views_${title}`;
-      const views = parseInt(localStorage.getItem(countKey)) || 1;
-
-      const updateView = () => {
-        const newViews = views + 1;
-        localStorage.setItem(countKey, newViews);
-        document.getElementById("viewsCount").textContent = newViews;
-      };
-
-      container.innerHTML = `
-        <img src="${data.poster}" class="poster" loading="lazy">
-        <div class="title">${data.title}</div>
-        <div class="rating">IMDb Rating: ${data.rating.toFixed(1)} ⭐</div>
-        <div class="description">${data.overview}</div>
-
-        <div class="buttons">
-          <a href="${downloadLink}" onclick="(${updateView.toString()})()">Download</a>
-          <a href="${gdLink}" onclick="(${updateView.toString()})()">Watch</a>
-        </div>
-
-        <div class="views">
-          <img src="view.png" height="20"> <span id="viewsCount">${views}</span>
-        </div>
-
-        ${data.trailerKey ? `<h3>Trailer</h3><iframe src="https://www.youtube.com/embed/${data.trailerKey}" loading="lazy"></iframe>` : ""}
-
-        <h3>Movie Pics</h3>
-        <div class="images">
-          ${data.backdrops.map(src => `<img src="${src}" loading="lazy">`).join("")}
-        </div>
-
-        <h3>Related Movies</h3>
-        <div class="related-container">
-          ${data.related.map(m => `
-            <div class="related-card">
-              <img src="${m.poster}" loading="lazy">
-              <div>${m.title}</div>
-            </div>`).join("")}
-        </div>
-      `;
-    }
-  </script>  <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(() => console.log("✅ Service Worker Registered"))
-      .catch(err => console.log("❌ Service Worker Failed", err));
+if (!title || !gdLink) {
+  showError("Movie data missing!");
+} else {
+  const cachedData = JSON.parse(localStorage.getItem(cacheKey) || "null");
+  if (cachedData && now - cachedData.timestamp < 7 * 24 * 60 * 60 * 1000) {
+    renderMovie(cachedData.data);
+  } else {
+    fetchMovieData();
   }
-</script></body>
+}
+
+async function fetchMovieData() {
+  try {
+    const search = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year ? `&year=${year}` : ""}&api_key=${apiKey}`);
+    const searchData = await search.json();
+    const movie = searchData.results?.[0];
+    if (!movie) return showError("Movie not found!");
+
+    const id = movie.id;
+    const [details, images, videos, similar, credits, reviews] = await Promise.all([
+      fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`).then(r => r.json()),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/images?api_key=${apiKey}`).then(r => r.json()),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`).then(r => r.json()),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`).then(r => r.json()),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/credits?api_key=${apiKey}`).then(r => r.json()),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/reviews?api_key=${apiKey}`).then(r => r.json())
+    ]);
+
+    const result = {
+      title: movie.title,
+      poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+      overview: details.overview,
+      rating: details.vote_average,
+      release: details.release_date || "Unknown",
+      revenue: details.revenue || 0,
+      budget: details.budget || 0,
+      director: credits.crew.find(c => c.job === "Director")?.name || "Unknown",
+      cast: credits.cast.slice(0, 8).map(a => ({
+        name: a.name,
+        character: a.character,
+        profile: a.profile_path ? `https://image.tmdb.org/t/p/w185${a.profile_path}` : 'fallback.jpg'
+      })),
+      reviews: reviews.results.slice(0, 5).map(r => ({ author: r.author, content: r.content })),
+      backdrops: images.backdrops.slice(0, 6).map(i => `https://image.tmdb.org/t/p/w500${i.file_path}`),
+      trailerKey: videos.results.find(v => v.type === "Trailer")?.key,
+      related: similar.results.slice(0, 5).map(m => ({
+        title: m.title,
+        poster: `https://image.tmdb.org/t/p/w300${m.poster_path}`
+      }))
+    };
+
+    localStorage.setItem(cacheKey, JSON.stringify({ data: result, timestamp: Date.now() }));
+    renderMovie(result);
+  } catch (e) {
+    console.warn("Fetch error", e);
+    showError("Failed to load movie data.");
+  }
+}
+
+function renderMovie(data) {
+  const fileId = gdLink.split("/file/d/")[1]?.split("/")[0];
+  const downloadLink = `https://drive.google.com/uc?id=${fileId}&export=download`;
+  const viewsKey = `views_${title}`;
+  const views = parseInt(localStorage.getItem(viewsKey)) || 1;
+
+  const updateView = () => {
+    const newViews = views + 1;
+    localStorage.setItem(viewsKey, newViews);
+    document.getElementById("viewsCount").textContent = newViews;
+  };
+
+  container.innerHTML = `
+    <img src="${data.poster}" class="poster" loading="lazy">
+    <div class="title">${data.title}</div>
+    <div class="rating">IMDb Rating: ${data.rating.toFixed(1)} ⭐</div>
+    <div class="description">${data.overview}</div>
+
+    <div class="meta-box">
+      <div><strong>Release:</strong> ${data.release}</div>
+      <div><strong>Director:</strong> ${data.director}</div>
+      <div><strong>Budget:</strong> ${inr(data.budget)}</div>
+      <div><strong>Revenue:</strong> ${inr(data.revenue)}</div>
+    </div>
+
+    <div class="buttons">
+      <a href="${downloadLink}" onclick="(${updateView.toString()})()">Download</a>
+      <a href="${gdLink}" onclick="(${updateView.toString()})()">Watch</a>
+    </div>
+
+    <div class="views">
+      <img src="view.png" height="20"> <span id="viewsCount">${views}</span>
+    </div>
+
+    <h3>Top Cast</h3>
+    <div class="cast-container">
+      ${data.cast.map(actor => `
+        <div class="cast-card" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(actor.name)}', '_blank')">
+          <img src="${actor.profile}" alt="${actor.name}" loading="lazy">
+          <strong>${actor.name}</strong>
+          <div>${actor.character}</div>
+        </div>`).join("")}
+    </div>
+
+    ${data.trailerKey ? `<h3>Trailer</h3><iframe src="https://www.youtube.com/embed/${data.trailerKey}" loading="lazy"></iframe>` : ""}
+
+    <h3>Movie Pics</h3>
+    <div class="images">
+      ${data.backdrops.map(src => `<img src="${src}" loading="lazy">`).join("")}
+    </div>
+
+    <h3>Reviews</h3>
+    <div class="review-container">
+      ${data.reviews.length ? data.reviews.map(r => `
+        <div class="review-card">
+          <strong>${r.author}</strong>
+          ${r.content.slice(0, 130)}...
+        </div>`).join("") : `<div class="review-card">No reviews found.</div>`}
+    </div>
+
+    <h3>Related Movies</h3>
+    <div class="related-container">
+      ${data.related.map(m => `
+        <div class="related-card">
+          <img src="${m.poster}" loading="lazy">
+          <div>${m.title}</div>
+        </div>`).join("")}
+    </div>
+  `;
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' })
+    .then(() => console.log("✅ Service Worker Registered"))
+    .catch(err => console.log("❌ Service Worker Failed", err));
+}
+
+  </script>
+</body>
 </html>
