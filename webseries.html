@@ -189,36 +189,46 @@
     <div id="loading-text">Loading<span><span>.</span><span>.</span><span>.</span></span></div>
   </div>
   <script>
-    const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
-    const params = new URLSearchParams(location.search);
-    const title = params.get("title") || "";
-    const eps = params.get("eps") || "";
-    const year = params.get("year") || "";const cacheKey = `tv_${title.toLowerCase()}_${year}`;
-const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
-const now = Date.now();
-
-if (cached && now - cached.timestamp < 7 * 24 * 60 * 60 * 1000) {
-  renderData(cached.data);
-} else {
-  fetch(`https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(title)}${year ? `&first_air_date_year=${year}` : ""}&api_key=${apiKey}`)
-    .then(r => r.json())
-    .then(async data => {
-      const show = data.results?.[0];
-      if (!show) return;
-      const id = show.id;
-      const [details, images, videos, similar] = await Promise.all([
-        fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}`).then(r => r.json()),
-        fetch(`https://api.themoviedb.org/3/tv/${id}/images?api_key=${apiKey}`).then(r => r.json()),
-        fetch(`https://api.themoviedb.org/3/tv/${id}/videos?api_key=${apiKey}`).then(r => r.json()),
-        fetch(`https://api.themoviedb.org/3/tv/${id}/similar?api_key=${apiKey}`).then(r => r.json())
-      ]);
-
+  const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
+  const params = new URLSearchParams(location.search);
+  const title = params.get("title") || "";
+  const eps = params.get("eps") || "";
+  const year = params.get("year") || "";
+  const seriesId = params.get("seriesId") || "";
+  
+  const cacheKey = `tv_${seriesId || (title.toLowerCase() + "_" + year)}`;
+  const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
+  const now = Date.now();
+  
+  if (cached && now - cached.timestamp < 7 * 24 * 60 * 60 * 1000) {
+    renderData(cached.data);
+  } else {
+    if (seriesId) {
+      fetchSeriesById(seriesId);
+    } else {
+      fetch(`https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(title)}${year ? `&first_air_date_year=${year}` : ""}&api_key=${apiKey}`)
+        .then(r => r.json())
+        .then(data => {
+          const show = data.results?.[0];
+          if (!show) return;
+          fetchSeriesById(show.id);
+        });
+    }
+  }
+  
+  function fetchSeriesById(id) {
+    Promise.all([
+      fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}`).then(r => r.json()),
+      fetch(`https://api.themoviedb.org/3/tv/${id}/images?api_key=${apiKey}`).then(r => r.json()),
+      fetch(`https://api.themoviedb.org/3/tv/${id}/videos?api_key=${apiKey}`).then(r => r.json()),
+      fetch(`https://api.themoviedb.org/3/tv/${id}/similar?api_key=${apiKey}`).then(r => r.json())
+    ]).then(([details, images, videos, similar]) => {
       const trailerKey = videos.results.find(v => v.type === "Trailer")?.key;
       const related = similar.results.slice(0, 4).map(m => ({
         title: m.name,
         poster: `https://image.tmdb.org/t/p/w300${m.poster_path}`
       }));
-
+      
       const result = {
         title: details.name,
         overview: details.overview,
@@ -228,82 +238,81 @@ if (cached && now - cached.timestamp < 7 * 24 * 60 * 60 * 1000) {
         trailerKey,
         related
       };
-
+      
       localStorage.setItem(cacheKey, JSON.stringify({ data: result, timestamp: now }));
       renderData(result);
     });
-}
-
-function renderData(result) {
-  document.getElementById("loader").style.display = "none";
-  document.getElementById("mainContent").style.display = "block";
-
-  document.getElementById("poster-section").innerHTML = `<img src="${result.poster}" class="poster" loading="lazy">`;
-  document.getElementById("series-title").textContent = result.title;
-  document.getElementById("series-rating").textContent = `IMDb Rating: ${result.rating}⭐`;
-  document.getElementById("series-description").textContent = result.overview;
-
-  const episodesContainer = document.getElementById("episodes");
-  episodesContainer.innerHTML = "";
-  const seasons = eps.split(":::");
-
-  seasons.forEach((seasonStr, i) => {
-    const seasonId = `season-${i}`;
-    const titleEl = document.createElement("div");
-    titleEl.className = "season-title";
-    titleEl.textContent = `Season ${i + 1}`;
-    titleEl.onclick = () => {
-      document.querySelectorAll(".season-content").forEach(el => el.classList.remove("active"));
-      document.getElementById(seasonId).classList.add("active");
-    };
-
-    const seasonDiv = document.createElement("div");
-    seasonDiv.id = seasonId;
-    seasonDiv.className = "season-content";
-
-    const episodeLinks = seasonStr.split(/\s*,\s*/).filter(Boolean);
-    for (let j = 0; j < episodeLinks.length; j++) {
-      const link = episodeLinks[j];
-      const match = link.match(/\/file\/d\/([^/]+)/);
-      const fileId = match ? match[1] : null;
-
-      const group = document.createElement("div");
-      group.className = "episode-block";
-
-      const watchBtn = document.createElement("a");
-      watchBtn.href = fileId ? link : "#";
-      watchBtn.textContent = `Watch Ep ${j + 1}`;
-      watchBtn.target = "_blank";
-
-      const downloadBtn = document.createElement("a");
-      downloadBtn.href = fileId ? `https://drive.google.com/uc?id=${fileId}&export=download` : "#";
-      downloadBtn.textContent = `Download Ep ${j + 1}`;
-      downloadBtn.target = "_blank";
-
-      group.appendChild(watchBtn);
-      group.appendChild(downloadBtn);
-      seasonDiv.appendChild(group);
-    }
-
-    episodesContainer.appendChild(titleEl);
-    episodesContainer.appendChild(seasonDiv);
-  });
-
-  document.getElementById("trailer-title").textContent = result.trailerKey ? "Trailer" : "";
-  document.getElementById("trailer-section").innerHTML = result.trailerKey ?
-    `<iframe src="https://www.youtube.com/embed/${result.trailerKey}" loading="lazy"></iframe>` : "";
-
-  const gallery = document.getElementById("image-gallery");
-  gallery.innerHTML = result.backdrops.map(src => `<img src="${src}" loading="lazy">`).join("");
-
-  const related = document.getElementById("related-shows");
-  related.innerHTML = result.related.map(r => `
+  }
+  
+  function renderData(result) {
+    document.getElementById("loader").style.display = "none";
+    document.getElementById("mainContent").style.display = "block";
+    
+    document.getElementById("poster-section").innerHTML = `<img src="${result.poster}" class="poster" loading="lazy">`;
+    document.getElementById("series-title").textContent = result.title;
+    document.getElementById("series-rating").textContent = `IMDb Rating: ${result.rating}⭐`;
+    document.getElementById("series-description").textContent = result.overview;
+    
+    const episodesContainer = document.getElementById("episodes");
+    episodesContainer.innerHTML = "";
+    const seasons = eps.split(":::");
+    
+    seasons.forEach((seasonStr, i) => {
+      const seasonId = `season-${i}`;
+      const titleEl = document.createElement("div");
+      titleEl.className = "season-title";
+      titleEl.textContent = `Season ${i + 1}`;
+      titleEl.onclick = () => {
+        document.querySelectorAll(".season-content").forEach(el => el.classList.remove("active"));
+        document.getElementById(seasonId).classList.add("active");
+      };
+      
+      const seasonDiv = document.createElement("div");
+      seasonDiv.id = seasonId;
+      seasonDiv.className = "season-content";
+      
+      const episodeLinks = seasonStr.split(/\s*,\s*/).filter(Boolean);
+      for (let j = 0; j < episodeLinks.length; j++) {
+        const link = episodeLinks[j];
+        const match = link.match(/\/file\/d\/([^/]+)/);
+        const fileId = match ? match[1] : null;
+        
+        const group = document.createElement("div");
+        group.className = "episode-block";
+        
+        const watchBtn = document.createElement("a");
+        watchBtn.href = fileId ? link : "#";
+        watchBtn.textContent = `Watch Ep ${j + 1}`;
+        watchBtn.target = "_blank";
+        
+        const downloadBtn = document.createElement("a");
+        downloadBtn.href = fileId ? `https://drive.google.com/uc?id=${fileId}&export=download` : "#";
+        downloadBtn.textContent = `Download Ep ${j + 1}`;
+        downloadBtn.target = "_blank";
+        
+        group.appendChild(watchBtn);
+        group.appendChild(downloadBtn);
+        seasonDiv.appendChild(group);
+      }
+      
+      episodesContainer.appendChild(titleEl);
+      episodesContainer.appendChild(seasonDiv);
+    });
+    
+    document.getElementById("trailer-title").textContent = result.trailerKey ? "Trailer" : "";
+    document.getElementById("trailer-section").innerHTML = result.trailerKey ?
+      `<iframe src="https://www.youtube.com/embed/${result.trailerKey}" loading="lazy"></iframe>` : "";
+    
+    const gallery = document.getElementById("image-gallery");
+    gallery.innerHTML = result.backdrops.map(src => `<img src="${src}" loading="lazy">`).join("");
+    
+    const related = document.getElementById("related-shows");
+    related.innerHTML = result.related.map(r => `
     <div class="related-card">
       <img src="${r.poster}" loading="lazy">
       <div>${r.title}</div>
     </div>`).join("");
-}
-
-  </script>
+  }
+</script>
 </body>
 </html>

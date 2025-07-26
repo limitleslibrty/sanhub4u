@@ -123,88 +123,120 @@ gd=https://drive.google.com/file/d/1IvcisNEykuMhdGo6-yNpep0pvbhoh-x8/view?usp=dr
  </div>
 </a>
 </div>
-   <script>
- const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
- 
- // Fetch movie poster
- async function getMoviePoster(title, year = "") {
-  const cacheKey = `thumb_${title.toLowerCase().replace(/\s+/g, "_")}_${year}`;
-  const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
-  const now = Date.now();
+     
+
+<script>
+  const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
   
-  if (cached && now - cached.timestamp < 7 * 24 * 60 * 60 * 1000) {
-   return cached.url;
+  // Fetch Movie Thumbnail
+  async function getMoviePoster(title, year = "", movieId = "") {
+    const cacheKey = movieId ?
+      `thumb_id_${movieId}` :
+      `thumb_${title.toLowerCase().replace(/\s+/g, "_")}_${year}`;
+    const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
+    const now = Date.now();
+    if (cached && now - cached.timestamp < 7 * 24 * 60 * 60 * 1000) return cached.url;
+    
+    try {
+      const url = movieId ?
+        `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}` :
+        `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year ? `&year=${year}` : ""}&api_key=${apiKey}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const poster = movieId ? data.poster_path : data.results?.[0]?.poster_path;
+      if (poster) {
+        const fullUrl = `https://image.tmdb.org/t/p/w500${poster}`;
+        localStorage.setItem(cacheKey, JSON.stringify({ url: fullUrl, timestamp: now }));
+        return fullUrl;
+      }
+    } catch (e) {
+      console.warn("Movie fetch failed:", title, movieId);
+    }
+    return "fallback.jpg";
   }
   
-  try {
-   const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year ? `&year=${year}` : ""}&api_key=${apiKey}`;
-   const res = await fetch(url);
-   const data = await res.json();
-   const poster = data.results?.[0]?.poster_path;
-   if (poster) {
-    const fullUrl = `https://image.tmdb.org/t/p/w500${poster}`;
-    localStorage.setItem(cacheKey, JSON.stringify({ url: fullUrl, timestamp: now }));
-    return fullUrl;
-   }
-  } catch (e) {
-   console.warn("Movie poster fetch failed:", title);
+  // Fetch TV Thumbnail
+  async function getTVPoster(title, year = "", seriesId = "") {
+    const cacheKey = seriesId ?
+      `tv_id_thumb_${seriesId}` :
+      `tv_thumb_${title.toLowerCase()}_${year}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return cached;
+    try {
+      const url = seriesId ?
+        `https://api.themoviedb.org/3/tv/${seriesId}?api_key=${apiKey}` :
+        `https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(title)}${year ? `&first_air_date_year=${year}` : ""}&api_key=${apiKey}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const poster = seriesId ? data.poster_path : data.results?.[0]?.poster_path;
+      if (poster) {
+        const fullUrl = `https://image.tmdb.org/t/p/w500${poster}`;
+        localStorage.setItem(cacheKey, fullUrl);
+        return fullUrl;
+      }
+    } catch (e) {
+      console.warn("TV fetch failed:", title, seriesId);
+    }
+    return "fallback.jpg";
   }
   
-  return "";
- }
- 
- // Fetch webseries poster
- async function getTVPoster(title, year = "") {
-  const cacheKey = `tv_thumb_${title.toLowerCase()}_${year}`;
-  const cached = localStorage.getItem(cacheKey);
-  if (cached) return cached;
-  
-  try {
-   const url = `https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(title)}${year ? `&first_air_date_year=${year}` : ""}&api_key=${apiKey}`;
-   const res = await fetch(url);
-   const data = await res.json();
-   const poster = data.results?.[0]?.poster_path;
-   if (poster) {
-    const fullUrl = `https://image.tmdb.org/t/p/w500${poster}`;
-    localStorage.setItem(cacheKey, fullUrl);
-    return fullUrl;
-   }
-  } catch (e) {
-   console.warn("TV poster fetch failed:", title);
+  // Load poster into card
+  async function loadPoster(card) {
+    const anchor = card.closest("a");
+    const img = card.querySelector("img");
+    const h3 = card.querySelector(".movie-title");
+    const year = card.dataset.year || "";
+    const movieId = card.dataset.movieid || "";
+    const seriesId = card.dataset.seriesid || "";
+    if (!img || !anchor) return;
+    
+    let title = "";
+    let posterUrl = "";
+    
+    if (anchor.href.includes("webseries.html")) {
+      const url = new URL(anchor.href, location.href);
+      title = url.searchParams.get("title")?.trim();
+      if (title || seriesId) posterUrl = await getTVPoster(title, year, seriesId);
+    } else if (anchor.href.includes("movie.html")) {
+      title = h3?.innerText?.trim();
+      if (title || movieId) posterUrl = await getMoviePoster(title, year, movieId);
+    }
+    
+    if (posterUrl) {
+      img.style.filter = "blur(10px)";
+      img.style.transition = "filter 0.4s ease";
+      img.src = posterUrl;
+      img.onload = () => img.style.filter = "blur(0)";
+    }
   }
   
-  return "";
- }
- 
- // Apply thumbnails to all cards
- async function applyThumbnails() {
-  const cards = document.querySelectorAll(".movie-card");
-  
-  for (const card of cards) {
-   const anchor = card.closest("a");
-   const img = card.querySelector("img");
-   const h3 = card.querySelector(".movie-title");
-   const year = card.dataset.year || "";
-   
-   if (!anchor || !img) continue;
-   
-   let title = "";
-   let posterUrl = "";
-   
-   if (anchor.href.includes("webseries.html")) {
-    const url = new URL(anchor.href, location.href);
-    title = url.searchParams.get("title")?.trim();
-    if (title) posterUrl = await getTVPoster(title, year);
-   } else if (anchor.href.includes("movie.html")) {
-    title = h3?.innerText?.trim();
-    if (title) posterUrl = await getMoviePoster(title, year);
-   }
-   
-   if (posterUrl) img.src = posterUrl;
+  // Lazy observer
+  function observeCards() {
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(async entry => {
+        if (entry.isIntersecting) {
+          const card = entry.target;
+          await loadPoster(card);
+          obs.unobserve(card);
+        }
+      });
+    }, {
+      rootMargin: "150px",
+      threshold: 0.1
+    });
+    
+    const cards = document.querySelectorAll(".movie-card");
+    cards.forEach(card => observer.observe(card));
+    
+    // Fallback: load top visible cards immediately
+    setTimeout(() => {
+      cards.forEach((card, idx) => {
+        if (idx < 4) loadPoster(card); // Try loading first 4 immediately
+      });
+    }, 200);
   }
- }
- 
- document.addEventListener("DOMContentLoaded", applyThumbnails);
+  
+  document.addEventListener("DOMContentLoaded", observeCards);
 </script>
  </body>
 </html>

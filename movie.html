@@ -179,91 +179,99 @@
     <div id="movieContent" class="fade-in">Loading...</div>
   </div>
   <script>
-    const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
-    const params = new URLSearchParams(location.search);
-    const title = params.get("title");
-    const gdLink = params.get("gd");
-    const year = params.get("year") || "";
-    const container = document.getElementById("movieContent");
-    const cacheKey = `movie_${title?.toLowerCase().replace(/\s+/g, '_')}_${year}`;
-    const now = Date.now();const inr = n => n ? `₹${(n * 83).toLocaleString("en-IN")}` : "Unknown";
-
-function showError(msg) {
-  container.innerHTML = `<h3>${msg}</h3>`;
-}
-
-if (!title || !gdLink) {
-  showError("Movie data missing!");
-} else {
-  const cachedData = JSON.parse(localStorage.getItem(cacheKey) || "null");
-  if (cachedData && now - cachedData.timestamp < 7 * 24 * 60 * 60 * 1000) {
-    renderMovie(cachedData.data);
+  const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
+  const params = new URLSearchParams(location.search);
+  const title = params.get("title");
+  const gdLink = params.get("gd");
+  const year = params.get("year") || "";
+  const movieId = params.get("movieId") || "";
+  const container = document.getElementById("movieContent");
+  
+  const idKey = movieId || `${title?.toLowerCase().replace(/\s+/g, "_")}_${year}`;
+  const cacheKey = `movie_${idKey}`;
+  const now = Date.now();
+  
+  const inr = n => n ? `₹${(n * 83).toLocaleString("en-IN")}` : "Unknown";
+  
+  function showError(msg) {
+    container.innerHTML = `<h3>${msg}</h3>`;
+  }
+  
+  if (!title || !gdLink) {
+    showError("Movie data missing!");
   } else {
-    fetchMovieData();
+    const cachedData = JSON.parse(localStorage.getItem(cacheKey) || "null");
+    if (cachedData && now - cachedData.timestamp < 7 * 24 * 60 * 60 * 1000) {
+      renderMovie(cachedData.data);
+    } else {
+      fetchMovieData();
+    }
   }
-}
-
-async function fetchMovieData() {
-  try {
-    const search = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year ? `&year=${year}` : ""}&api_key=${apiKey}`);
-    const searchData = await search.json();
-    const movie = searchData.results?.[0];
-    if (!movie) return showError("Movie not found!");
-
-    const id = movie.id;
-    const [details, images, videos, similar, credits, reviews] = await Promise.all([
-      fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`).then(r => r.json()),
-      fetch(`https://api.themoviedb.org/3/movie/${id}/images?api_key=${apiKey}`).then(r => r.json()),
-      fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`).then(r => r.json()),
-      fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`).then(r => r.json()),
-      fetch(`https://api.themoviedb.org/3/movie/${id}/credits?api_key=${apiKey}`).then(r => r.json()),
-      fetch(`https://api.themoviedb.org/3/movie/${id}/reviews?api_key=${apiKey}`).then(r => r.json())
-    ]);
-
-    const result = {
-      title: movie.title,
-      poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-      overview: details.overview,
-      rating: details.vote_average,
-      release: details.release_date || "Unknown",
-      revenue: details.revenue || 0,
-      budget: details.budget || 0,
-      director: credits.crew.find(c => c.job === "Director")?.name || "Unknown",
-      cast: credits.cast.slice(0, 8).map(a => ({
-        name: a.name,
-        character: a.character,
-        profile: a.profile_path ? `https://image.tmdb.org/t/p/w185${a.profile_path}` : 'fallback.jpg'
-      })),
-      reviews: reviews.results.slice(0, 5).map(r => ({ author: r.author, content: r.content })),
-      backdrops: images.backdrops.slice(0, 6).map(i => `https://image.tmdb.org/t/p/w500${i.file_path}`),
-      trailerKey: videos.results.find(v => v.type === "Trailer")?.key,
-      related: similar.results.slice(0, 5).map(m => ({
-        title: m.title,
-        poster: `https://image.tmdb.org/t/p/w300${m.poster_path}`
-      }))
+  
+  async function fetchMovieData() {
+    try {
+      let id = movieId;
+      if (!id) {
+        const search = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year ? `&year=${year}` : ""}&api_key=${apiKey}`);
+        const searchData = await search.json();
+        const movie = searchData.results?.[0];
+        if (!movie) return showError("Movie not found!");
+        id = movie.id;
+      }
+      
+      const [details, images, videos, similar, credits, reviews] = await Promise.all([
+        fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/movie/${id}/images?api_key=${apiKey}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/movie/${id}/credits?api_key=${apiKey}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/movie/${id}/reviews?api_key=${apiKey}`).then(r => r.json())
+      ]);
+      
+      const result = {
+        title: details.title,
+        poster: `https://image.tmdb.org/t/p/w500${details.poster_path}`,
+        overview: details.overview,
+        rating: details.vote_average,
+        release: details.release_date || "Unknown",
+        revenue: details.revenue || 0,
+        budget: details.budget || 0,
+        director: credits.crew.find(c => c.job === "Director")?.name || "Unknown",
+        cast: credits.cast.slice(0, 8).map(a => ({
+          name: a.name,
+          character: a.character,
+          profile: a.profile_path ? `https://image.tmdb.org/t/p/w185${a.profile_path}` : 'fallback.jpg'
+        })),
+        reviews: reviews.results.slice(0, 5).map(r => ({ author: r.author, content: r.content })),
+        backdrops: images.backdrops.slice(0, 6).map(i => `https://image.tmdb.org/t/p/w500${i.file_path}`),
+        trailerKey: videos.results.find(v => v.type === "Trailer")?.key,
+        related: similar.results.slice(0, 5).map(m => ({
+          title: m.title,
+          poster: `https://image.tmdb.org/t/p/w300${m.poster_path}`
+        }))
+      };
+      
+      localStorage.setItem(cacheKey, JSON.stringify({ data: result, timestamp: Date.now() }));
+      renderMovie(result);
+    } catch (e) {
+      console.warn("Fetch error", e);
+      showError("Failed to load movie data.");
+    }
+  }
+  
+  function renderMovie(data) {
+    const fileId = gdLink.split("/file/d/")[1]?.split("/")[0];
+    const downloadLink = `https://drive.google.com/uc?id=${fileId}&export=download`;
+    const viewsKey = `views_${title}`;
+    const views = parseInt(localStorage.getItem(viewsKey)) || 1;
+    
+    const updateView = () => {
+      const newViews = views + 1;
+      localStorage.setItem(viewsKey, newViews);
+      document.getElementById("viewsCount").textContent = newViews;
     };
-
-    localStorage.setItem(cacheKey, JSON.stringify({ data: result, timestamp: Date.now() }));
-    renderMovie(result);
-  } catch (e) {
-    console.warn("Fetch error", e);
-    showError("Failed to load movie data.");
-  }
-}
-
-function renderMovie(data) {
-  const fileId = gdLink.split("/file/d/")[1]?.split("/")[0];
-  const downloadLink = `https://drive.google.com/uc?id=${fileId}&export=download`;
-  const viewsKey = `views_${title}`;
-  const views = parseInt(localStorage.getItem(viewsKey)) || 1;
-
-  const updateView = () => {
-    const newViews = views + 1;
-    localStorage.setItem(viewsKey, newViews);
-    document.getElementById("viewsCount").textContent = newViews;
-  };
-
-  container.innerHTML = `
+    
+    container.innerHTML = `
     <img src="${data.poster}" class="poster" loading="lazy">
     <div class="title">${data.title}</div>
     <div class="rating">IMDb Rating: ${data.rating.toFixed(1)} ⭐</div>
@@ -320,14 +328,16 @@ function renderMovie(data) {
         </div>`).join("")}
     </div>
   `;
-}
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' })
-    .then(() => console.log("✅ Service Worker Registered"))
-    .catch(err => console.log("❌ Service Worker Failed", err));
-}
-
-  </script>
+    
+    container.classList.remove("hidden");
+    container.classList.add("fade-in");
+  }
+  
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' })
+      .then(() => console.log("✅ Service Worker Registered"))
+      .catch(err => console.log("❌ Service Worker Failed", err));
+  }
+</script>
 </body>
 </html>
