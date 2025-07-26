@@ -848,12 +848,9 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
   <!-- Project -->
   <script src="main.js"></script>
   
-  
-
 <script>
   const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
 
-  // Fetch Movie Thumbnail
   async function getMoviePoster(title, year = "", movieId = "") {
     const cacheKey = movieId ?
       `thumb_id_${movieId}` :
@@ -880,7 +877,6 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
     return "fallback.jpg";
   }
 
-  // Fetch TV Thumbnail
   async function getTVPoster(title, year = "", seriesId = "") {
     const cacheKey = seriesId ?
       `tv_id_thumb_${seriesId}` :
@@ -905,17 +901,6 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
     return "fallback.jpg";
   }
 
-  // Retry wrapper
-  async function retry(fn, attempts = 3, delay = 500) {
-    for (let i = 0; i < attempts; i++) {
-      const result = await fn();
-      if (result !== "fallback.jpg") return result;
-      await new Promise(r => setTimeout(r, delay));
-    }
-    return "fallback.jpg";
-  }
-
-  // Load poster into card
   async function loadPoster(card) {
     const anchor = card.closest("a");
     const img = card.querySelector("img");
@@ -931,22 +916,21 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
     if (anchor.href.includes("webseries.html")) {
       const url = new URL(anchor.href, location.href);
       title = url.searchParams.get("title")?.trim();
-      if (title || seriesId) posterUrl = await retry(() => getTVPoster(title, year, seriesId));
+      if (title || seriesId) posterUrl = await getTVPoster(title, year, seriesId);
     } else if (anchor.href.includes("movie.html")) {
       title = h3?.innerText?.trim();
-      if (title || movieId) posterUrl = await retry(() => getMoviePoster(title, year, movieId));
+      if (title || movieId) posterUrl = await getMoviePoster(title, year, movieId);
     }
 
     if (posterUrl) {
+      img.setAttribute("crossorigin", "anonymous");
       img.style.filter = "blur(10px)";
       img.style.transition = "filter 0.4s ease";
       img.src = posterUrl;
       img.onload = () => img.style.filter = "blur(0)";
-      img.onerror = () => img.src = "fallback.jpg";
     }
   }
 
-  // Lazy observer
   function observeCards() {
     const observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(async entry => {
@@ -964,29 +948,16 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
     const cards = document.querySelectorAll(".movie-card");
     cards.forEach(card => observer.observe(card));
 
-    // Fallback: load top visible cards immediately
     setTimeout(() => {
       cards.forEach((card, idx) => {
-        if (idx < 4) loadPoster(card); // Try loading first 4 immediately
+        if (idx < 4) loadPoster(card);
       });
     }, 200);
   }
 
   document.addEventListener("DOMContentLoaded", observeCards);
-</script><script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(() => console.log("✅ Service Worker Registered"))
-      .catch(err => console.log("❌ Service Worker Failed", err));
-  }
 </script>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(() => console.log("✅ Service Worker Registered"))
-      .catch(err => console.log("❌ Service Worker Failed", err));
-  }
-</script>
+
 
 
 
