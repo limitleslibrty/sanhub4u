@@ -848,12 +848,20 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
   <!-- Project -->
   <script src="main.js"></script>
   
-<script>
+  <script>
   const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
-  const proxy = "https://plain-mountain-7a98.sanhub4u01.workers.dev/?url=";
+  const proxyBase = "https://plain-mountain-7a98.sanhub4u01.workers.dev/?url=";
   
+  // Helper to proxy image through Cloudflare Worker
+  function proxyImage(url) {
+    return `${proxyBase}${encodeURIComponent(url)}`;
+  }
+  
+  // Fetch Movie Poster
   async function getMoviePoster(title, year = "", movieId = "") {
-    const cacheKey = movieId ? `thumb_id_${movieId}` : `thumb_${title.toLowerCase().replace(/\s+/g, "_")}_${year}`;
+    const cacheKey = movieId ?
+      `thumb_id_${movieId}` :
+      `thumb_${title.toLowerCase().replace(/\s+/g, "_")}_${year}`;
     const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
     const now = Date.now();
     if (cached && now - cached.timestamp < 7 * 24 * 60 * 60 * 1000) return cached.url;
@@ -866,7 +874,7 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
       const data = await res.json();
       const poster = movieId ? data.poster_path : data.results?.[0]?.poster_path;
       if (poster) {
-        const fullUrl = proxy + encodeURIComponent(`https://image.tmdb.org/t/p/w500${poster}`);
+        const fullUrl = proxyImage(`https://image.tmdb.org/t/p/w500${poster}`);
         localStorage.setItem(cacheKey, JSON.stringify({ url: fullUrl, timestamp: now }));
         return fullUrl;
       }
@@ -876,8 +884,11 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
     return "fallback.jpg";
   }
   
+  // Fetch TV Poster
   async function getTVPoster(title, year = "", seriesId = "") {
-    const cacheKey = seriesId ? `tv_id_thumb_${seriesId}` : `tv_thumb_${title.toLowerCase()}_${year}`;
+    const cacheKey = seriesId ?
+      `tv_id_thumb_${seriesId}` :
+      `tv_thumb_${title.toLowerCase()}_${year}`;
     const cached = localStorage.getItem(cacheKey);
     if (cached) return cached;
     try {
@@ -888,7 +899,7 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
       const data = await res.json();
       const poster = seriesId ? data.poster_path : data.results?.[0]?.poster_path;
       if (poster) {
-        const fullUrl = proxy + encodeURIComponent(`https://image.tmdb.org/t/p/w500${poster}`);
+        const fullUrl = proxyImage(`https://image.tmdb.org/t/p/w500${poster}`);
         localStorage.setItem(cacheKey, fullUrl);
         return fullUrl;
       }
@@ -898,6 +909,7 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
     return "fallback.jpg";
   }
   
+  // Load image into card
   async function loadPoster(card) {
     const anchor = card.closest("a");
     const img = card.querySelector("img");
@@ -921,13 +933,14 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
     
     if (posterUrl) {
       img.setAttribute("crossorigin", "anonymous");
-      img.style.filter = "blur(10px)";
-      img.style.transition = "filter 0.4s ease";
+      img.setAttribute("referrerpolicy", "no-referrer");
       img.src = posterUrl;
-      img.onload = () => img.style.filter = "blur(0)";
+      img.loading = "lazy";
+      img.onerror = () => { img.src = "fallback.jpg"; };
     }
   }
   
+  // Lazy load images
   function observeCards() {
     const observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(async entry => {
@@ -938,19 +951,18 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
         }
       });
     }, {
-      rootMargin: "150px",
+      rootMargin: "200px",
       threshold: 0.1
     });
     
     const cards = document.querySelectorAll(".movie-card");
     cards.forEach(card => observer.observe(card));
     
-    // Fallback load
     setTimeout(() => {
       cards.forEach((card, idx) => {
-        if (idx < 4) loadPoster(card);
+        if (idx < 5) loadPoster(card);
       });
-    }, 200);
+    }, 100);
   }
   
   document.addEventListener("DOMContentLoaded", observeCards);
