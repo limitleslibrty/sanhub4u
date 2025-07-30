@@ -1,318 +1,149 @@
-<!DOCTYPE html><html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TYV1T063RV"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-TYV1T063RV');
-</script>
-  <title>Web Series</title>
-  <link rel="stylesheet" href="style.css" />
-  <meta name="theme-color" content="#ffffff">
+  <title>Web Series Details</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      border-radius: 10px;
-    }
-    .poster {
-      width: 100%;
-      border-radius: 10px;
-    }
-    .title {
-      text-align: center;
-      font-size: 2em;
-      margin: 10px 0;
-    }
-    .rating {
-      text-align: center;
-      font-size: 0.9em;
-      color: #666;
-    }
-    .description {
-      background: #f0f0f0;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 20px 0;
-      text-align: center;
-    }
-    .episode-block {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 10px 0;
-    }
-    .episode-block a {
-      padding: 8px 12px;
-      background-color: #0984AA;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 5px;
-      text-align: center;
-      flex: 1 1 45%;
-    }
-    .season-title {
-      font-weight: bold;
-      margin-top: 20px;
-      text-align: center;
-      font-size: 1.2em;
-      cursor: pointer;
-      background-color: #e3e3e3;
-      padding: 10px;
-      border-radius: 6px;
-      transition: background-color 0.3s;
-    }
-    .season-title:hover {
-      background-color: #d4d4d4;
-    }
-    .season-content {
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: all 0.4s ease;
-    }
-    .season-content.active {
-      max-height: 800px;
-      opacity: 1;
-      margin-bottom: 10px;
-    }
-    iframe {
-      width: 100%;
-      height: 250px;
-      border-radius: 10px;
-      border: none;
-      margin-bottom: 20px;
-    }
-    h3 {
-      text-align: center;
-    }
-    .images {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .images img {
-      width: 100%;
-      border-radius: 10px;
-    }
-    .related-container {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .related-card {
-      background-color: #f9f9f9;
-      border-radius: 8px;
-      width: 120px;
-      padding: 10px;
-      text-align: center;
-      font-size: 0.8em;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .related-card img {
-      width: 100%;
-      border-radius: 5px;
-      margin-bottom: 5px;
-    }
-    #loader {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 120px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(255,255,255,0.4);
-      backdrop-filter: blur(20px);
-      z-index: 999;
-    }
-    #loading-text {
-      font-size: 1.2em;
-      font-weight: 500;
-      color: #666;
-      background: rgba(255, 255, 255, 0.3);
-      padding: 20px 40px;
-      border-radius: 25px;
-      box-shadow: 6px 6px 12px #d1d9e6, -6px -6px 12px #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    #loading-text span {
-      opacity: 0;
-      animation: blink 1.2s infinite;
-    }
-    #loading-text span:nth-child(1) { animation-delay: 0s; }
-    #loading-text span:nth-child(2) { animation-delay: 0.2s; }
-    #loading-text span:nth-child(3) { animation-delay: 0.4s; }@keyframes blink {
-  0%, 20% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
+    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; color: #333; }
+    #loader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.6); backdrop-filter: blur(20px); z-index: 999; }
+    #loading-text { font-size: 1.2em; font-weight: 500; color: #666; background: rgba(255,255,255,0.3); padding: 20px 40px; border-radius: 25px; box-shadow: 6px 6px 12px #d1d9e6, -6px -6px 12px #ffffff; border: 1px solid rgba(255,255,255,0.6); }
+    .container { max-width: 800px; margin: 40px auto; padding: 20px; background: white; border-radius: 10px; }
+    .poster { width: 100%; border-radius: 10px; }
+    .title { text-align: center; font-size: 2em; margin: 10px 0; }
+    .rating { text-align: center; color: #666; margin: 5px 0; }
+    .description { background: #f0f0f0; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: center; }
+    .meta-box { background: #f4f8fb; border-left: 5px solid #0984AA; padding: 15px 20px; margin: 10px 0 20px; border-radius: 8px; }
+    .meta-box div { margin-bottom: 6px; }
+    .meta-box strong { display: inline-block; width: 90px; }
+    h3 { text-align: center; margin-top: 30px; }
+    .season-toggle { background: #e0e0e0; padding: 10px; margin: 10px 0; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: center; }
+    .season-block { display: none; padding: 10px 0; }
+    .episode-block { display: flex; justify-content: space-between; padding: 6px 10px; margin: 4px 0; background: #fafafa; border-radius: 5px; }
+    .button-row { display: flex; justify-content: space-between; gap: 10px; }
+    .button-row a { flex: 1; display: flex; align-items: center; justify-content: center; background-color: #55b4e7; color: white; padding: 8px 16px; border-radius: 10px; font-size: 14px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 8px rgba(0,0,0,0.15); transition: box-shadow 0.2s ease-in-out; }
+    .button-row a:hover { box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
+    .cast-container, .related-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; }
+    .cast-card, .related-card { flex: 0 0 auto; background: white; border: 1px solid #ccc; border-radius: 8px; width: 120px; height: 260px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; text-align: center; padding: 0; cursor: pointer; text-decoration: none; color: black; }
+    .cast-card img, .related-card img { width: 100%; height: 170px; object-fit: cover; border-radius: 8px 8px 0 0; }
+    .cast-card strong, .related-card div { padding: 6px 8px; text-align: center; }
+    .review-list { list-style: none; padding: 0; }
+    .review-list li { background: #eef; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+    .review-list strong { display: block; margin-bottom: 8px; color: #444; }
   </style>
 </head>
 <body>
+  <div id="loader"><div id="loading-text">Loading...</div></div>
   <div class="container" id="mainContent" style="display:none;">
-    <div id="poster-section"></div>
+    <img id="poster" class="poster" alt="poster" />
     <div class="title" id="series-title"></div>
     <div class="rating" id="series-rating"></div>
     <div class="description" id="series-description"></div>
+    <div class="meta-box" id="meta-info"></div>
     <h3>Episodes</h3>
     <div id="episodes"></div>
-    <h3 id="trailer-title"></h3>
-    <div id="trailer-section"></div>
-    <h3>Web Series Pics</h3>
-    <div class="images" id="image-gallery"></div>
+    <h3>Trailer</h3>
+    <div id="trailer"></div>
+    <h3>Star Cast</h3>
+    <div class="cast-container" id="star-cast"></div>
+    <h3>Reviews</h3>
+    <ul class="review-list" id="reviews"></ul>
     <h3>Related Shows</h3>
     <div class="related-container" id="related-shows"></div>
   </div>
-  <div id="loader">
-    <div id="loading-text">Loading<span><span>.</span><span>.</span><span>.</span></span></div>
-  </div>
   <script>
-  const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
-  const params = new URLSearchParams(location.search);
-  const title = params.get("title") || "";
-  const eps = params.get("eps") || "";
-  const year = params.get("year") || "";
-  const seriesId = params.get("seriesId") || "";
-  
-  const cacheKey = `tv_${seriesId || (title.toLowerCase() + "_" + year)}`;
-  const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
-  const now = Date.now();
-  
-  if (cached && now - cached.timestamp < 7 * 24 * 60 * 60 * 1000) {
-    renderData(cached.data);
-  } else {
-    if (seriesId) {
-      fetchSeriesById(seriesId);
-    } else {
-      fetch(`https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(title)}${year ? `&first_air_date_year=${year}` : ""}&api_key=${apiKey}`)
-        .then(r => r.json())
-        .then(data => {
-          const show = data.results?.[0];
-          if (!show) return;
-          fetchSeriesById(show.id);
+    const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
+    const params = new URLSearchParams(location.search);
+    const title = params.get("title") || "";
+    const img = params.get("img") || "fallback.jpg";
+    const eps = params.get("eps") || "";
+    const year = params.get("year") || "";
+    document.getElementById("poster").src = img;
+    document.getElementById("series-title").textContent = title;if (!title || !eps) {
+  document.getElementById("loading-text").textContent = "Missing parameters";
+} else {
+  fetch(`https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(title)}${year ? `&first_air_date_year=${year}` : ""}&api_key=${apiKey}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.results || !data.results.length) throw new Error("No data");
+      const id = data.results[0].id;
+      return Promise.all([
+        fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/tv/${id}/credits?api_key=${apiKey}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/tv/${id}/reviews?api_key=${apiKey}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/tv/${id}/videos?api_key=${apiKey}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/tv/${id}/similar?api_key=${apiKey}`).then(r => r.json())
+      ]);
+    })
+    .then(([details, credits, reviews, videos, similar]) => {
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+
+      document.getElementById("series-rating").textContent = `IMDb Rating: ${details.vote_average?.toFixed(1)} ⭐`;
+      document.getElementById("series-description").textContent = details.overview || "No description.";
+      document.getElementById("meta-info").innerHTML = `
+        <div><strong>Release:</strong> ${details.first_air_date || "Unknown"}</div>
+        <div><strong>Seasons:</strong> ${details.number_of_seasons || "?"}</div>
+        <div><strong>Episodes:</strong> ${details.number_of_episodes || "?"}</div>
+        <div><strong>Status:</strong> ${details.status || "Unknown"}</div>`;
+
+      const epsDiv = document.getElementById("episodes");
+      eps.split(":::").forEach((seasonStr, idx) => {
+        const toggle = document.createElement("div");
+        toggle.className = "season-toggle";
+        toggle.textContent = `Season ${idx+1}`;
+        const block = document.createElement("div");
+        block.className = "season-block";
+        seasonStr.split(",").filter(Boolean).forEach((link, j) => {
+          const match = link.match(/\/file\/d\/([^/]+)/);
+          const fileId = match ? match[1] : "";
+          const ep = document.createElement("div");
+          ep.className = "episode-block button-row";
+          ep.innerHTML = `<a href="${link}" target="_blank">WATCH EP ${j+1}</a><a href="https://drive.google.com/uc?id=${fileId}&export=download" target="_blank">DOWNLOAD EP ${j+1}</a>`;
+          block.appendChild(ep);
         });
-    }
-  }
-  
-  function fetchSeriesById(id) {
-    Promise.all([
-      fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}`).then(r => r.json()),
-      fetch(`https://api.themoviedb.org/3/tv/${id}/images?api_key=${apiKey}`).then(r => r.json()),
-      fetch(`https://api.themoviedb.org/3/tv/${id}/videos?api_key=${apiKey}`).then(r => r.json()),
-      fetch(`https://api.themoviedb.org/3/tv/${id}/similar?api_key=${apiKey}`).then(r => r.json())
-    ]).then(([details, images, videos, similar]) => {
-      const trailerKey = videos.results.find(v => v.type === "Trailer")?.key;
-      const related = similar.results.slice(0, 4).map(m => ({
-        title: m.name,
-        poster: `https://image.tmdb.org/t/p/w300${m.poster_path}`
-      }));
-      
-      const result = {
-        title: details.name,
-        overview: details.overview,
-        rating: details.vote_average,
-        poster: `https://image.tmdb.org/t/p/w500${details.poster_path}`,
-        backdrops: images.backdrops.slice(0, 8).map(img => `https://image.tmdb.org/t/p/w500${img.file_path}`),
-        trailerKey,
-        related
-      };
-      
-      localStorage.setItem(cacheKey, JSON.stringify({ data: result, timestamp: now }));
-      renderData(result);
+        toggle.addEventListener("click", () => {
+          document.querySelectorAll('.season-block').forEach(e => e.style.display = 'none');
+          block.style.display = 'block';
+        });
+        epsDiv.appendChild(toggle);
+        epsDiv.appendChild(block);
+      });
+
+      const tr = videos.results.find(v => v.type === 'Trailer');
+      document.getElementById("trailer").innerHTML = tr
+        ? `<iframe src="https://www.youtube.com/embed/${tr.key}" loading="lazy"></iframe>`
+        : 'Not available';
+
+      const castDiv = document.getElementById("star-cast");
+      credits.cast.slice(0,6).forEach(c => {
+        const a = document.createElement("a");
+        a.href = `https://www.google.com/search?q=${encodeURIComponent(c.name)}`;
+        a.target = "_blank";
+        a.className = "cast-card";
+        a.innerHTML = `<img src="your-cast-image.jpg" alt="" /><strong>${c.name}</strong><div>${c.character}</div>`;
+        castDiv.appendChild(a);
+      });
+
+      const rv = document.getElementById("reviews");
+      reviews.results.slice(0,5).forEach(r => {
+        rv.innerHTML += `<li><strong>${r.author}</strong>${r.content}</li>`;
+      });
+
+      const rel = document.getElementById("related-shows");
+      similar.results.slice(0,5).forEach(s => {
+        const a = document.createElement("a");
+        a.href = `https://www.google.com/search?q=${encodeURIComponent(s.name)}`;
+        a.target = "_blank";
+        a.className = "related-card";
+        a.innerHTML = `<img src="your-movie-image.jpg" alt="" /><div>${s.name}</div>`;
+        rel.appendChild(a);
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("loading-text").textContent = "Failed to load data";
     });
-  }
-  
-  function renderData(result) {
-    document.getElementById("loader").style.display = "none";
-    document.getElementById("mainContent").style.display = "block";
-    
-    document.getElementById("poster-section").innerHTML = `<img src="${result.poster}" class="poster" loading="lazy">`;
-    document.getElementById("series-title").textContent = result.title;
-    document.getElementById("series-rating").textContent = `IMDb Rating: ${result.rating}⭐`;
-    document.getElementById("series-description").textContent = result.overview;
-    
-    const episodesContainer = document.getElementById("episodes");
-    episodesContainer.innerHTML = "";
-    const seasons = eps.split(":::");
-    
-    seasons.forEach((seasonStr, i) => {
-      const seasonId = `season-${i}`;
-      const titleEl = document.createElement("div");
-      titleEl.className = "season-title";
-      titleEl.textContent = `Season ${i + 1}`;
-      titleEl.onclick = () => {
-        document.querySelectorAll(".season-content").forEach(el => el.classList.remove("active"));
-        document.getElementById(seasonId).classList.add("active");
-      };
-      
-      const seasonDiv = document.createElement("div");
-      seasonDiv.id = seasonId;
-      seasonDiv.className = "season-content";
-      
-      const episodeLinks = seasonStr.split(/\s*,\s*/).filter(Boolean);
-      for (let j = 0; j < episodeLinks.length; j++) {
-        const link = episodeLinks[j];
-        const match = link.match(/\/file\/d\/([^/]+)/);
-        const fileId = match ? match[1] : null;
-        
-        const group = document.createElement("div");
-        group.className = "episode-block";
-        
-        const watchBtn = document.createElement("a");
-        watchBtn.href = fileId ? link : "#";
-        watchBtn.textContent = `Watch Ep ${j + 1}`;
-        watchBtn.target = "_blank";
-        
-        const downloadBtn = document.createElement("a");
-        downloadBtn.href = fileId ? `https://drive.google.com/uc?id=${fileId}&export=download` : "#";
-        downloadBtn.textContent = `Download Ep ${j + 1}`;
-        downloadBtn.target = "_blank";
-        
-        group.appendChild(watchBtn);
-        group.appendChild(downloadBtn);
-        seasonDiv.appendChild(group);
-      }
-      
-      episodesContainer.appendChild(titleEl);
-      episodesContainer.appendChild(seasonDiv);
-    });
-    
-    document.getElementById("trailer-title").textContent = result.trailerKey ? "Trailer" : "";
-    document.getElementById("trailer-section").innerHTML = result.trailerKey ?
-      `<iframe src="https://www.youtube.com/embed/${result.trailerKey}" loading="lazy"></iframe>` : "";
-    
-    const gallery = document.getElementById("image-gallery");
-    gallery.innerHTML = result.backdrops.map(src => `<img src="${src}" loading="lazy">`).join("");
-    
-    const related = document.getElementById("related-shows");
-    related.innerHTML = result.related.map(r => `
-    <div class="related-card">
-      <img src="${r.poster}" loading="lazy">
-      <div>${r.title}</div>
-    </div>`).join("");
-  }
-</script>
+}
+
+  </script>
 </body>
 </html>
