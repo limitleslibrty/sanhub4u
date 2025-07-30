@@ -1,343 +1,179 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TYV1T063RV"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-TYV1T063RV');
-</script>
-  <title>Movie</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Movie Details</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .poster {
-      width: 100%;
-      border-radius: 10px;
-    }
-    .title {
-      text-align: center;
-      font-size: 2em;
-      margin: 10px 0;
-    }
-    .rating {
-      text-align: center;
-      font-size: 0.95em;
-      color: #666;
-      margin: 5px 0;
-    }
-    .description {
-      background: #f0f0f0;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 20px 0;
-      text-align: center;
-    }
-    .meta-box {
-      background: #f4f8fb;
-      border-left: 5px solid #0984AA;
-      padding: 15px 20px;
-      border-radius: 8px;
-      margin: 10px 0 20px;
-      font-size: 0.95em;
-      line-height: 1.6;
-      color: #333;
-    }
-    .meta-box div {
-      margin-bottom: 6px;
-    }
-    .meta-box strong {
-      display: inline-block;
-      width: 90px;
-    }
-    .buttons {
+    body { font-family: Arial, sans-serif; background:#f5f5f5; margin:0; color:#333; }
+    .container { max-width:800px; margin:auto; padding:20px; background:white; border-radius:10px; }
+    .poster { width:100%; border-radius:10px; }
+    .title { text-align:center; font-size:2em; margin:10px 0; }
+    .rating { text-align:center; color:#666; margin:5px 0; }
+    .description { background:#f0f0f0; padding:15px; border-radius:10px; margin:20px 0; text-align:center; }
+    .meta-box { background:#f4f8fb; border-left:5px solid #0984AA; padding:15px 20px; margin:10px 0 20px; border-radius:8px; }
+    .meta-box div { margin-bottom:6px; }
+    .meta-box strong { display:inline-block; width:90px; }
+
+    .button-row {
       display: flex;
-      justify-content: space-between;
-      margin: 0 20px 20px;
+      justify-content: center;
+      gap: 30px;
+      padding: 16px 25px;
+      background: #f9f9f9;
+      border-radius: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin: 20px 0;
     }
-    .buttons a {
-      flex: 1;
-      margin: 0 5px;
-      padding: 12px 0;
-      border-radius: 5px;
-      text-decoration: none;
-      background-color: #0984AA;
+    .btn {
+      display: flex;
+      align-items: center;
+      background-color: #55b4e7;
       color: white;
-      font-weight: bold;
-      text-align: center;
-    }
-    .buttons a:hover {
-      background-color: #066a8a;
-    }
-    .views {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 0.9em;
-    }
-    iframe {
-      width: 100%;
-      height: 250px;
-      border-radius: 10px;
+      padding: 8px 16px;
       border: none;
-      margin-bottom: 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      transition: box-shadow 0.2s ease-in-out;
     }
-    h3 {
+    .btn:hover {
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      fill: white;
+      margin-right: 8px;
+    }
+
+    h3 { text-align:center; margin-top:30px; }
+    .cast-container, .related-container { display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card, .related-card {
+      width: 120px;
+      flex: 0 0 auto;
       text-align: center;
-      margin-top: 30px;
-    }
-    .images {
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-    }
-    .images img {
-      width: 100%;
-      border-radius: 10px;
-    }
-    .related-container,
-    .cast-container,
-    .review-container {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 10px 0;
-    }
-    .related-card,
-    .cast-card {
-      flex: 0 0 auto;
-      background: #f9f9f9;
-      border-radius: 8px;
-      width: 120px;
-      height: 250px;
+      justify-content: flex-start;
       padding: 0;
-      text-align: center;
-      font-size: 0.9em;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      cursor: pointer;
     }
-    .cast-card img,
-    .related-card img {
+    .cast-card img, .related-card img {
       width: 100%;
       height: 170px;
       object-fit: cover;
-      border-radius: 5px 5px 0 0;
-      margin: 0;
+      border-radius: 8px 8px 0 0;
     }
-    .cast-card strong {
-      display: block;
-      font-size: 1em;
-      color: #000;
-      font-weight: bold;
+    .cast-card strong, .related-card div {
+      padding: 6px 8px;
+      text-align: center;
     }
-    .cast-card div:last-child {
-      font-size: 0.85em;
-      color: #555;
-    }
-    .review-card {
-      flex: 0 0 250px;
-      background: #eef;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 0.85em;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .review-card strong {
-      display: block;
-      margin-bottom: 5px;
-      color: #444;
-    }
-    .hidden {
-      display: none;
-    }
-    .fade-in {
-      animation: fadeIn 0.3s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
+    .review-list { list-style:none; padding:0; }
+    .review-list li { background:#eef; padding:15px; margin-bottom:15px; border-radius:8px; }
+    .review-list strong { display:block; margin-bottom:8px; color:#444; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="movieContent" class="fade-in">Loading...</div>
-  </div>
-  <script>
-  const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
-  const params = new URLSearchParams(location.search);
-  const title = params.get("title");
-  const gdLink = params.get("gd");
-  const year = params.get("year") || "";
-  const movieId = params.get("movieId") || "";
-  const container = document.getElementById("movieContent");
-  
-  const idKey = movieId || `${title?.toLowerCase().replace(/\s+/g, "_")}_${year}`;
-  const cacheKey = `movie_${idKey}`;
-  const now = Date.now();
-  
-  const inr = n => n ? `₹${(n * 83).toLocaleString("en-IN")}` : "Unknown";
-  
-  function showError(msg) {
-    container.innerHTML = `<h3>${msg}</h3>`;
-  }
-  
-  if (!title || !gdLink) {
-    showError("Movie data missing!");
-  } else {
-    const cachedData = JSON.parse(localStorage.getItem(cacheKey) || "null");
-    if (cachedData && now - cachedData.timestamp < 7 * 24 * 60 * 60 * 1000) {
-      renderMovie(cachedData.data);
-    } else {
-      fetchMovieData();
-    }
-  }
-  
-  async function fetchMovieData() {
-    try {
-      let id = movieId;
-      if (!id) {
-        const search = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year ? `&year=${year}` : ""}&api_key=${apiKey}`);
-        const searchData = await search.json();
-        const movie = searchData.results?.[0];
-        if (!movie) return showError("Movie not found!");
-        id = movie.id;
-      }
-      
-      const [details, images, videos, similar, credits, reviews] = await Promise.all([
-        fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`).then(r => r.json()),
-        fetch(`https://api.themoviedb.org/3/movie/${id}/images?api_key=${apiKey}`).then(r => r.json()),
-        fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`).then(r => r.json()),
-        fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`).then(r => r.json()),
-        fetch(`https://api.themoviedb.org/3/movie/${id}/credits?api_key=${apiKey}`).then(r => r.json()),
-        fetch(`https://api.themoviedb.org/3/movie/${id}/reviews?api_key=${apiKey}`).then(r => r.json())
-      ]);
-      
-      const result = {
-        title: details.title,
-        poster: `https://image.tmdb.org/t/p/w500${details.poster_path}`,
-        overview: details.overview,
-        rating: details.vote_average,
-        release: details.release_date || "Unknown",
-        revenue: details.revenue || 0,
-        budget: details.budget || 0,
-        director: credits.crew.find(c => c.job === "Director")?.name || "Unknown",
-        cast: credits.cast.slice(0, 8).map(a => ({
-          name: a.name,
-          character: a.character,
-          profile: a.profile_path ? `https://image.tmdb.org/t/p/w185${a.profile_path}` : 'fallback.jpg'
-        })),
-        reviews: reviews.results.slice(0, 5).map(r => ({ author: r.author, content: r.content })),
-        backdrops: images.backdrops.slice(0, 6).map(i => `https://image.tmdb.org/t/p/w500${i.file_path}`),
-        trailerKey: videos.results.find(v => v.type === "Trailer")?.key,
-        related: similar.results.slice(0, 5).map(m => ({
-          title: m.title,
-          poster: `https://image.tmdb.org/t/p/w300${m.poster_path}`
-        }))
-      };
-      
-      localStorage.setItem(cacheKey, JSON.stringify({ data: result, timestamp: Date.now() }));
-      renderMovie(result);
-    } catch (e) {
-      console.warn("Fetch error", e);
-      showError("Failed to load movie data.");
-    }
-  }
-  
-  function renderMovie(data) {
-    const fileId = gdLink.split("/file/d/")[1]?.split("/")[0];
-    const downloadLink = `https://drive.google.com/uc?id=${fileId}&export=download`;
-    const viewsKey = `views_${title}`;
-    const views = parseInt(localStorage.getItem(viewsKey)) || 1;
-    
-    const updateView = () => {
-      const newViews = views + 1;
-      localStorage.setItem(viewsKey, newViews);
-      document.getElementById("viewsCount").textContent = newViews;
-    };
-    
-    container.innerHTML = `
-    <img src="${data.poster}" class="poster" loading="lazy">
-    <div class="title">${data.title}</div>
-    <div class="rating">IMDb Rating: ${data.rating.toFixed(1)} ⭐</div>
-    <div class="description">${data.overview}</div>
+<div class="container">
+  <div id="movieContent">Loading...</div>
+</div>
 
+<script>
+const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
+const params = new URLSearchParams(location.search);
+const title = params.get("title");
+const year = params.get("year") || "";
+const gdLink = params.get("gd");
+const movieId = params.get("movieId") || "";
+const posterUrl = params.get("img") || "fallback.jpg";
+const container = document.getElementById("movieContent");
+
+function showError(msg){ container.innerHTML = "<h3>"+msg+"</h3>"; }
+
+function getDownloadLink(link) {
+  const idMatch = link.match(/(?:\/d\/|id=)([\w-]{10,})/);
+  return idMatch ? `https://drive.google.com/uc?id=${idMatch[1]}&export=download` : link;
+}
+
+async function fetchMovieData(){
+  try {
+    let id = movieId;
+    if (!id){
+      const resp = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year?`&year=${year}`:""}&api_key=${apiKey}`);
+      const j = await resp.json();
+      const m = j.results?.[0];
+      if (!m) return showError("Movie not found");
+      id = m.id;
+    }
+    const [details, credits, reviews, similar] = await Promise.all([
+      fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`).then(r=>r.json()),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/credits?api_key=${apiKey}`).then(r=>r.json()),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/reviews?api_key=${apiKey}`).then(r=>r.json()),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`).then(r=>r.json())
+    ]);
+    render(details, credits, reviews.results, similar.results);
+  } catch(e){ console.warn(e); showError("Error loading") }
+}
+
+function render(details, credits, reviews, similar){
+  const overview = details.overview || "No description";
+  const rating = details.vote_average?.toFixed(1) || "N/A";
+  container.innerHTML = `
+    <img src="${posterUrl}" class="poster">
+    <div class="title">${details.title}</div>
+    <div class="rating">IMDb Rating: ${rating} ⭐</div>
+    <div class="description">${overview}</div>
     <div class="meta-box">
-      <div><strong>Release:</strong> ${data.release}</div>
-      <div><strong>Director:</strong> ${data.director}</div>
-      <div><strong>Budget:</strong> ${inr(data.budget)}</div>
-      <div><strong>Revenue:</strong> ${inr(data.revenue)}</div>
+      <div><strong>Release:</strong>${details.release_date||"Unknown"}</div>
+      <div><strong>Director:</strong>${credits.crew.find(c=>c.job==="Director")?.name||"Unknown"}</div>
+      <div><strong>Budget:</strong>${details.budget||"0"}</div>
+      <div><strong>Revenue:</strong>${details.revenue||"0"}</div>
     </div>
-
-    <div class="buttons">
-      <a href="${downloadLink}" onclick="(${updateView.toString()})()">Download</a>
-      <a href="${gdLink}" onclick="(${updateView.toString()})()">Watch</a>
+    <div class="button-row">
+      <a class="btn" href="${gdLink}" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        WATCH
+      </a>
+      <a class="btn" href="${getDownloadLink(gdLink)}" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M12 16l5-5h-3V4h-4v7H7z"/></svg>
+        DOWNLOAD
+      </a>
     </div>
-
-    <div class="views">
-      <img src="view.png" height="20"> <span id="viewsCount">${views}</span>
-    </div>
-
     <h3>Top Cast</h3>
     <div class="cast-container">
-      ${data.cast.map(actor => `
-        <div class="cast-card" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(actor.name)}', '_blank')">
-          <img src="${actor.profile}" alt="${actor.name}" loading="lazy">
-          <strong>${actor.name}</strong>
-          <div>${actor.character}</div>
+      ${credits.cast.slice(0,8).map(a=>`
+        <div class="cast-card" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(a.name)}','_blank')">
+          <img src="your-cast-image.jpg" alt="">
+          <strong>${a.name}</strong>
+          <div>${a.character}</div>
         </div>`).join("")}
     </div>
-
-    ${data.trailerKey ? `<h3>Trailer</h3><iframe src="https://www.youtube.com/embed/${data.trailerKey}" loading="lazy"></iframe>` : ""}
-
-    <h3>Movie Pics</h3>
-    <div class="images">
-      ${data.backdrops.map(src => `<img src="${src}" loading="lazy">`).join("")}
-    </div>
-
     <h3>Reviews</h3>
-    <div class="review-container">
-      ${data.reviews.length ? data.reviews.map(r => `
-        <div class="review-card">
-          <strong>${r.author}</strong>
-          ${r.content.slice(0, 130)}...
-        </div>`).join("") : `<div class="review-card">No reviews found.</div>`}
-    </div>
-
+    <ul class="review-list">
+      ${reviews.length? reviews.map(r=>`
+        <li><strong>${r.author}</strong>${r.content}</li>`).join("") : `<li>No reviews.</li>`}
+    </ul>
     <h3>Related Movies</h3>
     <div class="related-container">
-      ${data.related.map(m => `
-        <div class="related-card">
-          <img src="${m.poster}" loading="lazy">
+      ${similar.slice(0,5).map(m=>`
+        <div class="related-card" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(m.title)}','_blank')">
+          <img src="your-movie-image.jpg" alt="">
           <div>${m.title}</div>
         </div>`).join("")}
     </div>
   `;
-    
-    container.classList.remove("hidden");
-    container.classList.add("fade-in");
-  }
-  
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' })
-      .then(() => console.log("✅ Service Worker Registered"))
-      .catch(err => console.log("❌ Service Worker Failed", err));
-  }
+}
+
+if (!title || !gdLink) showError("Missing data");
+else fetchMovieData();
 </script>
 </body>
 </html>
