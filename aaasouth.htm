@@ -40,9 +40,9 @@
 title=Medal
 &year=2023
 &gd=https://drive.google.com/file/d/1vjOMh5Xv_TXR9BNDPPHOgsbysyD9re6N/view?usp=drivesdk
-">
+&img=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQxHRSNI8CpepCpcEIuSQbykfm3-YZ9_F4BOouhWZ5wfCbWw0j3f4jgkM&s=10">
  <div class="movie-card" data-year="2023">
- <img src="your_image.jpg" alt="loading">
+ <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQxHRSNI8CpepCpcEIuSQbykfm3-YZ9_F4BOouhWZ5wfCbWw0j3f4jgkM&s=10" alt="loading">
  <h3 class="movie-title">
      Medal
      </h3>
@@ -53,9 +53,9 @@ title=Medal
 title=Ronth
 &
 gd=https://drive.google.com/file/d/1NFyrAdIlsfo_cwBPem5cQFHpFdN7jm5g/view?usp=drivesdk
-">
+&img=https://upload.wikimedia.org/wikipedia/en/thumb/4/4b/Ronth_Movie.jpg/250px-Ronth_Movie.jpg">
  <div class="movie-card">
- <img src="your_image.jpg" alt="loading">
+ <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/4b/Ronth_Movie.jpg/250px-Ronth_Movie.jpg" alt="loading">
  <h3 class="movie-title">
 Ronth
      </h3>
@@ -78,9 +78,9 @@ Ronth
 title=Arjun Son Of Vyjayanthi
 &
 gd=https://drive.google.com/file/d/1IvcisNEykuMhdGo6-yNpep0pvbhoh-x8/view?usp=drivesdk
-">
+&img=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSZYgho9XZRaAkYyCukZkN2NvDzO6RfoGHUMbVhtDRA_qpyEf1eg188ZzB&s=10">
  <div class="movie-card">
- <img src="your_image.jpg" alt="loading">
+ <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSZYgho9XZRaAkYyCukZkN2NvDzO6RfoGHUMbVhtDRA_qpyEf1eg188ZzB&s=10" alt="loading">
  <h3 class="movie-title">
      Arjun Son Of Vyjayanthi
      </h3>
@@ -124,119 +124,48 @@ gd=https://drive.google.com/file/d/1IvcisNEykuMhdGo6-yNpep0pvbhoh-x8/view?usp=dr
 </a>
 </div>
      
-
-<script>
-  const apiKey = "ed492c82af4b0bff90d8d23998f3d393";
   
-  // Fetch Movie Thumbnail
-  async function getMoviePoster(title, year = "", movieId = "") {
-    const cacheKey = movieId ?
-      `thumb_id_${movieId}` :
-      `thumb_${title.toLowerCase().replace(/\s+/g, "_")}_${year}`;
-    const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
-    const now = Date.now();
-    if (cached && now - cached.timestamp < 7 * 24 * 60 * 60 * 1000) return cached.url;
-    
-    try {
-      const url = movieId ?
-        `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}` :
-        `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}${year ? `&year=${year}` : ""}&api_key=${apiKey}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const poster = movieId ? data.poster_path : data.results?.[0]?.poster_path;
-      if (poster) {
-        const fullUrl = `https://image.tmdb.org/t/p/w500${poster}`;
-        localStorage.setItem(cacheKey, JSON.stringify({ url: fullUrl, timestamp: now }));
-        return fullUrl;
-      }
-    } catch (e) {
-      console.warn("Movie fetch failed:", title, movieId);
-    }
-    return "fallback.jpg";
-  }
+  <script>
+  // No TMDb thumbnail fetching, images set manually in card
+  // We'll only support passing query params to movie.html or webseries.html
   
-  // Fetch TV Thumbnail
-  async function getTVPoster(title, year = "", seriesId = "") {
-    const cacheKey = seriesId ?
-      `tv_id_thumb_${seriesId}` :
-      `tv_thumb_${title.toLowerCase()}_${year}`;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return cached;
-    try {
-      const url = seriesId ?
-        `https://api.themoviedb.org/3/tv/${seriesId}?api_key=${apiKey}` :
-        `https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(title)}${year ? `&first_air_date_year=${year}` : ""}&api_key=${apiKey}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const poster = seriesId ? data.poster_path : data.results?.[0]?.poster_path;
-      if (poster) {
-        const fullUrl = `https://image.tmdb.org/t/p/w500${poster}`;
-        localStorage.setItem(cacheKey, fullUrl);
-        return fullUrl;
-      }
-    } catch (e) {
-      console.warn("TV fetch failed:", title, seriesId);
-    }
-    return "fallback.jpg";
-  }
-  
-  // Load poster into card
-  async function loadPoster(card) {
-    const anchor = card.closest("a");
-    const img = card.querySelector("img");
-    const h3 = card.querySelector(".movie-title");
-    const year = card.dataset.year || "";
-    const movieId = card.dataset.movieid || "";
-    const seriesId = card.dataset.seriesid || "";
-    if (!img || !anchor) return;
-    
-    let title = "";
-    let posterUrl = "";
-    
-    if (anchor.href.includes("webseries.html")) {
-      const url = new URL(anchor.href, location.href);
-      title = url.searchParams.get("title")?.trim();
-      if (title || seriesId) posterUrl = await getTVPoster(title, year, seriesId);
-    } else if (anchor.href.includes("movie.html")) {
-      title = h3?.innerText?.trim();
-      if (title || movieId) posterUrl = await getMoviePoster(title, year, movieId);
-    }
-    
-    if (posterUrl) {
-      img.style.filter = "blur(10px)";
-      img.style.transition = "filter 0.4s ease";
-      img.src = posterUrl;
-      img.onload = () => img.style.filter = "blur(0)";
-    }
-  }
-  
-  // Lazy observer
-  function observeCards() {
-    const observer = new IntersectionObserver((entries, obs) => {
-      entries.forEach(async entry => {
-        if (entry.isIntersecting) {
-          const card = entry.target;
-          await loadPoster(card);
-          obs.unobserve(card);
-        }
-      });
-    }, {
-      rootMargin: "150px",
-      threshold: 0.1
-    });
-    
+  function setupLinks() {
     const cards = document.querySelectorAll(".movie-card");
-    cards.forEach(card => observer.observe(card));
     
-    // Fallback: load top visible cards immediately
-    setTimeout(() => {
-      cards.forEach((card, idx) => {
-        if (idx < 4) loadPoster(card); // Try loading first 4 immediately
-      });
-    }, 200);
+    cards.forEach(card => {
+      const anchor = card.closest("a");
+      if (!anchor) return;
+      
+      const img = card.querySelector("img");
+      const title = card.querySelector(".movie-title")?.innerText?.trim();
+      const year = card.dataset.year || "";
+      const movieId = card.dataset.movieid || "";
+      const seriesId = card.dataset.seriesid || "";
+      const imgSrc = img?.getAttribute("src") || "";
+      const gdLink = anchor.href.includes("gd=") ? "" : encodeURIComponent(anchor.href);
+      
+      const base = anchor.href.includes("webseries.html") ? "webseries.html" : "movie.html";
+      const url = new URL(base, location.href);
+      
+      if (title) url.searchParams.set("title", title);
+      if (year) url.searchParams.set("year", year);
+      if (movieId) url.searchParams.set("movieId", movieId);
+      if (seriesId) url.searchParams.set("seriesId", seriesId);
+      if (imgSrc) url.searchParams.set("img", imgSrc);
+      
+      // Preserve gd or eps param if already present in original href
+      const oldParams = new URL(anchor.href, location.href).searchParams;
+      if (oldParams.get("gd")) url.searchParams.set("gd", oldParams.get("gd"));
+      if (oldParams.get("eps")) url.searchParams.set("eps", oldParams.get("eps"));
+      
+      anchor.href = url.toString();
+    });
   }
   
-  document.addEventListener("DOMContentLoaded", observeCards);
+  document.addEventListener("DOMContentLoaded", setupLinks);
 </script>
+
+
+
  </body>
 </html>
