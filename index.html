@@ -853,9 +853,6 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
   <script src="main.js"></script>
   
   <script>
-  // No TMDb thumbnail fetching, images set manually in card
-  // We'll only support passing query params to movie.html or webseries.html
-  
   function setupLinks() {
     const cards = document.querySelectorAll(".movie-card");
     
@@ -863,15 +860,16 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
       const anchor = card.closest("a");
       if (!anchor) return;
       
+      const href = anchor.getAttribute("href");
+      if (!href.includes("movie.html") && !href.includes("webseries.html")) return;
+      
       const img = card.querySelector("img");
       const title = card.querySelector(".movie-title")?.innerText?.trim();
       const year = card.dataset.year || "";
       const movieId = card.dataset.movieid || "";
       const seriesId = card.dataset.seriesid || "";
       const imgSrc = img?.getAttribute("src") || "";
-      const gdLink = anchor.href.includes("gd=") ? "" : encodeURIComponent(anchor.href);
-      
-      const base = anchor.href.includes("webseries.html") ? "webseries.html" : "movie.html";
+      const base = href.includes("webseries.html") ? "webseries.html" : "movie.html";
       const url = new URL(base, location.href);
       
       if (title) url.searchParams.set("title", title);
@@ -880,8 +878,7 @@ gd=https://drive.google.com/file/d/1ICRXR58eAd-XinF8C0hRm8b9yfCCpR6t/view?usp=dr
       if (seriesId) url.searchParams.set("seriesId", seriesId);
       if (imgSrc) url.searchParams.set("img", imgSrc);
       
-      // Preserve gd or eps param if already present in original href
-      const oldParams = new URL(anchor.href, location.href).searchParams;
+      const oldParams = new URL(href, location.href).searchParams;
       if (oldParams.get("gd")) url.searchParams.set("gd", oldParams.get("gd"));
       if (oldParams.get("eps")) url.searchParams.set("eps", oldParams.get("eps"));
       
