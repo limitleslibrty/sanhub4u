@@ -50,6 +50,7 @@
     }
 
     h3 { text-align:center; margin-top:30px; }
+    iframe { width:100%; height:250px; border:none; border-radius:10px; margin: 20px 0; }
     .cast-container, .related-container { display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
     .cast-card, .related-card {
       width: 120px;
@@ -113,19 +114,21 @@ async function fetchMovieData(){
       if (!m) return showError("Movie not found");
       id = m.id;
     }
-    const [details, credits, reviews, similar] = await Promise.all([
+    const [details, credits, reviews, similar, videos] = await Promise.all([
       fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`).then(r=>r.json()),
       fetch(`https://api.themoviedb.org/3/movie/${id}/credits?api_key=${apiKey}`).then(r=>r.json()),
       fetch(`https://api.themoviedb.org/3/movie/${id}/reviews?api_key=${apiKey}`).then(r=>r.json()),
-      fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`).then(r=>r.json())
+      fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`).then(r=>r.json()),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`).then(r=>r.json())
     ]);
-    render(details, credits, reviews.results, similar.results);
+    render(details, credits, reviews.results, similar.results, videos.results);
   } catch(e){ console.warn(e); showError("Error loading") }
 }
 
-function render(details, credits, reviews, similar){
+function render(details, credits, reviews, similar, videos){
   const overview = details.overview || "No description";
   const rating = details.vote_average?.toFixed(1) || "N/A";
+  const trailer = videos.find(v => v.type === "Trailer");
   container.innerHTML = `
     <img src="${posterUrl}" class="poster">
     <div class="title">${details.title}</div>
@@ -147,6 +150,8 @@ function render(details, credits, reviews, similar){
         DOWNLOAD
       </a>
     </div>
+    <h3>Trailer</h3>
+    ${trailer ? `<iframe src="https://www.youtube.com/embed/${trailer.key}" loading="lazy"></iframe>` : `<p style="text-align:center">Trailer not available</p>`}
     <h3>Top Cast</h3>
     <div class="cast-container">
       ${credits.cast.slice(0,8).map(a=>`
@@ -176,4 +181,4 @@ if (!title || !gdLink) showError("Missing data");
 else fetchMovieData();
 </script>
 </body>
-</html>
+</html> 
