@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html>
+<head><title>A Beautiful Mind</title></head>
+<body style="font-family:Arial;">
+  <h1>A Beautiful Mind (2001)</h1>
+  <img src="https://image.tmdb.org/t/p/w500/hCJFWTPghXCwwSpvPpAoIB8318Q.jpg" alt="Backdrop" style="max-width:100%;border-radius:10px;" />
+  <p><strong>Overview:</strong> From the heights of notoriety to the depths of depravity, John Forbes Nash Jr. experiences it all. As a brilliant but socially awkward mathematician, he made a groundbreaking discovery early in his career and stands on the brink of international acclaim. But as the handsome and arrogant Nash accepts secret work in cryptography, he becomes entangled in a mysterious conspiracy. His life takes a nightmarish turn and he soon finds himself on a painful and harrowing journey of self-discovery.</p>
+  <p><strong>IMDB Rating:</strong> <span id="rating">Loading...</span></p>
+  <p><strong>Revenue:</strong> <span id="revenue">Loading...</span></p>
+  <h2>Cast</h2>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <div><img src="https://image.tmdb.org/t/p/w500/rsxGCRtPu42uKDJZlz7qknvz8h6.jpg" width="100"/><br>Russell Crowe</div><div><img src="https://image.tmdb.org/t/p/w500/7GzRB9aAJVkWaQ2BuzzlpTwYf56.jpg" width="100"/><br>Jennifer Connelly</div><div><img src="https://image.tmdb.org/t/p/w500/aAu9lJ02jlg0GAvv2vVnpJSDV1Y.jpg" width="100"/><br>Ed Harris</div><div><img src="https://image.tmdb.org/t/p/w500/oNrDowF5cRtK5lJJuCAh0KeFizy.jpg" width="100"/><br>Paul Bettany</div><div><img src="https://image.tmdb.org/t/p/w500/iZh3s9Vy9vYD4DYnAda6C1kdeco.jpg" width="100"/><br>Christopher Plummer</div><div><img src="https://image.tmdb.org/t/p/w500/xEbqDqTWlSSCi4v8FI3S9YSEPJz.jpg" width="100"/><br>Adam Goldberg</div><div><img src="https://image.tmdb.org/t/p/w500/mgA2drqb0oAa4XWUNhvkDdB4rMq.jpg" width="100"/><br>Josh Lucas</div><div><img src="https://image.tmdb.org/t/p/w500/nbXYVNppPGRAX8XuckhJw6GQf6S.jpg" width="100"/><br>Anthony Rapp</div>
+  </div>
+  <h2>Related Movies</h2>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <div><img src="https://image.tmdb.org/t/p/w500/xN1aKur5ddWQSXTqvzDPJD2TCxe.jpg" width="100"/><br>Patch Adams</div><div><img src="https://image.tmdb.org/t/p/w500/erzbMlcNHOdx24AXOcn2ZKA7R1q.jpg" width="100"/><br>Dead Poets Society</div><div><img src="https://image.tmdb.org/t/p/w500/wkeOjIcpuqLMW4GnVowlM9VI0JE.jpg" width="100"/><br>Cinderella Man</div><div><img src="https://image.tmdb.org/t/p/w500/vuza0WqY239yBXOadKlGwJsZJFE.jpg" width="100"/><br>The Truman Show</div><div><img src="https://image.tmdb.org/t/p/w500/5JyDPH4qdr0I6pF7Bjh1Qrf1Jhh.jpg" width="100"/><br>Finding Neverland</div><div><img src="https://image.tmdb.org/t/p/w500/z2FnLKpFi1HPO7BEJxdkv6hpJSU.jpg" width="100"/><br>Good Will Hunting</div>
+  </div>
+
+<script>
+fetch('https://api.themoviedb.org/3/movie/453?api_key=ed492c82af4b0bff90d8d23998f3d393')
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById('rating').textContent = data.vote_average + ' ⭐';
+    document.getElementById('revenue').textContent = '$' + data.revenue.toLocaleString();
+  });
+</script>
+</body>
+</html>
