@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <title>User Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script src="firebase-config.js"></script>
@@ -14,24 +13,72 @@
     #start, #chat { display: none; height: 100%; width: 100%; }
     #start.active, #chat.active { display: flex; flex-direction: column; }
     #start { justify-content: center; align-items: center; background: #ece5dd; }
-    #start input { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; width: 80%; max-width: 300px; margin-top: 10px; }
-    #start button { margin-top: 10px; padding: 10px 20px; background: #075E54; color: #fff; border: none; border-radius: 8px; font-size: 16px; }
+    #start input, #start button {
+      padding: 10px; font-size: 16px; border-radius: 8px;
+      width: 80%; max-width: 300px; margin-top: 10px;
+      border: 1px solid #ccc;
+    }
+    #start button {
+      background: #075E54; color: white; border: none;
+    }
 
     #chatHeader { background: #075E54; color: #fff; padding: 15px; text-align: center; font-size: 18px; }
     #messages { flex: 1; padding: 10px; overflow-y: auto; background: #e5ddd5; display: flex; flex-direction: column; }
-    .bubble { margin: 6px 0; padding: 10px 15px; border-radius: 8px; max-width: 70%; }
+    .bubble {
+      margin: 6px 0; padding: 10px 15px; border-radius: 8px;
+      max-width: 70%; position: relative; word-wrap: break-word;
+      display: flex; flex-direction: column;
+    }
     .from-user { background: #dcf8c6; align-self: flex-end; }
     .from-brother { background: #fff; align-self: flex-start; }
 
-    #inputArea { display: flex; padding: 10px; background: #fff; border-top: 1px solid #ccc; }
-    #inputArea input { flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 20px; }
-    #inputArea button { margin-left: 10px; padding: 8px 16px; background: #075E54; color: #fff; border: none; border-radius: 20px; }
+    .bubble:hover .options { display: flex; }
+    .options {
+      position: absolute; top: 2px; right: -50px;
+      display: none; flex-direction: column;
+    }
+    .options button {
+      margin: 2px 0; background: #075E54; color: white;
+      border: none; border-radius: 5px; padding: 2px 6px;
+      font-size: 12px;
+    }
+
+    .reply-snippet {
+      background: rgba(0, 0, 0, 0.05);
+      border-left: 4px solid #075E54;
+      padding: 5px 10px;
+      font-size: 13px;
+      margin-bottom: 5px;
+      font-style: italic;
+      color: #333;
+      border-radius: 4px;
+    }
+
+    #replyBox {
+      background: #f1f0f0;
+      padding: 5px 10px;
+      border-left: 4px solid #075E54;
+      margin: 5px 10px;
+      font-style: italic;
+      font-size: 14px;
+      display: none;
+    }
+
+    #inputArea { display: flex; padding: 10px; background: #fff; border-top: 1px solid #ccc; flex-direction: column; }
+    #inputRow { display: flex; }
+    #inputRow input {
+      flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 20px;
+    }
+    #inputRow button {
+      margin-left: 10px; padding: 8px 16px; background: #075E54;
+      color: #fff; border: none; border-radius: 20px;
+    }
   </style>
 </head>
 <body>
   <div id="start" class="active">
     <input id="emailInput" placeholder="Enter your email..." />
-    <input id="passInput" placeholder="Enter password..." type="password"/>
+    <input id="passInput" placeholder="Enter password..." type="password" />
     <button onclick="startChat()">Enter</button>
   </div>
 
@@ -39,8 +86,11 @@
     <div id="chatHeader">Babu😘</div>
     <div id="messages"></div>
     <div id="inputArea">
-      <input id="msgInput" placeholder="Type a message…" />
-      <button onclick="sendMessage()">Send</button>
+      <div id="replyBox"></div>
+      <div id="inputRow">
+        <input id="msgInput" placeholder="Type a message…" />
+        <button onclick="sendMessage()">Send</button>
+      </div>
     </div>
   </div>
 
@@ -52,8 +102,12 @@
     const msgInput = document.getElementById('msgInput');
     const emailInput = document.getElementById('emailInput');
     const passInput = document.getElementById('passInput');
+    const replyBox = document.getElementById('replyBox');
+
     let userKey = '';
+    let replyTo = null;
     let messageListener = null;
+    let messageMap = {};
 
     window.onload = function () {
       const savedEmail = localStorage.getItem('userEmail');
@@ -77,7 +131,7 @@
 
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) {
-        alert('Please enter a valid email address');
+        alert('Please enter a valid email');
         return;
       }
 
@@ -98,13 +152,15 @@
       if (messageListener) messageListener.off();
 
       const ref = db.ref('chats/' + userKey);
-      const loadedKeys = new Set();
 
-      ref.once('value', snap => {
+      ref.on('value', snap => {
+        messagesEl.innerHTML = '';
+        messageMap = {};
         const msgs = [];
         snap.forEach(c => {
-          loadedKeys.add(c.key);
-          msgs.push({ key: c.key, ...c.val() });
+          const msg = { key: c.key, ...c.val() };
+          messageMap[c.key] = msg;
+          msgs.push(msg);
         });
         msgs.sort((a, b) => a.key - b.key);
         msgs.forEach(addBubble);
@@ -112,29 +168,59 @@
       });
 
       messageListener = ref;
-      ref.on('child_added', snap => {
-        if (loadedKeys.has(snap.key)) return;
-        loadedKeys.add(snap.key);
-        const msg = { key: snap.key, ...snap.val() };
-        addBubble(msg);
-        scrollToBottom();
-      });
-    }
-
-    function addBubble(msg) {
-      const d = document.createElement('div');
-      d.className = 'bubble ' + (msg.from === 'user' ? 'from-user' : 'from-brother');
-      d.textContent = msg.text;
-      messagesEl.appendChild(d);
     }
 
     function sendMessage() {
-      const t = msgInput.value.trim();
-      if (!t || !userKey) return;
-      const ts = Date.now();
-      db.ref('chats/' + userKey + '/' + ts).set({ from: 'user', text: t });
+      const msg = msgInput.value.trim();
+      if (msg === '') return;
+
+      const ref = db.ref('chats/' + userKey);
+      const key = Date.now();
+      const newMsg = {
+        text: msg,
+        from: 'user',
+        time: key,
+        replyTo: replyTo ? replyTo.key : null
+      };
+
+      ref.child(key).set(newMsg);
+
       msgInput.value = '';
-      msgInput.focus(); // Keeps keyboard open
+      replyTo = null;
+      replyBox.style.display = 'none';
+    }
+
+    function addBubble(data) {
+      const div = document.createElement('div');
+      div.classList.add('bubble');
+      div.classList.add(data.from === 'user' ? 'from-user' : 'from-brother');
+
+      if (data.replyTo && messageMap[data.replyTo]) {
+        const replyDiv = document.createElement('div');
+        replyDiv.classList.add('reply-snippet');
+        replyDiv.innerText = messageMap[data.replyTo].text;
+        div.appendChild(replyDiv);
+      }
+
+      const textDiv = document.createElement('div');
+      textDiv.innerText = data.text;
+      div.appendChild(textDiv);
+
+      const options = document.createElement('div');
+      options.className = 'options';
+      const replyBtn = document.createElement('button');
+      replyBtn.innerText = 'Reply';
+      replyBtn.onclick = () => setReply(data);
+      options.appendChild(replyBtn);
+      div.appendChild(options);
+
+      messagesEl.appendChild(div);
+    }
+
+    function setReply(msg) {
+      replyTo = msg;
+      replyBox.innerText = "Replying to: " + msg.text;
+      replyBox.style.display = 'block';
     }
 
     function scrollToBottom() {
