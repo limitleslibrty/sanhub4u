@@ -14,7 +14,7 @@
     #start, #chat { display: none; height: 100%; width: 100%; }
     #start.active, #chat.active { display: flex; flex-direction: column; }
     #start { justify-content: center; align-items: center; background: #ece5dd; }
-    #start input { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; width: 80%; max-width: 300px; }
+    #start input { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; width: 80%; max-width: 300px; margin-top: 10px; }
     #start button { margin-top: 10px; padding: 10px 20px; background: #075E54; color: #fff; border: none; border-radius: 8px; font-size: 16px; }
 
     #chatHeader { background: #075E54; color: #fff; padding: 15px; text-align: center; font-size: 18px; }
@@ -31,11 +31,12 @@
 <body>
   <div id="start" class="active">
     <input id="emailInput" placeholder="Enter your email..." />
+    <input id="passInput" placeholder="Enter password..." type="password" inputmode="numeric" />
     <button onclick="startChat()">Start Chat</button>
   </div>
 
   <div id="chat">
-    <div id="chatHeader">babu😘</div>
+    <div id="chatHeader">Babu😘</div>
     <div id="messages"></div>
     <div id="inputArea">
       <input id="msgInput" placeholder="Type a message…" />
@@ -50,12 +51,18 @@
     const messagesEl = document.getElementById('messages');
     const msgInput = document.getElementById('msgInput');
     const emailInput = document.getElementById('emailInput');
+    const passInput = document.getElementById('passInput');
     let userKey = '';
     let messageListener = null;
 
-    // Auto-login if email is stored
     window.onload = function () {
       const savedEmail = localStorage.getItem('userEmail');
+      const inputPass = prompt("Enter password:");
+      if (inputPass !== '887766') {
+        alert('Incorrect password!');
+        return;
+      }
+
       if (savedEmail && savedEmail.includes('@')) {
         userKey = savedEmail.replace(/\./g, '_');
         startEl.classList.remove('active');
@@ -66,12 +73,20 @@
 
     function startChat() {
       const email = emailInput.value.trim();
+      const pass = passInput.value.trim();
+
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) {
         alert('Please enter a valid email address');
         return;
       }
-      localStorage.setItem('userEmail', email); // Save email to localStorage
+
+      if (pass !== '887766') {
+        alert('Incorrect password!');
+        return;
+      }
+
+      localStorage.setItem('userEmail', email);
       userKey = email.replace(/\./g, '_');
       startEl.classList.remove('active');
       chatEl.classList.add('active');
@@ -119,6 +134,7 @@
       const ts = Date.now();
       db.ref('chats/' + userKey + '/' + ts).set({ from: 'user', text: t });
       msgInput.value = '';
+      msgInput.focus(); // Keeps keyboard open
     }
 
     function scrollToBottom() {
