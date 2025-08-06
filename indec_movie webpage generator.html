@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TMDb Movie Page Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    input, button, select { padding: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    #movieDetails, .static-template {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .card { background: #f4f9fc; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    .info-box { background: #eaf3fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    .button { background: #007B9E; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer; }
+    #cast-container { display: flex; gap: 15px; overflow-x: auto; padding-top: 10px; }
+    #cast-card { text-align: center; text-decoration:none;min-width: 120px;
+    color: inherit;}
+    
+    .review-box {
+  background-color: #f5f5f5;
+  border: 2px solid #ddd;
+  padding: 16px;
+  text-align: center;
+  border-radius: 10px;
+  margin: 20px 0;
+  transition: background-color 0.3s ease;
+}
+
+.review-box a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+
+
+
+
+.titlem{text-align:center; font-size:2em; margin:10px 0}
+
+.ratingm{ text-align:center; color:#666; margin:5px 0;margin-left: 9px;}
+
+    .descriptionm{ background:#f0f0f0; padding:15px; border-radius:10px; margin:20px 0; text-align:center; }
+    .meta-box{ background:#f4f8fb; border-left:5px solid #0984AA; padding:15px 20px; margin:10px 0 20px; border-radius:8px; }
+    .meta-box div{ margin-bottom:6px; }
+    .meta-box strong{ display:inline-block; width:90px;} 
+
+    .cast-container{ display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card{
+      width: 120px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color:inherit;
+    }
+    .cast-card img{
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    .cast-card strong{
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+
+
+
+.review-box:hover {
+  background-color: #e0e0e0;
+}
+    
+    
+    img.main-img { width: 100%; max-width: 100%; border-radius: 10px; }
+    textarea { width: 100%; height: 300px; margin-top: 20px; font-family: monospace; }
+    @media screen and (max-width: 600px) {
+      .cast-card { min-width: 100px; font-size: 14px; }
+      .button { width: 100%; margin: 5px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<h2>🎬 TMDb Movie Page Generator + Download</h2>
+<input type="text" id="searchInput" placeholder="Enter movie name..." style="width: 100%; max-width: 400px;" />
+<button onclick="searchMovie()">Search</button>
+
+<br><br>
+<select id="movieList" onchange="selectMovie()" style="width:100%; max-width: 400px; display:none;"></select>
+
+<br><br>
+<input type="text" id="gdriveInput" placeholder="Paste Google Drive link here..." style="width:100%; max-width: 600px;" />
+
+
+<h3>🔖 Copy HTML Card Code</h3>
+<textarea id="movieCardBox" rows="6" style="width: 100%; font-family: monospace;" readonly></textarea>
+<br>
+<button id="copyButton" style="margin-top: 10px;">📋 Copy Code</button>
+<span id="copyStatus" style="margin-left: 10px; color: green;"></span>
+<div id="movieDetails"></div>
+
+<h3>📄 Copyable Static HTML:</h3>
+<textarea id="copyCode" readonly></textarea>
+
+<h3>📥 Download HTML File:</h3>
+<input type="text" id="filename" placeholder="Enter file name..." style="padding: 6px;" />
+<button onclick="downloadHTML()">Download</button>
+
+<script>
+const API_KEY = 'ed492c82af4b0bff90d8d23998f3d393';
+const BASE_IMG = 'https://image.tmdb.org/t/p/w500';
+
+let searchResults = [];
+
+async function searchMovie() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) return alert('Please enter a movie name');
+
+  const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+  const data = await res.json();
+  searchResults = data.results;
+
+  if (!searchResults.length) return alert('No movies found.');
+
+  const select = document.getElementById('movieList');
+  select.innerHTML = '<option disabled selected>Select a movie</option>';
+  searchResults.forEach((m, i) => {
+    select.innerHTML += `<option value="${i}">${m.title} (${m.release_date?.slice(0, 4) || "N/A"})</option>`;
+  });
+  select.style.display = 'block';
+}
+
+async function selectMovie() {
+  const index = document.getElementById('movieList').value;
+  const movie = searchResults[index];
+
+  const movieId = movie.id;
+  const details = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&append_to_response=credits,videos,images`);
+  const fullData = await details.json();
+  
+  const similarRes = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/similar?api_key=${API_KEY}`);
+const similarData = await similarRes.json();
+const similarMovies = similarData.results.slice(0, 8); // Get top 8 related movies
+
+
+  const trailer = fullData.videos.results.find(video => video.type === "Trailer" && video.site === "YouTube");
+
+const trailerEmbed = trailer
+  ? `<iframe width="100%" height="220" src="https://www.youtube.com/embed/${trailer.key}" 
+     frameborder="0" allowfullscreen style="margin-top: 20px; border-radius: 10px;"></iframe>`
+  : `<p style="color: red;">No trailer available.</p>`;
+const backdrops = fullData.images.backdrops.slice(0, 8);
+const backdropHTML = backdrops.map(img => 
+  `<img src="${BASE_IMG + img.file_path}" class="main-img" style="margin-top:10px;">`
+).join('');
+  const cast = fullData.credits.cast.slice(0, 8);
+  const director = fullData.credits.crew.find(c => c.job === "Director")?.name || "Unknown";
+  const release = fullData.release_date || "Unknown";
+  const USD_TO_INR = 83; // Fixed conversion rate
+
+let budget = "Not Available";
+if (fullData.budget && fullData.budget > 0) {
+  const budgetInINR = fullData.budget * USD_TO_INR;
+  budget = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(budgetInINR);
+}
+  const revenue = fullData.revenue ? `$${fullData.revenue.toLocaleString()}` : "Unknown";
+  const backdrop = fullData.backdrop_path ? BASE_IMG + fullData.backdrop_path : '';
+  const rating = fullData.vote_average?.toFixed(1) || "N/A";
+  const poster = fullData.poster_path ? BASE_IMG + fullData.poster_path : '';
+  const description = fullData.overview || "No description available.";
+
+  const gdriveLink = document.getElementById("gdriveInput").value.trim();
+  let fileId = "";
+  if (gdriveLink.includes("id=")) {
+    fileId = gdriveLink.split("id=")[1].split("&")[0];
+  } else if (gdriveLink.includes("/d/")) {
+    fileId = gdriveLink.split("/d/")[1].split("/")[0];
+  }
+
+  const downloadLink = fileId ? `https://drive.google.com/uc?id=${fileId}&export=download` : "#";
+  const watchLink = fileId ? `https://drive.google.com/file/d/${fileId}/preview` : "#";
+
+  const previewHTML = `
+    <div>
+    <img src="${poster}" alt="${fullData.title} Poster" style="width: 100%; max-height: 6500px; object-fit: cover; border-radius: 10px; margin-bottom: 10px;" />
+    
+    <div class="titlem" >${fullData.title}</div>
+
+    
+    
+     <div class="ratingm">
+  IMDb Rating: 
+  <a 
+    href="https://www.google.com/search?q=IMDb+rating+${encodeURIComponent(fullData.title)}" 
+    target="_blank" 
+    style="color: #3498db; text-decoration: underline; cursor: pointer;"
+  >
+    Click
+  </a> ⭐
+</div>
+
+<div class="descriptionm" style="max-width: 800px; line-height: 1.6">
+  <p>${description}</p>
+</div>
+      <div class="meta-box">
+        <div><strong>Release:</strong> ${release}</div>
+        <div><strong>Director:</strong> ${director}</div>
+        <div><strong>Budget:</strong> ${budget}</div>
+        
+        <div>
+  <strong>Revenue:</strong> 
+  <a 
+    href="https://www.google.com/search?q=worldwide+box+office+collection+of+${encodeURIComponent(fullData.title)}+in+INR" 
+    target="_blank" 
+    style="color: #3498db; text-decoration: underline; cursor: pointer;"
+  >
+    Check
+  </a>
+  </div>
+    </div>
+    
+    
+    <br />
+
+      <a href="${downloadLink}" target="_blank"><button class="button">Download</button></a>
+      <a href="${watchLink}" target="_blank"><button class="button">Watch</button></a>
+      <br><br>
+            <h3 align="center">Top Cast</h3>
+<div class="cast-container">
+  ${cast.map(c => `
+  <a href="https://www.google.com/search?q=${encodeURIComponent(c.name)}" target="_blank" class="cast-card">
+    <img src="${c.profile_path ? BASE_IMG + c.profile_path : 'https://via.placeholder.com/100?text=No+Image'}" alt="${c.name}" />
+    <strong>${c.name}</strong>
+    <div style="color:grey">${c.character}</div>
+  </a>
+  `).join('')}
+</div> <br />
+
+            <h3 align="center">Trailer</h3>
+      ${trailerEmbed}
+      <br />
+  <h3 align="center">Movie Backdrops</h3>
+  ${backdropHTML}
+
+      <br /><br />
+     <h3 align="center"> Reviews</h3> 
+<div class="review-box">
+  <a href="https://www.themoviedb.org/movie/${movieId}/reviews" target="_blank">Click to read reviews</a>
+</div> 
+
+
+
+      
+<h3 align="center"> Related Movies</h3><br />
+<div class="cast-container">
+  ${similarMovies.map(movie => `
+  <a href="https://www.google.com/search?q=${encodeURIComponent(movie.title)}" target="_blank" class="cast-card">
+    <img src="${BASE_IMG + movie.poster_path}" alt="${movie.title}" />
+    <p>${movie.title}</p>
+  </a>
+  `).join('')}
+</div>
+
+  </div>
+`;
+
+document.getElementById('movieDetails').innerHTML = previewHTML;
+      
+    
+
+const movieTitle = fullData.title;
+const posterPath = fullData.poster_path;
+const formattedTitle = movieTitle.toLowerCase().replace(/\s+/g, "-");
+
+const cardCode = `
+<a href="${formattedTitle}.html">
+  <div class="movie-card">
+    <img src="${BASE_IMG}${posterPath}" alt="${movieTitle}">
+    <h3 class="movie-title">${movieTitle}</h3>
+  </div>
+</a>
+`.trim();
+
+document.getElementById("movieCardBox").value = cardCode;
+
+
+document.getElementById("copyButton").addEventListener("click", function() {
+  const textarea = document.getElementById("movieCardBox");
+  const status = document.getElementById("copyStatus");
+  
+  // Select the text
+  textarea.select();
+  textarea.setSelectionRange(0, 99999); // For mobile devices
+  
+  // Copy the text
+  try {
+    const successful = document.execCommand("copy");
+    if (successful) {
+      status.textContent = "Copied!";
+    } else {
+      status.textContent = "Copy failed!";
+    }
+  } catch (err) {
+    console.error("Error copying text:", err);
+    status.textContent = "Copy not supported!";
+  }
+  
+  // Clear the status after 2 seconds
+  setTimeout(() => {
+    status.textContent = "";
+  }, 2000);
+});
+
+  // Static HTML Code
+  const staticHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${fullData.title}</title>
+</head>
+<body>
+  <p style="font-size: 16px;">IMDb Rating: ${rating} ⭐</p>
+  <div><p>${tagline}</p></div>
+  <div>
+    <p><strong>Release:</strong> ${release}</p>
+    <p><strong>Director:</strong> ${director}</p>
+    <p><strong>Budget:</strong> ${budget}</p>
+    <p><strong>Revenue:</strong> ${revenue}</p>
+  </div>
+  <a href="${downloadLink}" target="_blank">Download</a>
+  <a href="${watchLink}" target="_blank">Watch</a>
+    ${trailerEmbed}
+    
+          
+  <h3>🎞️ Movie Backdrops</h3>
+  ${backdropHTML}
+
+  
+  <div>
+    ${cast.map(c => `
+      <div>
+        <img src="${c.profile_path ? BASE_IMG + c.profile_path : 'https://via.placeholder.com/100?text=No+Image'}" width="100" />
+        <p><strong>${c.name}</strong></p>
+        <p>${c.character}</p>
+      </div>`).join('')}
+  </div>
+</body>
+</html>`;
+  document.getElementById('copyCode').value = staticHTML.trim();
+}
+
+
+
+function downloadHTML() {
+  const fileName = document.getElementById('filename').value.trim() || 'movie-page';
+  const movieContent = document.getElementById('movieDetails').innerHTML;
+  
+  const fullHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>${fileName}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    .card { background: #f4f9fc; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        #movieDetails, .static-template {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    }
+    
+    
+    
+    
+    
+    .ratingm{ text-align:center; color:#666; margin:5px 0;margin-left:9px}
+    .button { width: 100%; margin: 5px 0; }
+     .button { background: #007B9E; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer;
+     font-size:18px}
+     
+     .review-box {
+background-color: #f5f5f5;
+border: 2px solid #ddd;
+padding: 16px;
+text-align: center;
+border-radius: 10px;
+margin: 20px 0;
+transition: background-color 0.3s ease;
+}
+
+.review-box a {
+text-decoration: none;
+color: #333;
+font-weight: bold;
+font-size: 16px;
+}
+
+.review-box:hover {
+background-color: #e0e0e0;
+}
+     
+     
+     
+     
+     
+    .info-box { background: #eaf3fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    
+    .titlem{text-align:center; font-size:2em; margin:10px 0}
+    
+.descriptionm{ background:#e0e0e0; padding:15px; border-radius:10px; margin:20px 0; text-align:center; }
+    .meta-box{ background:#e0ecf4; border-left:5px solid #0984AA; padding:15px 20px; margin:10px 0 20px; border-radius:8px; }
+    .meta-box div{ margin-bottom:6px; }
+    .meta-box strong{ display:inline-block; width:90px;} 
+
+    .cast-container{ display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card{
+      width: 120px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color:inherit;
+    }
+    .cast-card img{
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    .cast-card strong{
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+
+    
+  
+    img.main-img { width: 100%; max-width: 100%; border-radius: 10px; }
+    iframe { width: 100%; max-width: 100%; border-radius: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  ${movieContent}
+</body>
+</html>
+`;
+  
+  const blob = new Blob([fullHTML], { type: 'text/html' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${fileName}.html`;
+  link.click();
+}
+</script>
+</body>
+</html>
