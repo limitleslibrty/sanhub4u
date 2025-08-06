@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TMDb Movie Page Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: white; }
+    input, button { padding: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    #movieDetails, .static-template {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    
+    .episodes-container {
+  margin-top: 20px;
+}
+.episode-box {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.reviews-box {
+  width: 90%;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: block;
+}
+.reviews-box:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+.button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #0056b3;
+}
+    
+    
+.trailer-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.trailer-container iframe {
+  width: 100%;
+  max-width: 720px;
+  height: 205px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+    
+    .related-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px;
+}
+
+.related-card {
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.related-card img {
+  width: 100px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.backdrop-container img {
+  width: 100%;
+  height: auto;
+  max-height: 250px; /* optional, to limit vertical size */
+  border-radius: 8px;
+  object-fit: cover;
+}
+.backdrop-img {
+  width: 160%;
+  max-width: 300px;     /* ⬅️ Increased size */
+  height: auto;
+  border-radius: 16px;  /* ⬅️ Increased border radius */
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional: adds a soft shadow */
+}
+
+    .cast-container{ display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card{
+      width: 120px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color:inherit;
+    }
+    .cast-card img{
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    .cast-card strong{
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+
+
+
+
+
+    .card { background: #eeeeee; padding: 15px; border-radius: 10px; margin-bottom: 20px; } 
+    .info-box { background: #e0ecf4; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+     
+    .button { background: #007B9E; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer; }
+
+
+    img.main-img { width: 100%; max-width: 100%; border-radius: 10px; }
+    textarea { width: 100%; height: 300px; margin-top: 20px; font-family: monospace; }
+    @media screen and (max-width: 600px) {
+      .cast-card { min-width: 100px; font-size: 14px; }
+      .button { width: 100%; margin: 5px 0; }
+    }
+  </style>
+</head>
+<body>
+
+
+
+
+<h2>🎬 TMDb Movie Page Generator + Download</h2>
+<input type="text" id="searchInput" placeholder="Enter movie name..." style="width: 100%; max-width: 400px;" />
+<button onclick="searchMovie()">Search</button>
+
+<div id="movieDetails"></div>
+<!-- Add below your existing inputs -->
+<label>Google Drive Links (comma-separated):</label>
+<textarea id="gdriveLinks" rows="3" placeholder="https://drive.google.com/file1, https://drive.google.com/file2"></textarea>
+
+<br>
+
+
+
+<label>Select Season:</label>
+<select id="seasonSelect">
+  <option value="Season 1">Season 1</option>
+  <option value="Season 2">Season 2</option>
+  <option value="Season 3">Season 3</option>
+</select>
+<br /><br />
+<label>Generated Movie Card HTML:</label>
+<textarea id="movieCardOutput" rows="6" readonly style="width: 100%; margin-top: 10px;"></textarea>
+
+
+
+
+<h3>📄 Copyable Static HTML:</h3>
+<textarea id="copyCode" readonly></textarea>
+
+<h3>📥 Download HTML File:</h3>
+<input type="text" id="filename" placeholder="Enter file name..." style="padding: 6px;" />
+<button onclick="downloadHTML()">Download</button>
+
+<!-- Add this under your Search input -->
+<div id="searchResults"></div>
+
+<script>
+  const API_KEY = 'ed492c82af4b0bff90d8d23998f3d393';
+  const BASE_IMG = 'https://image.tmdb.org/t/p/w500';
+  
+  async function searchMovie() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) return alert('Please enter a movie/webseries name');
+    
+    const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    
+    const resultsDiv = document.getElementById('searchResults');
+    resultsDiv.innerHTML = '';
+    
+    if (!data.results.length) {
+      resultsDiv.innerHTML = `<p>No results found.</p>`;
+      return;
+    }
+    
+    // Show search result list
+    data.results.forEach(item => {
+      if (!item.title && !item.name) return;
+      
+      const title = item.title || item.name;
+      const id = item.id;
+      const poster = item.poster_path ? BASE_IMG + item.poster_path : 'https://via.placeholder.com/100x150?text=No+Image';
+      
+      const resultItem = document.createElement('div');
+      resultItem.style = 'display: flex; align-items: center; gap: 10px; padding: 10px; background: #fff; border-radius: 10px; margin: 10px 0; cursor: pointer;';
+      resultItem.onclick = () => loadMovieDetails(item.media_type, id);
+      
+      resultItem.innerHTML = `
+      <img src="${poster}" alt="${title}" style="width: 70px; border-radius: 8px;">
+      <div>
+        <h3 style="margin: 0;">${title}</h3>
+        <p style="margin: 0; font-size: 14px; color: gray;">${item.media_type === 'tv' ? 'TV Series' : 'Movie'}</p>
+      </div>
+    `;
+      
+      resultsDiv.appendChild(resultItem);
+    });
+  }
+  
+  async function loadMovieDetails(type, id) {
+    const url = `https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&append_to_response=credits,recommendations,images`;
+    const res = await fetch(url);
+    const fullData = await res.json();
+    
+    
+    // Fetch trailer (YouTube)
+const videoRes = await fetch(`https://api.themoviedb.org/3/${type}/${id}/videos?api_key=${API_KEY}`);
+const videoData = await videoRes.json();
+
+const trailer = videoData.results.find(v => v.type === "Trailer" && v.site === "YouTube");
+const trailerLink = trailer ? `https://www.youtube.com/embed/${trailer.key}` : null; 
+    
+    const backdrops = fullData.images?.backdrops?.slice(0, 8) || [];
+    const backdropHTML = `
+  <div  >
+  
+    <div class="backdrop-container">
+      ${backdrops.map(img => `
+<img src="${BASE_IMG + img.file_path}" class="backdrop-img" />`).join('')}
+    </div>
+  </div>
+`;
+    const movieDetails = document.getElementById('movieDetails');
+    const cast = fullData.credits?.cast?.slice(0, 8) || [];
+    
+    const director = fullData.credits?.crew?.find(c => c.job === "Director")?.name || "Unknown";
+    const release = fullData.release_date || fullData.first_air_date || "Unknown";
+    const budget = fullData.budget ? `$${fullData.budget.toLocaleString()}` : "Unknown";
+    const revenue = fullData.revenue ? `$${fullData.revenue.toLocaleString()}` : "Unknown";
+    const backdrop = fullData.backdrop_path ? BASE_IMG + fullData.backdrop_path : '';
+    const rating = fullData.vote_average?.toFixed(1) || "N/A";
+    const tagline = fullData.tagline || fullData.overview || "No description available.";
+    const title = fullData.title || fullData.name || "Untitled";
+    const poster = fullData.poster_path ? BASE_IMG + fullData.poster_path : 'https://via.placeholder.com/500x750?text=No+Image';
+    
+    const gdriveLinks = document.getElementById('gdriveLinks').value.split(',').map(link => link.trim()).filter(Boolean);
+const selectedSeason = document.getElementById('seasonSelect').value;
+
+const relatedRes = await fetch(`https://api.themoviedb.org/3/${type}/${id}/recommendations?api_key=${API_KEY}`);
+const relatedData = await relatedRes.json();
+const relatedShows = relatedData.results?.slice(0, 10) || [];
+
+function extractDriveId(url) {
+  const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)\//);
+  return match ? match[1] : '';
+}
+
+// Generate filename from title
+const filename = title.toLowerCase().replace(/[^a-z0-9]/gi, '_') + ".html";
+
+// Create full image URL
+const imageUrl = poster ? `https://image.tmdb.org/t/p/w500${poster}` : '';
+
+// Build card HTML
+const cardHTML = `<a href="${filename}">\n  <div class="movie-card">\n    <img src="${imageUrl}" alt="${title}">\n    <h3 class="movie-title">${title}</h3>\n  </div>\n</a>`;
+
+// Set it in the output box
+document.getElementById('movieCardOutput').value = cardHTML;
+
+// Create episode buttons
+let episodeButtonsHTML = `
+  <h3 align="center">${selectedSeason} Episodes</h3>
+  
+  <div class="episodes-container">
+    ${gdriveLinks.map((link, i) => `
+      <div class="episode-box">
+        <p><strong>Episode ${i + 1}</strong></p>
+        <div class="button-row">
+          <a href="${link}" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&id=${extractDriveId(link)}" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    `).join('')}
+  </div>
+`;
+    
+    
+    
+    
+    
+    const generatedHTML = `
+    <div>
+    <img src="${poster}" alt="${title}" class="main-img" />
+      <h2 align="center">${title}</h2>
+      <p align="center" style="font-size: 16px;">IMDb Rating: ${rating} ⭐</p>
+      <div class="card"><p align="center">${tagline}</p></div>
+      <div class="info-box">
+        <p><strong>Release:</strong> ${release}</p>
+        
+        
+        <p><strong>Director:</strong> ${director}</p>
+        
+      </div>
+      <br>
+      ${episodeButtonsHTML} <br />
+            <h3 align="center">Top Cast</h3>
+      <div class="cast-container">
+        ${cast.map(c => `
+        
+          <a href="https://www.google.com/search?q=${encodeURIComponent(c.name)}" target="_blank" class="cast-card">
+          
+            <img src="${c.profile_path ? BASE_IMG + c.profile_path : 'https://via.placeholder.com/100?text=No+Image'}" alt="${c.name}" /> 
+            <br /><br />
+            <strong>${c.name}</strong>
+          </a>
+        `).join('')}
+      </div>
+      <br />
+      <center>
+        
+     
+      ${trailerLink ? `
+  <h3> Trailer<h3>
+  <div class="trailer-container">
+    <iframe src="${trailerLink}" 
+      frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>
+  </div>` : ''
+}
+      
+      <h3 align="center">
+        Backdrops
+      </h3> <br />
+        ${backdropHTML}
+
+<br />
+<h3>
+  Reviews
+</h3>
+
+
+
+
+
+
+${fullData.id ? `
+  <div class="reviews-box" onclick="window.open('https://www.themoviedb.org/${type}/${fullData.id}/reviews', '_blank')">
+    <p>📖 Click to Read Reviews</p>
+  </div>
+` : ''}
+
+
+
+<br />
+<h3 align="center">Related Shows</h3>
+<div class="cast-container">
+  ${relatedShows.map(show => `
+  <a href="https://www.google.com/search?q=${encodeURIComponent(show.title || show.name)}" target="_blank" class="cast-card">  
+    <img src="${show.poster_path ? BASE_IMG + show.poster_path : 'https://via.placeholder.com/100x150?text=No+Image'}" alt="${show.title || show.name}" />
+    <strong>${show.title || show.name}</strong></a>
+  
+  `).join('')}
+</div>
+
+
+    </div>
+  `;
+    
+    movieDetails.innerHTML = generatedHTML;
+    document.getElementById('copyCode').value = generatedHTML;
+    
+    // Clear results after selection
+    document.getElementById('searchResults').innerHTML = '';
+  }
+  
+  
+  
+  function downloadHTML() {
+  // Get the entire final rendered page content
+  const fullHTML = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: white; }
+    input, button { padding: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    #movieDetails, .static-template {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    
+    .episodes-container {
+  margin-top: 20px;
+}
+.episode-box {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.reviews-box {
+  width: 90%;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: block;
+}
+.reviews-box:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+.button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #0056b3;
+}
+    
+    
+.trailer-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.trailer-container iframe {
+  width: 100%;
+  max-width: 720px;
+  height: 205px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+    
+    .related-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px;
+}
+
+.related-card {
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.related-card img {
+  width: 100px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.backdrop-container img {
+  width: 100%;
+  height: auto;
+  max-height: 250px; /* optional, to limit vertical size */
+  border-radius: 8px;
+  object-fit: cover;
+}
+.backdrop-img {
+  width: 160%;
+  max-width: 300px;     /* ⬅️ Increased size */
+  height: auto;
+  border-radius: 16px;  /* ⬅️ Increased border radius */
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional: adds a soft shadow */
+}
+
+    .cast-container{ display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card{
+      width: 120px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color:inherit;
+    }
+    .cast-card img{
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    .cast-card strong{
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+
+
+
+
+
+    .card { background: #eeeeee; padding: 15px; border-radius: 10px; margin-bottom: 20px; } 
+    .info-box { background: #e0ecf4; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+     
+    .button { background: #007B9E; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer; }
+
+
+    img.main-img { width: 100%; max-width: 100%; border-radius: 10px; }
+    textarea { width: 100%; height: 300px; margin-top: 20px; font-family: monospace; }
+    @media screen and (max-width: 600px) {
+      .cast-card { min-width: 100px; font-size: 14px; }
+      .button { width: 100%; margin: 5px 0; }
+    }
+  </style>
+  
+  
+  </head>
+  <body>
+    ${document.getElementById('movieDetails').innerHTML}
+  </body>
+  </html>
+  `;
+  
+  const filename = document.getElementById('filename').value.trim() || 'movie-page';
+  const blob = new Blob([fullHTML], { type: 'text/html' });
+  const link = document.createElement('a');
+  link.download = filename + '.html';
+  link.href = URL.createObjectURL(blob);
+  link.click();
+}
+</script>
+
+</body>
+</html>
