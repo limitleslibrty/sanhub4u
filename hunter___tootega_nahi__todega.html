@@ -1,0 +1,409 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: white; }
+    input, button { padding: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    #movieDetails, .static-template {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    
+    .episodes-container {
+  margin-top: 20px;
+}
+.episode-box {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.reviews-box {
+  width: 90%;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: block;
+}
+.reviews-box:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+.button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #0056b3;
+}
+    
+    
+.trailer-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.trailer-container iframe {
+  width: 100%;
+  max-width: 720px;
+  height: 205px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+    
+    .related-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px;
+}
+
+.related-card {
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.related-card img {
+  width: 100px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.backdrop-container img {
+  width: 100%;
+  height: auto;
+  max-height: 250px; /* optional, to limit vertical size */
+  border-radius: 8px;
+  object-fit: cover;
+}
+.backdrop-img {
+  width: 160%;
+  max-width: 300px;     /* ⬅️ Increased size */
+  height: auto;
+  border-radius: 16px;  /* ⬅️ Increased border radius */
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional: adds a soft shadow */
+}
+
+    .cast-container{ display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card{
+      width: 120px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color:inherit;
+    }
+    .cast-card img{
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    .cast-card strong{
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+
+
+
+
+
+    .card { background: #eeeeee; padding: 15px; border-radius: 10px; margin-bottom: 20px; } 
+    .info-box { background: #e0ecf4; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+     
+    .button { background: #007B9E; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer; }
+
+
+    img.main-img { width: 100%; max-width: 100%; border-radius: 10px; }
+    textarea { width: 100%; height: 300px; margin-top: 20px; font-family: monospace; }
+    @media screen and (max-width: 600px) {
+      .cast-card { min-width: 100px; font-size: 14px; }
+      .button { width: 100%; margin: 5px 0; }
+    }
+  </style>
+  
+  
+  </head>
+  <body>
+    
+    <div>
+    <img src="https://image.tmdb.org/t/p/w500/69waAUsnOMEQJUZgsuWDycrRGnG.jpg" alt="Hunter - Tootega Nahi, Todega" class="main-img">
+      <h2 align="center">Hunter - Tootega Nahi, Todega</h2>
+      <p align="center" style="font-size: 16px;">IMDb Rating: 5.5 ⭐</p>
+      <div class="card"><p align="center">Tootega Nahi, Todega</p></div>
+      <div class="info-box">
+        <p><strong>Release:</strong> 2023-03-22</p>
+        
+        
+        <p><strong>Director:</strong> Unknown</p>
+        
+      </div>
+      <br>
+      
+  <h3 align="center">Season 1 Episodes</h3>
+  
+  <div class="episodes-container">
+    
+      <div class="episode-box">
+        <p><strong>Episode 1</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/163OF2cJWGlXKxA2ScU4ssI8Ti3AwoPct/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=163OF2cJWGlXKxA2ScU4ssI8Ti3AwoPct" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 2</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1NzSQMkUyr-uS7YnA0e5keykpbQWNnKJ3/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1NzSQMkUyr-uS7YnA0e5keykpbQWNnKJ3" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 3</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1kiMO75fz_y1oegRwQVgcU9wxOP_VlkjK/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1kiMO75fz_y1oegRwQVgcU9wxOP_VlkjK" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 4</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1ZHlqWTOKDZ6gokDEnEyMtHpSc6m_p88x/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1ZHlqWTOKDZ6gokDEnEyMtHpSc6m_p88x" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 5</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1rWl-YRxR6tI6-h1zPvQ4WqwfgdjZrsTk/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1rWl-YRxR6tI6-h1zPvQ4WqwfgdjZrsTk" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 6</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1r5ZH1erZ_buCOyTBqF6ln_ZNIWi5cmkY/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1r5ZH1erZ_buCOyTBqF6ln_ZNIWi5cmkY" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 7</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1KBsb3atnbWsGP1Cq8F7B_2tjvsbutasd/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1KBsb3atnbWsGP1Cq8F7B_2tjvsbutasd" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 8</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1e0Uu9fm8oFF_6kmQOaB-h6kgXgyNPzSv/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1e0Uu9fm8oFF_6kmQOaB-h6kgXgyNPzSv" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+  </div>
+ <br>
+            <h3 align="center">Top Cast</h3>
+      <div class="cast-container">
+        
+        
+          <a href="https://www.google.com/search?q=Suniel%20Shetty" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/7N2gTXit5GMfgUhkZ3QsjTnoMH6.jpg" alt="Suniel Shetty"> 
+            <br><br>
+            <strong>Suniel Shetty</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Barkha%20Bisht" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/lYIqYhxqqRvOBUsXtaDTGY04RQd.jpg" alt="Barkha Bisht"> 
+            <br><br>
+            <strong>Barkha Bisht</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Anusha%20Dhandekar" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/82I9E7hpvirNmdkG0kzmzpfaKcU.jpg" alt="Anusha Dhandekar"> 
+            <br><br>
+            <strong>Anusha Dhandekar</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Jackie%20Shroff" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/1UNJypgEyuihUW2avLLVYj76jie.jpg" alt="Jackie Shroff"> 
+            <br><br>
+            <strong>Jackie Shroff</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Anang%20Desai" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/c5QbV2LHo1AFtavHO6owAObONBC.jpg" alt="Anang Desai"> 
+            <br><br>
+            <strong>Anang Desai</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Mazel%20Vyas" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/yHC2BUD17dQowk0c53TIk4wNo6g.jpg" alt="Mazel Vyas"> 
+            <br><br>
+            <strong>Mazel Vyas</strong>
+          </a>
+        
+      </div>
+      <br>
+      <center>
+        
+     
+      
+  <h3> Trailer</h3><h3>
+  <div class="trailer-container">
+    <iframe src="https://www.youtube.com/embed/kWzkJn84Mbo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+  </div>
+      
+      </h3><h3 align="center">
+        Backdrops
+      </h3> <br>
+        
+  <div>
+  
+    <div class="backdrop-container">
+      
+<img src="https://image.tmdb.org/t/p/w500/xKIS5Dd0UyVAMb4UGnIGdjKLJ2J.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/lJgOht58RiuU8HbsIiEuUe6EgKw.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/pxXjModpXlot4rUgQPOwBhqke4B.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/ApRqqbwVyDB4mOHnO7iEwPwkKsU.jpg" class="backdrop-img">
+    </div>
+  </div>
+
+
+<br>
+<h3>
+  Reviews
+</h3>
+
+
+
+
+
+
+
+  <div class="reviews-box" onclick="window.open('https://www.themoviedb.org/tv/222667/reviews', '_blank')">
+    <p>📖 Click to Read Reviews</p>
+  </div>
+
+
+
+
+<br>
+<h3 align="center">Related Shows</h3>
+<div class="cast-container">
+  
+  <a href="https://www.google.com/search?q=The%20Terror" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/bKkOcso0YuCBK7dixkn3VSd0dUr.jpg" alt="The Terror">
+    <strong>The Terror</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Broken%20Promise" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/7f2fpzdLKDXfSkjh4PNimxdxJJR.jpg" alt="Broken Promise">
+    <strong>Broken Promise</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Marcella" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/k0FUUaaHYEcNrcEnIbPcmO6LIIA.jpg" alt="Marcella">
+    <strong>Marcella</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Stan%20Lee's%20Lucky%20Man" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/cnKC1Az0uWTyMifFoG2t2mtD2xD.jpg" alt="Stan Lee's Lucky Man">
+    <strong>Stan Lee's Lucky Man</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Almost%20Human" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/7KNvabIPtsfR01H1bJwc1sobRUM.jpg" alt="Almost Human">
+    <strong>Almost Human</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Shrinking" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/cVmrNYgm5wcEexbXg4laNn3u4vq.jpg" alt="Shrinking">
+    <strong>Shrinking</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Sebastian%20Fitzek's%20Therapy" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/mWrE3tCSTPfxbkZZZphlotAYV8T.jpg" alt="Sebastian Fitzek's Therapy">
+    <strong>Sebastian Fitzek's Therapy</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Bref" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/alaRcixeZ1lLVb5NuvmJnAsfbyA.jpg" alt="Bref">
+    <strong>Bref</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Kourtney%20%26%20Khlo%C3%A9%20Take%20the%20Hamptons" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/dX7xfoY74cA2HXH4XawEeXhmbjQ.jpg" alt="Kourtney &amp; Khloé Take the Hamptons">
+    <strong>Kourtney &amp; Khloé Take the Hamptons</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=The%20Children%20of%20Greece" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/ggQsX4GNflOn67EjuERxlgeZQUI.jpg" alt="The Children of Greece">
+    <strong>The Children of Greece</strong></a>
+  
+  
+</div>
+
+
+    </center></div>
+  
+  </body>
+  </html>
+  

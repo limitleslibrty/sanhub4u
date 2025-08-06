@@ -1,0 +1,385 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: white; }
+    input, button { padding: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    #movieDetails, .static-template {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    
+    .episodes-container {
+  margin-top: 20px;
+}
+.episode-box {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.reviews-box {
+  width: 90%;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: block;
+}
+.reviews-box:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+.button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #0056b3;
+}
+    
+    
+.trailer-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.trailer-container iframe {
+  width: 100%;
+  max-width: 720px;
+  height: 205px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+    
+    .related-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px;
+}
+
+.related-card {
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.related-card img {
+  width: 100px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.backdrop-container img {
+  width: 100%;
+  height: auto;
+  max-height: 250px; /* optional, to limit vertical size */
+  border-radius: 8px;
+  object-fit: cover;
+}
+.backdrop-img {
+  width: 160%;
+  max-width: 300px;     /* ⬅️ Increased size */
+  height: auto;
+  border-radius: 16px;  /* ⬅️ Increased border radius */
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional: adds a soft shadow */
+}
+
+    .cast-container{ display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card{
+      width: 120px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color:inherit;
+    }
+    .cast-card img{
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    .cast-card strong{
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+
+
+
+
+
+    .card { background: #eeeeee; padding: 15px; border-radius: 10px; margin-bottom: 20px; } 
+    .info-box { background: #e0ecf4; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+     
+    .button { background: #007B9E; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer; }
+
+
+    img.main-img { width: 100%; max-width: 100%; border-radius: 10px; }
+    textarea { width: 100%; height: 300px; margin-top: 20px; font-family: monospace; }
+    @media screen and (max-width: 600px) {
+      .cast-card { min-width: 100px; font-size: 14px; }
+      .button { width: 100%; margin: 5px 0; }
+    }
+  </style>
+  
+  
+  </head>
+  <body>
+    
+    <div>
+    <img src="https://image.tmdb.org/t/p/w500/tg16aWs58I5PleUQDmvsXPV7zfQ.jpg" alt="Mandala Murders" class="main-img">
+      <h2 align="center">Mandala Murders</h2>
+      <p align="center" style="font-size: 16px;">IMDb Rating: 7.3 ⭐</p>
+      <div class="card"><p align="center">Mol Chukana Padega</p></div>
+      <div class="info-box">
+        <p><strong>Release:</strong> 2025-07-25</p>
+        
+        
+        <p><strong>Director:</strong> Gopi Puthran</p>
+        
+      </div>
+      <br>
+      
+  <h3 align="center">Season 1 Episodes</h3>
+  
+  <div class="episodes-container">
+    
+      <div class="episode-box">
+        <p><strong>Episode 1</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1Gy-p5rc4HwJNwc90BLmQKSiy3HdddVVX/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1Gy-p5rc4HwJNwc90BLmQKSiy3HdddVVX" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 2</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1n8qEswc4dW2zv6mlYAsL-Dt7HHcuKCV1/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1n8qEswc4dW2zv6mlYAsL-Dt7HHcuKCV1" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 3</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1LBDhmd-UNTk1UJDfG767J4xkkzL3EqEi/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1LBDhmd-UNTk1UJDfG767J4xkkzL3EqEi" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 4</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/19Fu9SezpFiBFsLkF4JuhhCKBybi-FSmP/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=19Fu9SezpFiBFsLkF4JuhhCKBybi-FSmP" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 5</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1Iqmtb-sfLZKO5fCMMYC_zY3Z8WBLJIOD/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1Iqmtb-sfLZKO5fCMMYC_zY3Z8WBLJIOD" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 6</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1Uvi7fd95JDohnklTHPYzqkdLOydlCmNM/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1Uvi7fd95JDohnklTHPYzqkdLOydlCmNM" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 7</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1mz3IHTH2BXttrq93vSQzQkdOIz14po7W/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1mz3IHTH2BXttrq93vSQzQkdOIz14po7W" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 8</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1Fog6z1i9I2ysJWC0zG8kBJGyR5M5QLPp/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1Fog6z1i9I2ysJWC0zG8kBJGyR5M5QLPp" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+  </div>
+ <br>
+            <h3 align="center">Top Cast</h3>
+      <div class="cast-container">
+        
+        
+          <a href="https://www.google.com/search?q=Vaani%20Kapoor" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/cjUTpkzSklRAAazbC5bXcLV60eb.jpg" alt="Vaani Kapoor"> 
+            <br><br>
+            <strong>Vaani Kapoor</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Vaibhav%20Raj%20Gupta" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/3BzWiMwmau2carAAl8J1f5ZQ4zW.jpg" alt="Vaibhav Raj Gupta"> 
+            <br><br>
+            <strong>Vaibhav Raj Gupta</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Surveen%20Chawla" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/anKAtXU9u9DfFma0e2R3C1WGDvX.jpg" alt="Surveen Chawla"> 
+            <br><br>
+            <strong>Surveen Chawla</strong>
+          </a>
+        
+      </div>
+      <br>
+      <center>
+        
+     
+      
+      
+      <h3 align="center">
+        Backdrops
+      </h3> <br>
+        
+  <div>
+  
+    <div class="backdrop-container">
+      
+<img src="https://image.tmdb.org/t/p/w500/m8s8Fp7fITnPzaftmVcsQYR5mMm.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/27xRLlXjtOo1NXnaDFMXz571C1v.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/m6JrjR7Jz3w79L1OjkjAH69DzUF.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/arvB9pGjuHe3D1uNi11pfd9wj7z.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/klL5kFMxHxspdZkCtJIzTmNWYL3.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/uA1UYergZix4usNioCgUAMlSCGB.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/smjgqyD57dsdOn56wMuHJqH0V3q.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/mfJmMzlMBIigGktlzsViLNvdJYN.jpg" class="backdrop-img">
+    </div>
+  </div>
+
+
+<br>
+<h3>
+  Reviews
+</h3>
+
+
+
+
+
+
+
+  <div class="reviews-box" onclick="window.open('https://www.themoviedb.org/tv/247831/reviews', '_blank')">
+    <p>📖 Click to Read Reviews</p>
+  </div>
+
+
+
+
+<br>
+<h3 align="center">Related Shows</h3>
+<div class="cast-container">
+  
+  <a href="https://www.google.com/search?q=Unspeakable%20Sins" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/30eSqR2XPGz53eGElt6YAvH7cPX.jpg" alt="Unspeakable Sins">
+    <strong>Unspeakable Sins</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=The%20World%20of%20Bridges" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/7HCB9rqRYuzHTNAY3w0g9sPMOig.jpg" alt="The World of Bridges">
+    <strong>The World of Bridges</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Letters%20from%20the%20Past" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/5Qf3RfNU2uwxkIdKnCkBmZcfRK8.jpg" alt="Letters from the Past">
+    <strong>Letters from the Past</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=City%20of%20the%20City" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/5aWl6ldqPd6WrCT4G2MpJycsown.jpg" alt="City of the City">
+    <strong>City of the City</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Electric%20City" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/fVVhPgOKbjTABFacQ7PtkYS20dt.jpg" alt="Electric City">
+    <strong>Electric City</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Born%20to%20be%20a%20Flower" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/k6qzJdfvdqjgXhNA9Wq3TrTNf66.jpg" alt="Born to be a Flower">
+    <strong>Born to be a Flower</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Eliminator" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/lVbudzl5Pu4lNwhLpnyvrpf72vV.jpg" alt="Eliminator">
+    <strong>Eliminator</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Kaeranai%20Ojisan%20What%20Shall%20We%20Do%20After%20Work" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/xwYHNp65Dz2UHoKaw4gUh9sr0jR.jpg" alt="Kaeranai Ojisan What Shall We Do After Work">
+    <strong>Kaeranai Ojisan What Shall We Do After Work</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Mr.%20Smith" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/e1bWprZMwrRHaC5KQAiFkvuHELH.jpg" alt="Mr. Smith">
+    <strong>Mr. Smith</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Family%20Food%20Fight" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/hPgL7TPRhOAgFEcgbfpZIgFuUcd.jpg" alt="Family Food Fight">
+    <strong>Family Food Fight</strong></a>
+  
+  
+</div>
+
+
+    </center></div>
+  
+  </body>
+  </html>
+  
