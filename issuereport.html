@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Report Streaming Issues</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #202124;
+      padding: 20px;
+      max-width: 600px;
+      margin: 40px auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    label {
+      font-weight: 600;
+    }
+    input, textarea, select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      resize: vertical;
+    }
+    button {
+      padding: 12px;
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #1669c1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Report Your Issue</h1>
+  <form action="https://formspree.io/f/xovekqdk" method="POST" id="issueForm">
+    <label for="name">Your Name</label>
+    <input type="text" id="name" name="name" placeholder="*optional* " />
+
+    <label for="email">Your Email</label>
+    <input type="email" id="email" name="email" placeholder="*optional* enter to get notified "  />
+
+    <label for="issueType">Issue Type</label>
+    <select id="issueType" name="issueType" required>
+      <option value="" disabled selected>Select an issue</option>
+      <option value="Streaming">Website loading issues</option>
+      <option value="Download">Download Problem</option>
+      <option value="Playback">Playback Problem</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <label for="description">Describe Your Issue</label>
+    <textarea id="description" name="description" rows="5" required placeholder="Please provide details..."></textarea>
+
+    <button type="submit">Send Report</button>
+  </form>
+</body>
+</html>
