@@ -183,6 +183,61 @@ const backdropHTML = backdrops.map(img =>
   const cast = fullData.credits.cast.slice(0, 8);
   const director = fullData.credits.crew.find(c => c.job === "Director")?.name || "Unknown";
   const release = fullData.release_date || "Unknown";
+  let duration = "Unknown";
+let size = "Unknown";
+
+
+
+  
+  const DRIVE_API_KEY = "AIzaSyC3XOzMAAfQp72lfcmADhsP59yY1JvNGOg";
+let language = "Unknown"; // default
+
+// Extract file ID from link
+function getFileIdFromLink(link) {
+  const match = link.match(/[-\w]{25,}/);
+  return match ? match[0] : null;
+}
+
+// Fetch file meta from Google Drive
+async function getDriveFileMeta(fileId) {
+  const url = `https://www.googleapis.com/drive/v3/files/${fileId}?fields=name,size,videoMediaMetadata&key=${DRIVE_API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  
+  if (data.error) {
+    console.error("Drive API error:", data.error);
+    return { size: "Unknown", duration: "Unknown", name: "" };
+  }
+  
+  const sizeMB = data.size ? (data.size / (1024 ** 3)).toFixed(2) + " GB | 1080p" : "Unknown";
+  
+  let duration = "Unknown";
+  if (data.videoMediaMetadata?.durationMillis) {
+    const sec = Math.floor(data.videoMediaMetadata.durationMillis / 1000);
+    const h = Math.floor(sec / 3600).toString().padStart(2, "0");
+    const m = Math.floor((sec % 3600) / 60).toString().padStart(2, "0");
+    const s = (sec % 60).toString().padStart(2, "0");
+    duration = `${h}:${m}:${s}`;
+  }
+  
+  return { size: sizeMB, duration, name: data.name || "" };
+}
+
+// Extract all possible languages from file name
+function extractLanguages(title) {
+  const possibleLanguages = [
+    "Hindi", "English", "French", "Tamil", "Telugu", "Spanish", "German",
+    "Malayalam", "Kannada", "Bengali", "Japanese", "Marathi", "Punjabi", "Gujarati"
+  ];
+  let found = possibleLanguages.filter(lang => title.toLowerCase().includes(lang.toLowerCase()));
+  return found.join(", ") || "Unknown";
+}
+
+// Replace ${language} placeholders in page
+function updateLanguagePlaceholders() {
+  document.body.innerHTML = document.body.innerHTML.replace(/\$\{language\}/g, language);
+}
+  
   const USD_TO_INR = 83; // Fixed conversion rate
 
 let budget = "Not Available";
@@ -201,13 +256,17 @@ if (fullData.budget && fullData.budget > 0) {
   const description = fullData.overview || "No description available.";
 
   const gdriveLink = document.getElementById("gdriveInput").value.trim();
-  let fileId = "";
-  if (gdriveLink.includes("id=")) {
-    fileId = gdriveLink.split("id=")[1].split("&")[0];
-  } else if (gdriveLink.includes("/d/")) {
-    fileId = gdriveLink.split("/d/")[1].split("/")[0];
-  }
+const fileId = getFileIdFromLink(gdriveLink);
 
+if (fileId) {
+  const driveMeta = await getDriveFileMeta(fileId);
+  duration = driveMeta.duration;
+  size = driveMeta.size;
+  
+  // Language detection from GDrive file name
+  language = extractLanguages(driveMeta.name);
+  updateLanguagePlaceholders(); // auto replace ${language} in HTML
+}
   const downloadLink = fileId ? `https://drive.google.com/uc?id=${fileId}&export=download` : "#";
   const watchLink = fileId ? `https://drive.google.com/file/d/${fileId}/preview` : "#";
 
@@ -236,6 +295,9 @@ if (fullData.budget && fullData.budget > 0) {
       <div class="meta-box">
         <div><strong>Release:</strong> ${release}</div>
         <div><strong>Director:</strong> ${director}</div>
+         <div><strong>Language:</strong> ${language}</div>
+ <div><strong>Duration:</strong> ${duration}</div>
+ <div><strong>Size:</strong> ${size}</div>
         <div><strong>Budget:</strong> ${budget}</div>
         
         <div>
