@@ -1,0 +1,434 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: white; }
+    input, button { padding: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    #movieDetails, .static-template {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    
+    .episodes-container {
+  margin-top: 20px;
+}
+.episode-box {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.reviews-box {
+  width: 90%;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: block;
+}
+.reviews-box:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+.button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #0056b3;
+}
+    
+    
+.trailer-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.trailer-container iframe {
+  width: 100%;
+  max-width: 720px;
+  height: 205px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+    
+    .related-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px;
+}
+
+.related-card {
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.related-card img {
+  width: 100px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.backdrop-container img {
+  width: 100%;
+  height: auto;
+  max-height: 250px; /* optional, to limit vertical size */
+  border-radius: 8px;
+  object-fit: cover;
+}
+.backdrop-img {
+  width: 160%;
+  max-width: 300px;     /* ⬅️ Increased size */
+  height: auto;
+  border-radius: 16px;  /* ⬅️ Increased border radius */
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional: adds a soft shadow */
+}
+
+    .cast-container{ display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card{
+      width: 120px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color:inherit;
+    }
+    .cast-card img{
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    .cast-card strong{
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+
+
+
+
+
+    .card { background: #eeeeee; padding: 15px; border-radius: 10px; margin-bottom: 20px; } 
+    .info-box { background: #e0ecf4; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+     
+    .button { background: #007B9E; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer; }
+
+
+    img.main-img { width: 100%; max-width: 100%; border-radius: 10px; }
+    textarea { width: 100%; height: 300px; margin-top: 20px; font-family: monospace; }
+    @media screen and (max-width: 600px) {
+      .cast-card { min-width: 100px; font-size: 14px; }
+      .button { width: 100%; margin: 5px 0; }
+    }
+  </style>
+  
+  
+  </head>
+  <body>
+    
+    <div>
+    <img src="https://image.tmdb.org/t/p/w500/7kbmuNn37gENS4nq1CDSKGQbHia.jpg" alt="Dupahiya" class="main-img">
+      <h2 align="center">Dupahiya</h2>
+      <p align="center" style="font-size: 16px;">IMDb Rating: 8.0 ⭐</p>
+      <div class="card"><p align="center">Dhadakpur, the Belgium of Bihar, is on the cusp of celebrating 25 years of being crime free. But chaos strikes when a never-seen-before motorbike, that was purchased as a wedding gift gets stolen 7 days before the ceremony! The journey taken by the bride's family and ex-lover to find the Dupahiya forms the heart of this comedy, which explores the hopes and aspirations of simple people.</p></div>
+      <div class="info-box">
+        <p><strong>Release S01:</strong> 2025-03-07</p>
+        
+        
+        <p><strong>Director:</strong> Sonam Nair</p>
+        
+      </div>
+      <br>
+      
+  <h3 align="center">Season 1 Episodes</h3>
+  
+  <div class="episodes-container">
+    
+      <div class="episode-box">
+        <p><strong>Episode 1</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1H8u-3qy9-hhs4S7QpYOOOAO9X1AzZUGY/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1H8u-3qy9-hhs4S7QpYOOOAO9X1AzZUGY" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 2</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1SHPZphli9IWpAfJIVgpzK1u6wec45Hjl/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1SHPZphli9IWpAfJIVgpzK1u6wec45Hjl" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 3</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1i80jgHDw9n60kw-GTZX3wQkCIgwnheUM/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1i80jgHDw9n60kw-GTZX3wQkCIgwnheUM" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 4</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1lZlvyp_0MEbTyaGpHi5gmQ9v7tSIHm-9/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1lZlvyp_0MEbTyaGpHi5gmQ9v7tSIHm-9" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 5</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/15G2s3FsSxvB1BvRT6h5surPbIpjn6A5t/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=15G2s3FsSxvB1BvRT6h5surPbIpjn6A5t" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 6</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1Mab8zrJhoOcYFzvVJjbM_URhMysKLPRl/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1Mab8zrJhoOcYFzvVJjbM_URhMysKLPRl" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 7</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1u7UM5ols8AQ1ARZ48qp32wiBdfZNRETl/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1u7UM5ols8AQ1ARZ48qp32wiBdfZNRETl" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 8</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/11_jwew8lgCxbXpIt_dw1b90qmxs15vKU/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=11_jwew8lgCxbXpIt_dw1b90qmxs15vKU" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 9</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1ROISRN_x_sMoopAltnOtY9Lgsub7G4Jy/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1ROISRN_x_sMoopAltnOtY9Lgsub7G4Jy" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+  </div>
+ <br>
+            <h3 align="center">Top Cast</h3>
+      <div class="cast-container">
+        
+        
+          <a href="https://www.google.com/search?q=Gajraj%20Rao" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/pomm4rYhIDqoEHtzKucbEOoJp7n.jpg" alt="Gajraj Rao"> 
+            <br><br>
+            <strong>Gajraj Rao</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Bhuvan%20Arora" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/AtEfX9ta8LZTWh7yZ4dVc2wpIRO.jpg" alt="Bhuvan Arora"> 
+            <br><br>
+            <strong>Bhuvan Arora</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Sparsh%20Shrivastava" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/d123XZfocCLnc5LAjrlBifffYFf.jpg" alt="Sparsh Shrivastava"> 
+            <br><br>
+            <strong>Sparsh Shrivastava</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Shivani%20Raghuvanshi" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/6FPUkeFFJ9IlnKJXy0RTj3IOQ1P.jpg" alt="Shivani Raghuvanshi"> 
+            <br><br>
+            <strong>Shivani Raghuvanshi</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Renuka%20Shahane" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/vTHNsCtOCRrRf643XNWNK4goPpY.jpg" alt="Renuka Shahane"> 
+            <br><br>
+            <strong>Renuka Shahane</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Yashpal%20Sharma" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/hYDZkMl6u3rM2cASabpHgrvA0mf.jpg" alt="Yashpal Sharma"> 
+            <br><br>
+            <strong>Yashpal Sharma</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Anjuman%20Saxena" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/lRlbH3fMAejg9wJlIFI2f0nbg17.jpg" alt="Anjuman Saxena"> 
+            <br><br>
+            <strong>Anjuman Saxena</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Aaloak%20Kapoor" target="_blank" class="cast-card">
+          
+            <img src="https://via.placeholder.com/100?text=No+Image" alt="Aaloak Kapoor"> 
+            <br><br>
+            <strong>Aaloak Kapoor</strong>
+          </a>
+        
+      </div>
+      <br>
+      <center>
+        
+     
+      
+      
+      <h3 align="center">
+        Backdrops
+      </h3> <br>
+        
+  <div>
+  
+    <div class="backdrop-container">
+      
+<img src="https://image.tmdb.org/t/p/w500/rmZh9TkQIZ9XfTjniUyLGIIACLG.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/fvpQzDsuGpMlnl1mdaRCNdYPkkG.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/y7un3LUKPcToiCuexrOxflbbvDE.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/jgWy9PZ5sDougwp7UVyT0ktCBbJ.jpg" class="backdrop-img">
+    </div>
+  </div>
+
+
+<br>
+<h3>
+  Reviews
+</h3>
+
+
+
+
+
+
+
+  <div class="reviews-box" onclick="window.open('https://www.themoviedb.org/tv/249755/reviews', '_blank')">
+    <p>📖 Click to Read Reviews</p>
+  </div>
+
+
+
+
+
+
+
+
+
+<br>
+<h3 align="center">Related Shows</h3>
+<div class="cast-container">
+  
+  <a href="https://www.google.com/search?q=The%20Last%20of%20Us" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/dmo6TYuuJgaYinXBPjrgG9mB5od.jpg" alt="The Last of Us">
+    <strong>The Last of Us</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Breaking%20Bad" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" alt="Breaking Bad">
+    <strong>Breaking Bad</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Game%20of%20Thrones" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg" alt="Game of Thrones">
+    <strong>Game of Thrones</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Chernobyl" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/hlLXt2tOPT6RRnjiUmoxyG1LTFi.jpg" alt="Chernobyl">
+    <strong>Chernobyl</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=WandaVision" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/sgCHdBJ1w0vJNUrW1Sq90KEXv9j.jpg" alt="WandaVision">
+    <strong>WandaVision</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=You" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/oANi0vEE92nuijiZQgPZ88FSxqQ.jpg" alt="You">
+    <strong>You</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Stranger%20Things" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/uOOtwVbSr4QDjAGIifLDwpb2Pdl.jpg" alt="Stranger Things">
+    <strong>Stranger Things</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Wednesday" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg" alt="Wednesday">
+    <strong>Wednesday</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Black%20Mirror" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/seN6rRfN0I6n8iDXjlSMk1QjNcq.jpg" alt="Black Mirror">
+    <strong>Black Mirror</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Loki" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/oJdVHUYrjdS2IqiNztVIP4GPB1p.jpg" alt="Loki">
+    <strong>Loki</strong></a>
+  
+  
+</div>
+
+
+    </center></div>
+  
+  </body>
+  </html>
+  
