@@ -385,6 +385,8 @@ const cardCode = `
 </a>
 `.trim();
 
+
+
 document.getElementById("movieCardBox").value = cardCode;
 
 
@@ -459,14 +461,23 @@ function downloadHTML() {
   const fileName = document.getElementById('filename').value.trim() || 'movie-page';
   const movieContent = document.getElementById('movieDetails').innerHTML;
   
+  const gtagScript = `
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TYV1T063RV"><\/script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-TYV1T063RV');
+<\/script>
+`;
+  
   const fullHTML = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-
-
-  <meta charset="UTF-8" />
+${gtagScript}
+ <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>${fileName}</title>
   <style>
@@ -561,6 +572,7 @@ background-color: #e0e0e0;
 </head>
 <body>
   ${movieContent}
+  
 </body>
 </html>
 `;
