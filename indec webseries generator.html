@@ -349,7 +349,7 @@ let episodeButtonsHTML = `
         
           <a href="https://www.google.com/search?q=${encodeURIComponent(c.name)}" target="_blank" class="cast-card">
           
-            <img src="${c.profile_path ? BASE_IMG + c.profile_path : 'https://via.placeholder.com/100?text=No+Image'}" alt="${c.name}" /> 
+            <img src="${c.profile_path ? BASE_IMG + c.profile_path : 'https://via.placeholder.com/100?text=No+Image'}" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="${c.name}" /> 
             <br /><br />
             <strong>${c.name}</strong>
           </a>
@@ -401,7 +401,7 @@ ${fullData.id ? `
 <div class="cast-container">
   ${relatedShows.map(show => `
   <a href="https://www.google.com/search?q=${encodeURIComponent(show.title || show.name)}" target="_blank" class="cast-card">  
-    <img src="${show.poster_path ? BASE_IMG + show.poster_path : 'https://via.placeholder.com/100x150?text=No+Image'}" alt="${show.title || show.name}" />
+    <img src="${show.poster_path ? BASE_IMG + show.poster_path : 'https://via.placeholder.com/100x150?text=No+Image'}" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="${show.title || show.name}" />
     <strong>${show.title || show.name}</strong></a>
   
   `).join('')}
