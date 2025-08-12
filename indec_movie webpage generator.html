@@ -333,7 +333,7 @@ if (fileId) {
 <div class="cast-container">
   ${cast.map(c => `
   <a href="https://www.google.com/search?q=${encodeURIComponent(c.name)}" target="_blank" class="cast-card">
-    <img src="${c.profile_path ? BASE_IMG + c.profile_path : 'https://via.placeholder.com/100?text=No+Image'}" alt="${c.name}" />
+    <img src="${c.profile_path ? BASE_IMG + c.profile_path : 'https://via.placeholder.com/100?text=No+Image'}"  onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="${c.name}" />
     <strong>${c.name}</strong>
     <div style="color:grey">${c.character}</div>
   </a>
@@ -359,7 +359,7 @@ if (fileId) {
 <div class="cast-container">
   ${similarMovies.map(movie => `
   <a href="https://www.google.com/search?q=${encodeURIComponent(movie.title)}" target="_blank" class="cast-card">
-    <img src="${BASE_IMG + movie.poster_path}" alt="${movie.title}" />
+    <img src="${BASE_IMG + movie.poster_path}" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="${movie.title}" />
     <p>${movie.title}</p>
   </a>
   `).join('')}
