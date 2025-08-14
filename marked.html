@@ -1,0 +1,404 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TYV1T063RV"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-TYV1T063RV');
+</script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: white; }
+    input, button { padding: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    #movieDetails, .static-template {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    
+    .episodes-container {
+  margin-top: 20px;
+}
+.episode-box {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.reviews-box {
+  width: 90%;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: block;
+}
+.reviews-box:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+.button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #0056b3;
+}
+    
+    
+.trailer-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.trailer-container iframe {
+  width: 100%;
+  max-width: 720px;
+  height: 205px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+    
+    .related-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px;
+}
+
+.related-card {
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.related-card img {
+  width: 100px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.backdrop-container img {
+  width: 100%;
+  height: auto;
+  max-height: 250px; /* optional, to limit vertical size */
+  border-radius: 8px;
+  object-fit: cover;
+}
+.backdrop-img {
+  width: 160%;
+  max-width: 300px;     /* ⬅️ Increased size */
+  height: auto;
+  border-radius: 16px;  /* ⬅️ Increased border radius */
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional: adds a soft shadow */
+}
+
+    .cast-container{ display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card{
+      width: 120px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color:inherit;
+    }
+    .cast-card img{
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    .cast-card strong{
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+
+
+
+
+
+    .card { background: #eeeeee; padding: 15px; border-radius: 10px; margin-bottom: 20px; } 
+    .info-box { background: #e0ecf4; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+     
+    .button { background: #007B9E; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer; }
+
+
+    img.main-img { width: 100%; max-width: 100%; border-radius: 10px; }
+    textarea { width: 100%; height: 300px; margin-top: 20px; font-family: monospace; }
+    @media screen and (max-width: 600px) {
+      .cast-card { min-width: 100px; font-size: 14px; }
+      .button { width: 100%; margin: 5px 0; }
+    }
+  </style>
+  
+  
+  </head>
+  <body>
+    
+    <div>
+    <img src="https://image.tmdb.org/t/p/w500/1XFP7vl4KDAuCNOdtq8lFm5LeSW.jpg" alt="Marked" class="main-img">
+      <h2 align="center">Marked</h2>
+      <p align="center" style="font-size: 16px;">IMDb Rating: 6.5 ⭐</p>
+      <div class="card"><p align="center">Desperate to pay for her daughter's life-saving surgery, devout ex-cop Babalwa turns to an unholy savior to help her stage a daring heist.</p></div>
+      <div class="info-box">
+        <p><strong>Release S01:</strong> 2025-07-31</p>
+      
+       <p><strong>Language:</strong>Hindi &amp; English</p>
+      </div>
+      <br>
+      
+  <h3 align="center">Season 1 Episodes</h3>
+  
+  <div class="episodes-container">
+    
+      <div class="episode-box">
+        <p><strong>Episode 1</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1Ra_TcNM7ueWQK9h0oqSeiaer8N2gP2ZI/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1Ra_TcNM7ueWQK9h0oqSeiaer8N2gP2ZI" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 2</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1XY80D8V8EXx-o3GLQvSzRchRT1_BxUHz/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1XY80D8V8EXx-o3GLQvSzRchRT1_BxUHz" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 3</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1yKmDZX3KJCehQOv6_0LywlDWMdO6tvpN/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1yKmDZX3KJCehQOv6_0LywlDWMdO6tvpN" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 4</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1N3auKzbZsbgGHfyL986TtVh5y_xe1ffr/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1N3auKzbZsbgGHfyL986TtVh5y_xe1ffr" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 5</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1iotBD_Y7_WAxRlEe-qiLQa9IhqRZnECT/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1iotBD_Y7_WAxRlEe-qiLQa9IhqRZnECT" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 6</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1EOE6-G41UZHwVz4vR2crHC7TmbfLjmD-/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1EOE6-G41UZHwVz4vR2crHC7TmbfLjmD-" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+  </div>
+ <br>
+            <h3 align="center">Top Cast</h3>
+      <div class="cast-container">
+        
+        
+          <a href="https://www.google.com/search?q=Lerato%20Mvelase" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/77RP1P3gnGDFBLRhnr4inBJoxBS.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Lerato Mvelase"> 
+            <br><br>
+            <strong>Lerato Mvelase</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Sphamandla%20Dhludhlu" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/aebUujfrLLmohaajpt2KUihzbJl.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Sphamandla Dhludhlu"> 
+            <br><br>
+            <strong>Sphamandla Dhludhlu</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=S'Dumo%20Mtshali" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/u9IOLd6L7ae9SrFWWtz4wR7AblP.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="S'Dumo Mtshali"> 
+            <br><br>
+            <strong>S'Dumo Mtshali</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Jabulani%20Mthembu" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/M7xkY5lg3csrc8LCJWFDTsqCLb.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Jabulani Mthembu"> 
+            <br><br>
+            <strong>Jabulani Mthembu</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Jerry%20Mofokeng" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/fa4r7m3cQopZR4oNHds8XyJCIJy.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Jerry Mofokeng"> 
+            <br><br>
+            <strong>Jerry Mofokeng</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Pheello%20Kotelo" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/rAtiIxS017eeoVttVyHAIP8ul1l.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Pheello Kotelo"> 
+            <br><br>
+            <strong>Pheello Kotelo</strong>
+          </a>
+        
+      </div>
+      <br>
+      <center>
+        
+     
+      
+  <h3> Trailer</h3><h3>
+  <div class="trailer-container">
+    <iframe src="https://www.youtube.com/embed/lW2QZxPmuus" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+  </div>
+      
+      </h3><h3 align="center">
+        Backdrops
+      </h3> <br>
+        
+  <div>
+  
+    <div class="backdrop-container">
+      
+<img src="https://image.tmdb.org/t/p/w500/maxJ6oaC3tgO0lUiudLCLN4FPS8.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/sIu0YzBhCEZLsnGcZ7HysB5hl25.jpg" class="backdrop-img">
+    </div>
+  </div>
+
+
+<br>
+<h3>
+  Reviews
+</h3>
+
+
+
+
+
+
+
+  <div class="reviews-box" onclick="window.open('https://www.themoviedb.org/tv/293808/reviews', '_blank')">
+    <p>📖 Click to Read Reviews</p>
+  </div>
+
+
+
+
+
+
+
+
+
+<br>
+<h3 align="center">Related Shows</h3>
+<div class="cast-container">
+  
+  <a href="https://www.google.com/search?q=Hart%20tegen%20Hart" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/emZbRNsxMLoyAGIyayZKv6KecmK.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Hart tegen Hart">
+    <strong>Hart tegen Hart</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=El%20Capo" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/hTwfFidPtRU3BUH8mK90jWyPyBr.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="El Capo">
+    <strong>El Capo</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=X-Men" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/pHpgvAC1FwSIC2THfuCO6mAoGa2.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="X-Men">
+    <strong>X-Men</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Criminal%3A%20UK" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/bfsLO69G3ly9OyPlUxWFxgjbrLt.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Criminal: UK">
+    <strong>Criminal: UK</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Eternal%20Love" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/paeDktO7Bx2lmv9mEDiHtneoYrF.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Eternal Love">
+    <strong>Eternal Love</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Scooby's%20Laff-A%20Lympics" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/xnOyqYYx81buw4YZI6xuqxPaD6C.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Scooby's Laff-A Lympics">
+    <strong>Scooby's Laff-A Lympics</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Smallville" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/pUhJGETy2sec4vEkiqJ9eGeIywc.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Smallville">
+    <strong>Smallville</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Dragon%20Ball%20Z" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/i1lMlxir5E4jyeLlqS2bK1Cn3Tt.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Dragon Ball Z">
+    <strong>Dragon Ball Z</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=The%20Mafia%20Dolls" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/5rDeU3578NCc0f1ZPb02MPo27Rd.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="The Mafia Dolls">
+    <strong>The Mafia Dolls</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Ecomoda" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/eQgvi0yufzRV8A3i4lVheMxU2RN.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Ecomoda">
+    <strong>Ecomoda</strong></a>
+  
+  
+</div>
+
+
+    </center></div>
+  
+  </body>
+  </html>
+  
