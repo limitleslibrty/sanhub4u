@@ -227,7 +227,7 @@ async function getDriveFileMeta(fileId) {
 function extractLanguages(title) {
   const possibleLanguages = [
     "Hindi", "English", "French", "Tamil", "Telugu", "Spanish", "German",
-    "Malayalam", "Kannada", "Bengali", "Japanese", "Marathi", "Punjabi", "Gujarati"
+    "Malayalam", "Kannada", "Bengali", "Japanese", "Marathi", "Chinese" , "Punjabi", "Gujarati"
   ];
   let found = possibleLanguages.filter(lang => title.toLowerCase().includes(lang.toLowerCase()));
   return found.join(", ") || "Unknown";
