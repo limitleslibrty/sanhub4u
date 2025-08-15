@@ -1,0 +1,362 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TYV1T063RV"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-TYV1T063RV');
+</script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: white; }
+    input, button { padding: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    #movieDetails, .static-template {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    
+    .episodes-container {
+  margin-top: 20px;
+}
+.episode-box {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.reviews-box {
+  width: 90%;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: block;
+}
+.reviews-box:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+.button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #0056b3;
+}
+    
+    
+.trailer-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.trailer-container iframe {
+  width: 100%;
+  max-width: 720px;
+  height: 205px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+    
+    .related-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px;
+}
+
+.related-card {
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.related-card img {
+  width: 100px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.backdrop-container img {
+  width: 100%;
+  height: auto;
+  max-height: 250px; /* optional, to limit vertical size */
+  border-radius: 8px;
+  object-fit: cover;
+}
+.backdrop-img {
+  width: 160%;
+  max-width: 300px;     /* ⬅️ Increased size */
+  height: auto;
+  border-radius: 16px;  /* ⬅️ Increased border radius */
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional: adds a soft shadow */
+}
+
+    .cast-container{ display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card{
+      width: 120px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color:inherit;
+    }
+    .cast-card img{
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    .cast-card strong{
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+
+
+
+
+
+    .card { background: #eeeeee; padding: 15px; border-radius: 10px; margin-bottom: 20px; } 
+    .info-box { background: #e0ecf4; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+     
+    .button { background: #007B9E; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer; }
+
+
+    img.main-img { width: 100%; max-width: 100%; border-radius: 10px; }
+    textarea { width: 100%; height: 300px; margin-top: 20px; font-family: monospace; }
+    @media screen and (max-width: 600px) {
+      .cast-card { min-width: 100px; font-size: 14px; }
+      .button { width: 100%; margin: 5px 0; }
+    }
+  </style>
+  
+  
+  </head>
+  <body>
+    
+    <div>
+    <img src="https://image.tmdb.org/t/p/w500/gCVzLTyHzgLDmZejInUtq4FeirN.jpg" alt="Sena - Guardians of the Nation" class="main-img">
+      <h2 align="center">Sena - Guardians of the Nation</h2>
+      <p align="center" style="font-size: 16px;">IMDb Rating: 0.0 ⭐</p>
+      <div class="card"><p align="center">A dedicated Indian Army Captain and his father are captured by militants in Kashmir, forcing them to reconcile their past differences while planning a daring escape that could save their lives and thwart a terrorist plot.</p></div>
+      <div class="info-box">
+        <p><strong>Release S01:</strong> 2025-08-13</p>
+      
+       <p><strong>Language:</strong>Hindi &amp; English</p>
+      </div>
+      <br>
+      
+  <h3 align="center">Season 1 Episodes</h3>
+  
+  <div class="episodes-container">
+    
+      <div class="episode-box">
+        <p><strong>Episode 1</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1Y2n5NzsxPZ3hwVi9dKOMqGGLtoEQM2hT/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1Y2n5NzsxPZ3hwVi9dKOMqGGLtoEQM2hT" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 2</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1Hco4Eh0HVOcoNDsduCydreHSmbf7kJGv/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1Hco4Eh0HVOcoNDsduCydreHSmbf7kJGv" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 3</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/14XWPkxsJOi14RXUN2yN17urlFh9gjknE/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=14XWPkxsJOi14RXUN2yN17urlFh9gjknE" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 4</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1XnVsqREwNtypeuWOGeulX77qTJIlMej6/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1XnVsqREwNtypeuWOGeulX77qTJIlMej6" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 5</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1mgFyRyB6QGcLWFkPdiqJ7kre4dxP_QPm/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1mgFyRyB6QGcLWFkPdiqJ7kre4dxP_QPm" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+  </div>
+ <br>
+            <h3 align="center">Top Cast</h3>
+      <div class="cast-container">
+        
+        
+          <a href="https://www.google.com/search?q=Vikram%20Singh%20Chauhan" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/v0ZovWaL6dmEab0C3AhSg9aBQNv.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Vikram Singh Chauhan"> 
+            <br><br>
+            <strong>Vikram Singh Chauhan</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Yashpal%20Sharma" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/hYDZkMl6u3rM2cASabpHgrvA0mf.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Yashpal Sharma"> 
+            <br><br>
+            <strong>Yashpal Sharma</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Rahul%20Tewari" target="_blank" class="cast-card">
+          
+            <img src="your-cast-image.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Rahul Tewari"> 
+            <br><br>
+            <strong>Rahul Tewari</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Anupam%20Bhattacharya" target="_blank" class="cast-card">
+          
+            <img src="your-cast-image.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Anupam Bhattacharya"> 
+            <br><br>
+            <strong>Anupam Bhattacharya</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Neelu%20Dogra" target="_blank" class="cast-card">
+          
+            <img src="your-cast-image.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Neelu Dogra"> 
+            <br><br>
+            <strong>Neelu Dogra</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Vijay%20Vikram%20Singh" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/5YOkXwV36PPLjiIQZmvlvkLh1Jo.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Vijay Vikram Singh"> 
+            <br><br>
+            <strong>Vijay Vikram Singh</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Shirley%20Setia" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/w9nYFXC1VSEb6piXv8G0o5GDmG6.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Shirley Setia"> 
+            <br><br>
+            <strong>Shirley Setia</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Anandeshwar%20Dwivedi" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/8sOfGXukWSWaFWHSU8bGNyPNvB.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Anandeshwar Dwivedi"> 
+            <br><br>
+            <strong>Anandeshwar Dwivedi</strong>
+          </a>
+        
+      </div>
+      <br>
+      <center>
+        
+     
+      
+  <h3> Trailer</h3><h3>
+  <div class="trailer-container">
+    <iframe src="https://www.youtube.com/embed/80aiM9VFBj0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+  </div>
+      
+      </h3><h3 align="center">
+        Backdrops
+      </h3> <br>
+        
+  <div>
+  
+    <div class="backdrop-container">
+      
+<img src="https://image.tmdb.org/t/p/w500/1ja3713TboGUfl2vMMN35YcF7R0.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/t2hvFgAi1v5nnl1tjZeYi7xmBhv.jpg" class="backdrop-img">
+    </div>
+  </div>
+
+
+<br>
+<h3>
+  Reviews
+</h3>
+
+
+
+
+
+
+
+  <div class="reviews-box" onclick="window.open('https://www.themoviedb.org/tv/298187/reviews', '_blank')">
+    <p>📖 Click to Read Reviews</p>
+  </div>
+
+
+
+
+
+
+
+
+
+<br>
+<h3 align="center">Related Shows</h3>
+<div class="cast-container">
+  
+</div>
+
+
+    </center></div>
+  
+  </body>
+  </html>
+  
