@@ -142,14 +142,31 @@
     let messageMap = {};
 
     // Always require password on refresh
-    window.onload = function () {
-      const savedEmail = localStorage.getItem('userEmail');
-      if (savedEmail && savedEmail.includes('@')) {
-        emailInput.value = savedEmail; // prefill email only
-      }
+    window.onload = function() {
+  const savedEmail = localStorage.getItem('userEmail');
+  
+  if (savedEmail) {
+    // ✅ Skip login page, go directly to chat
+    userKey = savedEmail.replace(/\./g, '_');
+    startEl.classList.remove('active');
+    chatEl.classList.add('active');
+    loadMessages();
+    
+    // Ask for password using default Chrome popup
+    const pass = prompt("Enter your password:");
+    if (pass !== "mahi@123") {
+      alert("Incorrect password!");
+      // Clear storage and redirect back to login
+      localStorage.removeItem('userEmail');
       startEl.classList.add('active');
       chatEl.classList.remove('active');
-    };
+    }
+  } else {
+    // No email stored → normal login
+    startEl.classList.add('active');
+    chatEl.classList.remove('active');
+  }
+};
 
     function startChat() {
       const email = emailInput.value.trim();
