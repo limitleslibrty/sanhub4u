@@ -56,7 +56,6 @@
       padding: 5px 10px;
       font-size: 13px;
       margin-bottom: 5px;
-      
       color: #333;
       border-radius: 4px;
     }
@@ -88,7 +87,6 @@
       align-self: flex-end;
     }
 
-    /* Reply arrow indicator */
     .reply-indicator {
       position: absolute;
       top: 50%;
@@ -100,6 +98,17 @@
     }
     .from-user .reply-indicator { left: -25px; }
     .from-brother .reply-indicator { right: -25px; }
+
+    /* Date Divider */
+    .date-divider {
+      align-self: center;
+      background: #d3d3d3;
+      color: #333;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
@@ -141,37 +150,29 @@
     let messageListener = null;
     let messageMap = {};
 
-    // Always require password on refresh
     window.onload = function() {
-  const savedEmail = localStorage.getItem('userEmail');
-  
-  if (savedEmail) {
-    // ✅ Skip login page, go directly to chat
-    userKey = savedEmail.replace(/\./g, '_');
-    startEl.classList.remove('active');
-    chatEl.classList.add('active');
-    loadMessages();
-    
-    // Ask for password using default Chrome popup
-    const pass = prompt("Enter your password:");
-    if (pass !== "mahi@123") {
-      alert("Incorrect password!");
-      // Clear storage and redirect back to login
-      localStorage.removeItem('userEmail');
-      startEl.classList.add('active');
-      chatEl.classList.remove('active');
-    }
-  } else {
-    // No email stored → normal login
-    startEl.classList.add('active');
-    chatEl.classList.remove('active');
-  }
-};
+      const savedEmail = localStorage.getItem('userEmail');
+      if (savedEmail) {
+        userKey = savedEmail.replace(/\./g, '_');
+        startEl.classList.remove('active');
+        chatEl.classList.add('active');
+        loadMessages();
+        const pass = prompt("Enter your password:");
+        if (pass !== "mahi@123") {
+          alert("Incorrect password!");
+          localStorage.removeItem('userEmail');
+          startEl.classList.add('active');
+          chatEl.classList.remove('active');
+        }
+      } else {
+        startEl.classList.add('active');
+        chatEl.classList.remove('active');
+      }
+    };
 
     function startChat() {
       const email = emailInput.value.trim();
       const pass = passInput.value.trim();
-
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) {
         alert('Please enter a valid email');
@@ -181,8 +182,7 @@
         alert('Incorrect password!');
         return;
       }
-
-      localStorage.setItem('userEmail', email); // save only email
+      localStorage.setItem('userEmail', email);
       userKey = email.replace(/\./g, '_');
       startEl.classList.remove('active');
       chatEl.classList.add('active');
@@ -192,7 +192,6 @@
     function loadMessages() {
       messagesEl.innerHTML = '';
       if (messageListener) messageListener.off();
-
       const ref = db.ref('chats/' + userKey);
       ref.on('value', snap => {
         messagesEl.innerHTML = '';
@@ -204,7 +203,15 @@
           msgs.push(msg);
         });
         msgs.sort((a, b) => a.key - b.key);
-        msgs.forEach(addBubble);
+        let lastDate = '';
+        msgs.forEach(m => {
+          const msgDate = new Date(parseInt(m.time || m.key)).toDateString();
+          if (msgDate !== lastDate) {
+            addDateDivider(msgDate);
+            lastDate = msgDate;
+          }
+          addBubble(m);
+        });
         scrollToBottom();
       });
       messageListener = ref;
@@ -213,7 +220,6 @@
     function sendMessage() {
       const msg = msgInput.value.trim();
       if (msg === '') return;
-
       const ref = db.ref('chats/' + userKey);
       const key = Date.now();
       const newMsg = {
@@ -222,12 +228,26 @@
         time: key,
         replyTo: replyTo ? replyTo.key : null
       };
-
       ref.child(key).set(newMsg);
       msgInput.value = '';
       replyTo = null;
       replyBox.style.display = 'none';
       scrollToBottom();
+    }
+
+    function addDateDivider(dateStr) {
+      const div = document.createElement('div');
+      div.className = 'date-divider';
+      div.innerText = formatDateForDivider(dateStr);
+      messagesEl.appendChild(div);
+    }
+
+    function formatDateForDivider(dateStr) {
+      const today = new Date().toDateString();
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      if (dateStr === today) return "Today";
+      if (dateStr === yesterday) return "Yesterday";
+      return dateStr; // e.g., Mon Mar 03 2025
     }
 
     function addBubble(data) {
@@ -252,15 +272,12 @@
       timeDiv.textContent = new Date(parseInt(ts)).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
       div.appendChild(timeDiv);
 
-      // reply indicator arrow
       const indicator = document.createElement('div');
       indicator.className = 'reply-indicator';
-      indicator.innerHTML = '&#8617;'; // ↩
+      indicator.innerHTML = '&#8617;';
       div.appendChild(indicator);
 
-      // Add swipe detection
       addSwipeListeners(div, data, indicator);
-
       messagesEl.appendChild(div);
     }
 
@@ -268,40 +285,33 @@
       let startX = 0, startY = 0, currentX = 0;
       let isDragging = false;
       const threshold = 70;
-
       element.addEventListener("touchstart", e => {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         isDragging = true;
         element.style.transition = "none";
       });
-
       element.addEventListener("touchmove", e => {
         if (!isDragging) return;
         currentX = e.touches[0].clientX;
         let diffX = currentX - startX;
         let diffY = e.touches[0].clientY - startY;
-
-        if (Math.abs(diffY) > 40) return; // ignore vertical
-
+        if (Math.abs(diffY) > 40) return;
         element.style.transform = `translateX(${diffX}px)`;
-
         if (Math.abs(diffX) > 30) {
           indicator.style.opacity = "1";
         } else {
           indicator.style.opacity = "0";
         }
       });
-
       element.addEventListener("touchend", () => {
         isDragging = false;
         element.style.transition = "transform 0.25s ease";
         indicator.style.opacity = "0";
-
         let diffX = currentX - startX;
         if (Math.abs(diffX) > threshold) {
           setReply(msgData);
-          if (navigator.vibrate) navigator.vibrate(20); // haptic on reply
+          if (navigator.vibrate) navigator.vibrate(20);
         }
         element.style.transform = "translateX(0)";
       });
