@@ -122,6 +122,11 @@
     <div id="chatHeader">
       <img src="chat_logo.png" alt="logo" />
       <div id="chatTitle">Babu😘</div>
+      
+  <span id="statusIndicator" style="font-size:12px; margin-left:8px;"></span>
+
+      
+      
     </div>
 
     <div id="messages"></div>
@@ -187,6 +192,10 @@ window.onload = function() {
     chatEl.classList.remove('active');
   }
 };
+
+
+
+listenToStatus("brother");  // use actual brother key
 
 // ----------------- START CHAT -----------------
 function startChat() {
@@ -293,7 +302,15 @@ function addBubble(data) {
   const timeDiv = document.createElement('div');
   timeDiv.className = 'msg-time';
   const ts = data.time || data.key;
-  timeDiv.textContent = new Date(parseInt(ts)).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+  
+  
+  timeDiv.textContent = new Date(parseInt(ts)).toLocaleTimeString([], {
+  hour: 'numeric',
+  minute: '2-digit',
+  hour12: true
+});
+
+
   div.appendChild(timeDiv);
 
   const indicator = document.createElement('div');
@@ -351,6 +368,51 @@ function setReply(msg) {
 function scrollToBottom() {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
+
+function formatLastSeen(timestamp) {
+  const date = new Date(timestamp);
+  const now = new Date();
+  
+  const isToday = date.toDateString() === now.toDateString();
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  const time = date.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  });
+  
+  if (isToday) {
+    return "today at " + time;
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return "yesterday at " + time;
+  } else {
+    return date.toLocaleDateString() + " at " + time;
+  }
+}
+
+
+
+function listenToStatus(friendKey) {
+  const statusIndicator = document.getElementById("statusIndicator");
+  
+  db.ref("status/" + friendKey).on("value", (snapshot) => {
+    const status = snapshot.val();
+    if (status && status.state === "online") {
+      statusIndicator.textContent = "● Online";
+      statusIndicator.style.color = "limegreen";
+    } else if (status) {
+      statusIndicator.textContent = "last seen " + formatLastSeen(status.last_changed);
+      statusIndicator.style.color = "gray";
+    } else {
+      statusIndicator.textContent = "● Offline";
+      statusIndicator.style.color = "gray";
+    }
+  });
+}
+
+
 </script>
 
 
