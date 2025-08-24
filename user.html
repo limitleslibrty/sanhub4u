@@ -136,196 +136,181 @@
   </div>
 
   <script>
-    const db = firebase.database();
-    const startEl = document.getElementById('start');
-    const chatEl = document.getElementById('chat');
-    const messagesEl = document.getElementById('messages');
-    const msgInput = document.getElementById('msgInput');
-    const emailInput = document.getElementById('emailInput');
-    const passInput = document.getElementById('passInput');
-    const replyBox = document.getElementById('replyBox');
-
-    let userKey = '';
-    let replyTo = null;
-    let messageListener = null;
-    let messageMap = {};
-
-    window.onload = function() {
-      const savedEmail = localStorage.getItem('userEmail');
-      if (savedEmail) {
-        userKey = savedEmail.replace(/\./g, '_');
-        startEl.classList.remove('active');
-        chatEl.classList.add('active');
-        loadMessages();
-        const pass = prompt("Enter your password:");
-        if (pass !== "mahi@123") {
-          alert("Incorrect password!");
-          localStorage.removeItem('userEmail');
-          startEl.classList.add('active');
-          chatEl.classList.remove('active');
-        }
-      } else {
-        startEl.classList.add('active');
-        chatEl.classList.remove('active');
+  const db = firebase.database();
+  
+  const startEl = document.getElementById('start');
+  const chatEl = document.getElementById('chat');
+  const messagesEl = document.getElementById('messages');
+  const msgInput = document.getElementById('msgInput');
+  const emailInput = document.getElementById('emailInput');
+  const passInput = document.getElementById('passInput');
+  const replyBox = document.getElementById('replyBox');
+  
+  let userKey = '';
+  let replyTo = null;
+  let messageListener = null;
+  let messageMap = {};
+  
+  // ----------------- PRESENCE TRACKING -----------------
+  function trackPresence() {
+    if (!userKey) return;
+    
+    const userStatusRef = db.ref('status/' + userKey);
+    
+    // Listen to connection state
+    db.ref('.info/connected').on('value', snap => {
+      if (snap.val() === true) {
+        // When disconnected, set offline
+        userStatusRef.onDisconnect().set('offline');
+        // Set online now
+        userStatusRef.set('online')
+          .then(() => console.log('User status set to online'))
+          .catch(err => console.error('Error setting online status:', err));
       }
-    };
-
-    function startChat() {
-      const email = emailInput.value.trim();
-      const pass = passInput.value.trim();
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email)) {
-        alert('Please enter a valid email');
-        return;
-      }
-      if (pass !== 'mahi@123') {
-        alert('Incorrect password!');
-        return;
-      }
-      localStorage.setItem('userEmail', email);
-      userKey = email.replace(/\./g, '_');
+    });
+  }
+  
+  // ----------------- ON PAGE LOAD -----------------
+  window.onload = function() {
+    const savedEmail = localStorage.getItem('userEmail');
+    if (savedEmail) {
+      userKey = savedEmail.replace(/\./g, '_');
       startEl.classList.remove('active');
       chatEl.classList.add('active');
       loadMessages();
-    }
-
-    function loadMessages() {
-      messagesEl.innerHTML = '';
-      if (messageListener) messageListener.off();
-      const ref = db.ref('chats/' + userKey);
-      ref.on('value', snap => {
-        messagesEl.innerHTML = '';
-        messageMap = {};
-        const msgs = [];
-        snap.forEach(c => {
-          const msg = { key: c.key, ...c.val() };
-          messageMap[c.key] = msg;
-          msgs.push(msg);
-        });
-        msgs.sort((a, b) => a.key - b.key);
-        let lastDate = '';
-        msgs.forEach(m => {
-          const msgDate = new Date(parseInt(m.time || m.key)).toDateString();
-          if (msgDate !== lastDate) {
-            addDateDivider(msgDate);
-            lastDate = msgDate;
-          }
-          addBubble(m);
-        });
-        scrollToBottom();
-      });
-      messageListener = ref;
-    }
-
-    function sendMessage() {
-      const msg = msgInput.value.trim();
-      if (msg === '') return;
-      const ref = db.ref('chats/' + userKey);
-      const key = Date.now();
-      const newMsg = {
-        text: msg,
-        from: 'user',
-        time: key,
-        replyTo: replyTo ? replyTo.key : null
-      };
-      ref.child(key).set(newMsg);
-      msgInput.value = '';
-      replyTo = null;
-      replyBox.style.display = 'none';
-      scrollToBottom();
-    }
-
-    function addDateDivider(dateStr) {
-      const div = document.createElement('div');
-      div.className = 'date-divider';
-      div.innerText = formatDateForDivider(dateStr);
-      messagesEl.appendChild(div);
-    }
-
-    function formatDateForDivider(dateStr) {
-      const today = new Date().toDateString();
-      const yesterday = new Date(Date.now() - 86400000).toDateString();
-      if (dateStr === today) return "Today";
-      if (dateStr === yesterday) return "Yesterday";
-      return dateStr; // e.g., Mon Mar 03 2025
-    }
-
-    function addBubble(data) {
-      const div = document.createElement('div');
-      div.classList.add('bubble');
-      div.classList.add(data.from === 'user' ? 'from-user' : 'from-brother');
-
-      if (data.replyTo && messageMap[data.replyTo]) {
-        const replyDiv = document.createElement('div');
-        replyDiv.classList.add('reply-snippet');
-        replyDiv.innerText = messageMap[data.replyTo].text;
-        div.appendChild(replyDiv);
+      
+      trackPresence(); // Track presence on reload
+      
+      const pass = prompt("Enter your password:");
+      if (pass !== "mahi@123") {
+        alert("Incorrect password!");
+        localStorage.removeItem('userEmail');
+        startEl.classList.add('active');
+        chatEl.classList.remove('active');
       }
-
-      const textDiv = document.createElement('div');
-      textDiv.innerText = data.text;
-      div.appendChild(textDiv);
-
-      const timeDiv = document.createElement('div');
-      timeDiv.className = 'msg-time';
-      const ts = data.time || data.key;
-      timeDiv.textContent = new Date(parseInt(ts)).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-      div.appendChild(timeDiv);
-
-      const indicator = document.createElement('div');
-      indicator.className = 'reply-indicator';
-      indicator.innerHTML = '&#8617;';
-      div.appendChild(indicator);
-
-      addSwipeListeners(div, data, indicator);
-      messagesEl.appendChild(div);
+    } else {
+      startEl.classList.add('active');
+      chatEl.classList.remove('active');
     }
-
-    function addSwipeListeners(element, msgData, indicator) {
-      let startX = 0, startY = 0, currentX = 0;
-      let isDragging = false;
-      const threshold = 70;
-      element.addEventListener("touchstart", e => {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        isDragging = true;
-        element.style.transition = "none";
+  };
+  
+  // ----------------- START CHAT -----------------
+  function startChat() {
+    const email = emailInput.value.trim();
+    const pass = passInput.value.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailPattern.test(email)) {
+      alert('Please enter a valid email');
+      return;
+    }
+    if (pass !== 'mahi@123') {
+      alert('Incorrect password!');
+      return;
+    }
+    
+    localStorage.setItem('userEmail', email);
+    userKey = email.replace(/\./g, '_');
+    
+    startEl.classList.remove('active');
+    chatEl.classList.add('active');
+    loadMessages();
+    
+    trackPresence(); // Track presence on login
+  }
+  
+  // ----------------- MESSAGES -----------------
+  function loadMessages() {
+    messagesEl.innerHTML = '';
+    if (messageListener) messageListener.off();
+    const ref = db.ref('chats/' + userKey);
+    
+    ref.on('value', snap => {
+      messagesEl.innerHTML = '';
+      messageMap = {};
+      const msgs = [];
+      snap.forEach(c => {
+        const msg = { key: c.key, ...c.val() };
+        messageMap[c.key] = msg;
+        msgs.push(msg);
       });
-      element.addEventListener("touchmove", e => {
-        if (!isDragging) return;
-        currentX = e.touches[0].clientX;
-        let diffX = currentX - startX;
-        let diffY = e.touches[0].clientY - startY;
-        if (Math.abs(diffY) > 40) return;
-        element.style.transform = `translateX(${diffX}px)`;
-        if (Math.abs(diffX) > 30) {
-          indicator.style.opacity = "1";
-        } else {
-          indicator.style.opacity = "0";
+      msgs.sort((a, b) => a.key - b.key);
+      
+      let lastDate = '';
+      msgs.forEach(m => {
+        const msgDate = new Date(parseInt(m.time || m.key)).toDateString();
+        if (msgDate !== lastDate) {
+          addDateDivider(msgDate);
+          lastDate = msgDate;
         }
+        addBubble(m);
       });
-      element.addEventListener("touchend", () => {
-        isDragging = false;
-        element.style.transition = "transform 0.25s ease";
-        indicator.style.opacity = "0";
-        let diffX = currentX - startX;
-        if (Math.abs(diffX) > threshold) {
-          setReply(msgData);
-          if (navigator.vibrate) navigator.vibrate(20);
-        }
-        element.style.transform = "translateX(0)";
-      });
+      scrollToBottom();
+    });
+    messageListener = ref;
+  }
+  
+  function sendMessage() {
+    const msg = msgInput.value.trim();
+    if (msg === '') return;
+    const ref = db.ref('chats/' + userKey);
+    const key = Date.now();
+    const newMsg = {
+      text: msg,
+      from: 'user',
+      time: key,
+      replyTo: replyTo ? replyTo.key : null
+    };
+    ref.child(key).set(newMsg);
+    msgInput.value = '';
+    replyTo = null;
+    replyBox.style.display = 'none';
+    scrollToBottom();
+  }
+  
+  // ----------------- UTILITY -----------------
+  function addDateDivider(dateStr) {
+    const div = document.createElement('div');
+    div.className = 'date-divider';
+    const today = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (dateStr === today) div.innerText = "Today";
+    else if (dateStr === yesterday) div.innerText = "Yesterday";
+    else div.innerText = dateStr;
+    messagesEl.appendChild(div);
+  }
+  
+  function addBubble(data) {
+    const div = document.createElement('div');
+    div.classList.add('bubble');
+    div.classList.add(data.from === 'user' ? 'from-user' : 'from-brother');
+    
+    if (data.replyTo && messageMap[data.replyTo]) {
+      const replyDiv = document.createElement('div');
+      replyDiv.classList.add('reply-snippet');
+      replyDiv.innerText = messageMap[data.replyTo].text;
+      div.appendChild(replyDiv);
     }
+    
+    const textDiv = document.createElement('div');
+    textDiv.innerText = data.text;
+    div.appendChild(textDiv);
+    
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'msg-time';
+    const ts = data.time || data.key;
+    timeDiv.textContent = new Date(parseInt(ts)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    div.appendChild(timeDiv);
+    
+    messagesEl.appendChild(div);
+  }
+  
+  function scrollToBottom() {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+</script>
 
-    function setReply(msg) {
-      replyTo = msg;
-      replyBox.innerText = "Replying to: " + msg.text;
-      replyBox.style.display = 'block';
-    }
 
-    function scrollToBottom() {
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-  </script> 
+
 </body>
 </html> 
