@@ -317,18 +317,16 @@ let userKey = '';
 let replyTo = null;
 let messageListener = null;
 let messageMap = {};
+let allMessages = [];
 
 // ----------------- PRESENCE TRACKING -----------------
 function trackPresence() {
   if (!userKey) return;
   const userStatusRef = db.ref('status/' + userKey);
-
   db.ref('.info/connected').on('value', snap => {
     if (snap.val() === true) {
-      userStatusRef.onDisconnect().set('offline');
-      userStatusRef.set('online')
-        .then(() => console.log('User status set to online'))
-        .catch(err => console.error('Error setting online status:', err));
+      userStatusRef.onDisconnect().set({ state: 'offline', last_changed: Date.now() });
+      userStatusRef.set({ state: 'online', last_changed: Date.now() });
     }
   });
 }
@@ -342,7 +340,6 @@ window.onload = function() {
     chatEl.classList.add('active');
     loadMessages();
     trackPresence();
-
     const pass = prompt("Enter your password:");
     if (pass !== "mahi@123") {
       alert("Incorrect password!");
@@ -356,16 +353,13 @@ window.onload = function() {
   }
 };
 
-
-
-listenToStatus("brother");  // use actual brother key
+listenToStatus("brother"); // replace with actual key if needed
 
 // ----------------- START CHAT -----------------
 function startChat() {
   const email = emailInput.value.trim();
   const pass = passInput.value.trim();
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   if (!emailPattern.test(email)) {
     alert('Please enter a valid email');
     return;
@@ -374,52 +368,93 @@ function startChat() {
     alert('Incorrect password!');
     return;
   }
-
   localStorage.setItem('userEmail', email);
   userKey = email.replace(/\./g, '_');
-
   startEl.classList.remove('active');
   chatEl.classList.add('active');
   loadMessages();
   trackPresence();
 }
 
-// ----------------- MESSAGES -----------------
-let lastDateForDivider = ''; // track last date added
+// ----------------- MESSAGES + CACHE -----------------
+let lastDateForDivider = '';
 
 function loadMessages() {
   messagesEl.innerHTML = '';
   messageMap = {};
+  allMessages = [];
   lastDateForDivider = '';
-  
+
+  // Load from cache instantly
+  const cached = localStorage.getItem('chatCache_' + userKey);
+  if (cached) {
+    const cachedMessages = JSON.parse(cached);
+    allMessages = cachedMessages;
+    renderMessages(allMessages);
+  }
+
+  // Listen for new messages with dedup + initial sync skip
   if (messageListener) messageListener.off();
-  
-  const ref = db.ref('chats/' + userKey).orderByKey();
-  
+  const ref = db.ref('chats/' + userKey).orderByChild('time');
+
+  let initialSyncDone = false;
+  setTimeout(() => { initialSyncDone = true; }, 3000); // after 3s skip filter off
+
   ref.on('child_added', snap => {
     const msg = { key: snap.key, ...snap.val() };
-    messageMap[snap.key] = msg;
-    
-    // Compute date for this message
+
+    // Skip duplicates (from cache) to avoid lag
+    if (messageMap[msg.key]) return;
+
+    messageMap[msg.key] = msg;
+    allMessages.push(msg);
+    allMessages.sort((a, b) => (a.time || a.key) - (b.time || b.key));
+    localStorage.setItem('chatCache_' + userKey, JSON.stringify(allMessages));
+
+    if (initialSyncDone || !cached) {
+      // Render immediately if no cache OR after initial sync period
+      addSingleMessage(msg);
+    }
+    // If cache exists and within first 3s, we'll render later via renderMessages
+  });
+
+  // After initial sync window ends, render sorted messages
+  setTimeout(() => {
+    if (cached) renderMessages(allMessages);
+  }, 3100);
+
+  messageListener = ref;
+}
+
+function renderMessages(msgs) {
+  messagesEl.innerHTML = '';
+  messageMap = {};
+  lastDateForDivider = '';
+  msgs.forEach(msg => {
+    messageMap[msg.key] = msg;
     const msgDate = new Date(parseInt(msg.time || msg.key)).toDateString();
-    
-    // Add divider only if date changes
     if (msgDate !== lastDateForDivider) {
       addDateDivider(msgDate);
       lastDateForDivider = msgDate;
     }
-    
     addBubble(msg);
-    scrollToBottom();
   });
-  
-  messageListener = ref;
+  scrollToBottom();
+}
+
+function addSingleMessage(msg) {
+  const msgDate = new Date(parseInt(msg.time || msg.key)).toDateString();
+  if (msgDate !== lastDateForDivider) {
+    addDateDivider(msgDate);
+    lastDateForDivider = msgDate;
+  }
+  addBubble(msg);
+  scrollToBottom();
 }
 
 function sendMessage() {
   const msg = msgInput.value.trim();
   if (msg === '') return;
-  
   const key = Date.now();
   const newMsg = {
     text: msg,
@@ -427,17 +462,12 @@ function sendMessage() {
     time: key,
     replyTo: replyTo ? replyTo.key : null
   };
-  
-  // Remove addBubble(newMsg) here (Firebase will handle it)
   db.ref('chats/' + userKey).child(key).set(newMsg);
-  
   msgInput.value = '';
   replyTo = null;
   replyBox.style.display = 'none';
   msgInput.focus();
 }
-
-
 
 // ----------------- DATE DIVIDER -----------------
 function addDateDivider(dateStr) {
@@ -456,37 +486,24 @@ function addBubble(data) {
   const div = document.createElement('div');
   div.classList.add('bubble');
   div.classList.add(data.from === 'user' ? 'from-user' : 'from-brother');
-
   if (data.replyTo && messageMap[data.replyTo]) {
     const replyDiv = document.createElement('div');
     replyDiv.classList.add('reply-snippet');
     replyDiv.innerText = messageMap[data.replyTo].text;
     div.appendChild(replyDiv);
   }
-
   const textDiv = document.createElement('div');
   textDiv.innerText = data.text;
   div.appendChild(textDiv);
-
   const timeDiv = document.createElement('div');
   timeDiv.className = 'msg-time';
   const ts = data.time || data.key;
-  
-  
-  timeDiv.textContent = new Date(parseInt(ts)).toLocaleTimeString([], {
-  hour: 'numeric',
-  minute: '2-digit',
-  hour12: true
-});
-
-
+  timeDiv.textContent = new Date(parseInt(ts)).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
   div.appendChild(timeDiv);
-
   const indicator = document.createElement('div');
   indicator.className = 'reply-indicator';
   indicator.innerHTML = '&#8617;';
   div.appendChild(indicator);
-
   addSwipeListeners(div, data, indicator);
   messagesEl.appendChild(div);
 }
@@ -496,14 +513,12 @@ function addSwipeListeners(element, msgData, indicator) {
   let startX = 0, startY = 0, currentX = 0;
   let isDragging = false;
   const threshold = 70;
-
   element.addEventListener("touchstart", e => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     isDragging = true;
     element.style.transition = "none";
   });
-
   element.addEventListener("touchmove", e => {
     if (!isDragging) return;
     currentX = e.touches[0].clientX;
@@ -513,7 +528,6 @@ function addSwipeListeners(element, msgData, indicator) {
     element.style.transform = `translateX(${diffX}px)`;
     indicator.style.opacity = Math.abs(diffX) > 30 ? "1" : "0";
   });
-
   element.addEventListener("touchend", () => {
     isDragging = false;
     element.style.transition = "transform 0.25s ease";
@@ -533,50 +547,31 @@ function setReply(msg) {
   replyBox.style.display = 'block';
 }
 
-// ----------------- SCROLL -----------------
 function scrollToBottom() {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
+// ----------------- STATUS -----------------
 function formatLastSeen(timestamp) {
   const date = new Date(timestamp);
   const now = new Date();
-  
   const isToday = date.toDateString() === now.toDateString();
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  
-  const time = date.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true
-  });
-  
-  if (isToday) {
-    return "today at " + time;
-  } else if (date.toDateString() === yesterday.toDateString()) {
-    return "yesterday at " + time;
-  } else {
-    return date.toLocaleDateString() + " at " + time;
-  }
+  const time = date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true });
+  if (isToday) return "today at " + time;
+  else if (date.toDateString() === yesterday.toDateString()) return "yesterday at " + time;
+  else return date.toLocaleDateString() + " at " + time;
 }
 
-// Load saved preference
 if (localStorage.getItem("darkMode") === "enabled") {
   document.body.classList.add("dark");
 }
-
-// Add emoji dynamically inside the circle
 function updateToggleIcon() {
   const isDark = document.body.classList.contains("dark");
-  // Add emoji inside the toggle circle
-  document.getElementById("darkToggle").style.setProperty(
-    "--toggle-icon",
-    `"${isDark ? "🌙" : "☀️"}"`
-  );
+  document.getElementById("darkToggle").style.setProperty("--toggle-icon", `"${isDark ? "🌙" : "☀️"}"`);
 }
 updateToggleIcon();
-
 darkToggle.addEventListener("click", () => {
   document.body.classList.toggle("dark");
   if (document.body.classList.contains("dark")) {
@@ -587,10 +582,8 @@ darkToggle.addEventListener("click", () => {
   updateToggleIcon();
 });
 
-
 function listenToStatus(friendKey) {
   const statusIndicator = document.getElementById("statusIndicator");
-  
   db.ref("status/" + friendKey).on("value", (snapshot) => {
     const status = snapshot.val();
     if (status && status.state === "online") {
@@ -605,8 +598,6 @@ function listenToStatus(friendKey) {
     }
   });
 }
-
-
 </script>
 
 
