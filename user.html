@@ -219,10 +219,13 @@ body.dark #msgInput::placeholder {
   <div id="chat">
     <div id="chatHeader">
       <img src="chat_logo.png" alt="logo" />
-      <div id="chatTitle">Babu😘</div>
+      <b><div id="chatTitle">BaBu😘</div></b>
       
-  <span id="statusIndicator" style="font-size:12px; margin-left:8px;"></span>
-<button id="darkToggle" style="margin-left:auto; background:none; border:none; font-size:18px; cursor:pointer;">🌙</button>
+      
+  <span id="statusIndicator" style="font-size:15px; margin-left:8px;"></span>
+<button id="darkToggle" style="margin-left:auto;
+margin-right: 25px;
+background:none; border:none; font-size:25px; cursor:pointer;">🌙</button>
       
       
     </div>
@@ -320,33 +323,34 @@ function startChat() {
 }
 
 // ----------------- MESSAGES -----------------
+let lastDateForDivider = ''; // track last date added
+
 function loadMessages() {
   messagesEl.innerHTML = '';
+  messageMap = {};
+  lastDateForDivider = '';
+  
   if (messageListener) messageListener.off();
-  const ref = db.ref('chats/' + userKey);
-
-  ref.on('value', snap => {
-    messagesEl.innerHTML = '';
-    messageMap = {};
-    const msgs = [];
-    snap.forEach(c => {
-      const msg = { key: c.key, ...c.val() };
-      messageMap[c.key] = msg;
-      msgs.push(msg);
-    });
-    msgs.sort((a, b) => a.key - b.key);
-
-    let lastDate = '';
-    msgs.forEach(m => {
-      const msgDate = new Date(parseInt(m.time || m.key)).toDateString();
-      if (msgDate !== lastDate) {
-        addDateDivider(msgDate);
-        lastDate = msgDate;
-      }
-      addBubble(m);
-    });
+  
+  const ref = db.ref('chats/' + userKey).orderByKey();
+  
+  ref.on('child_added', snap => {
+    const msg = { key: snap.key, ...snap.val() };
+    messageMap[snap.key] = msg;
+    
+    // Compute date for this message
+    const msgDate = new Date(parseInt(msg.time || msg.key)).toDateString();
+    
+    // Add divider only if date changes
+    if (msgDate !== lastDateForDivider) {
+      addDateDivider(msgDate);
+      lastDateForDivider = msgDate;
+    }
+    
+    addBubble(msg);
     scrollToBottom();
   });
+  
   messageListener = ref;
 }
 
@@ -354,7 +358,6 @@ function sendMessage() {
   const msg = msgInput.value.trim();
   if (msg === '') return;
   
-  const ref = db.ref('chats/' + userKey);
   const key = Date.now();
   const newMsg = {
     text: msg,
@@ -363,16 +366,16 @@ function sendMessage() {
     replyTo: replyTo ? replyTo.key : null
   };
   
-  ref.child(key).set(newMsg);
+  // Remove addBubble(newMsg) here (Firebase will handle it)
+  db.ref('chats/' + userKey).child(key).set(newMsg);
   
   msgInput.value = '';
   replyTo = null;
   replyBox.style.display = 'none';
-  scrollToBottom();
-  
-  // Keep focus on input so keyboard stays open
   msgInput.focus();
 }
+
+
 
 // ----------------- DATE DIVIDER -----------------
 function addDateDivider(dateStr) {
