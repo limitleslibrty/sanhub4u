@@ -108,12 +108,7 @@ body.dark .reply-snippet {
   color: #ddd;
 }
 
-/* Reply box at bottom */
-body.dark #replyBox {
-  background: #2a3942;
-  border-left: 4px solid #34b7f1;
-  color: #fff;
-}
+
 
 /* Dark Mode Toggle - Premium Style */
 /* Premium Toggle Base */
@@ -200,15 +195,23 @@ body.dark #darkToggle::before {
       border-radius: 4px;
     }
 
-    #replyBox {
-      background: #f1f0f0;
-      padding: 5px 10px;
-      border-left: 4px solid #075E54;
-      margin: 5px 10px;
-      font-style: italic;
-      font-size: 14px;
-      display: none;
-    }
+  #replyBox {
+  display: none;
+  background: #f1f0f0;
+  padding: 5px 10px;
+  border-left: 4px solid #075E54;
+  margin: 5px 10px;
+  font-style: italic;
+  font-size: 14px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+body.dark #replyBox {
+  background: #2a3942;
+  border-left: 4px solid #34b7f1;
+  color: #fff;
+}
 
     #inputArea { display: flex; padding: 10px; background: #fff; border-top: 1px solid #ccc; flex-direction: column; }
     #inputRow { display: flex; }
@@ -295,7 +298,13 @@ background:none; border:none; font-size:25px; cursor:pointer;"></span>
     <div id="messages"></div>
 
     <div id="inputArea">
-      <div id="replyBox"></div>
+<div id="replyBox">
+  <span id="replyText"></span>
+  <button id="closeReply">
+    ✕
+  </button>
+</div>
+
       <div id="inputRow">
      <textarea id="msgInput" placeholder="Type a message…" rows="1" style="flex:1; padding:8px 12px; border:1px solid #ccc; border-radius:20px; resize:none;"></textarea>
         <button onclick="sendMessage()">Send</button>
@@ -543,9 +552,17 @@ function addSwipeListeners(element, msgData, indicator) {
 
 function setReply(msg) {
   replyTo = msg;
-  replyBox.innerText = "Replying to: " + msg.text;
-  replyBox.style.display = 'block';
+  document.getElementById('replyText').innerText = "Replying to: " + msg.text;
+  replyBox.style.display = 'flex'; // Show only when replying
 }
+
+
+document.getElementById('closeReply').addEventListener('click', () => {
+  replyTo = null;
+  replyBox.style.display = 'none';
+});
+
+
 
 function scrollToBottom() {
   messagesEl.scrollTop = messagesEl.scrollHeight;
