@@ -115,7 +115,69 @@ body.dark #replyBox {
   color: #fff;
 }
 
+/* Dark Mode Toggle - Premium Style */
+/* Premium Toggle Base */
+#darkToggle {
+  margin-left: auto;
+  margin-right: 25px;
+  width: 50px;
+  height: 26px;
+  background: linear-gradient(145deg, #e0e0e0, #ffffff);
+  border-radius: 50px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  border: 1px solid #ccc;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.2);
+}
 
+/* Circle inside toggle */
+#darkToggle::before {
+  content: "☀️";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.4s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* Active Dark Mode (more premium look) */
+body.dark #darkToggle {
+  background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+  border: 1px solid #444;
+  box-shadow: inset 0 0 10px rgba(0, 255, 170, 0.3), 0 0 8px rgba(0, 255, 170, 0.4);
+}
+
+/* Move circle to right and glow */
+body.dark #darkToggle::before {
+  left: 26px;
+  background: #222;
+  color: #00ff99; /* neon green moon */
+  content: "🌙";
+  box-shadow: 0 0 6px rgba(0, 255, 170, 0.8), 0 0 12px rgba(0, 255, 170, 0.6);
+}
+
+
+/* Optional: subtle glow when hovered */
+#darkToggle:hover {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+#darkToggle::before {
+  content: var(--toggle-icon, "☀️");
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
 
     
     .bubble {
@@ -223,9 +285,9 @@ body.dark #msgInput::placeholder {
       
       
   <span id="statusIndicator" style="font-size:15px; margin-left:8px;"></span>
-<button id="darkToggle" style="margin-left:auto;
+<span id="darkToggle" style="margin-left:auto;
 margin-right: 25px;
-background:none; border:none; font-size:25px; cursor:pointer;">🌙</button>
+background:none; border:none; font-size:25px; cursor:pointer;"></span>
       
       
     </div>
@@ -499,25 +561,32 @@ function formatLastSeen(timestamp) {
   }
 }
 
-// Dark mode toggle
-const darkToggle = document.getElementById("darkToggle");
-
 // Load saved preference
 if (localStorage.getItem("darkMode") === "enabled") {
   document.body.classList.add("dark");
-  darkToggle.textContent = "☀️";
 }
+
+// Add emoji dynamically inside the circle
+function updateToggleIcon() {
+  const isDark = document.body.classList.contains("dark");
+  // Add emoji inside the toggle circle
+  document.getElementById("darkToggle").style.setProperty(
+    "--toggle-icon",
+    `"${isDark ? "🌙" : "☀️"}"`
+  );
+}
+updateToggleIcon();
 
 darkToggle.addEventListener("click", () => {
   document.body.classList.toggle("dark");
   if (document.body.classList.contains("dark")) {
     localStorage.setItem("darkMode", "enabled");
-    darkToggle.textContent = "☀️";
   } else {
     localStorage.setItem("darkMode", "disabled");
-    darkToggle.textContent = "🌙";
   }
+  updateToggleIcon();
 });
+
 
 function listenToStatus(friendKey) {
   const statusIndicator = document.getElementById("statusIndicator");
