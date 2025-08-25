@@ -29,13 +29,18 @@
       background: #FFFFFF;
       color: #191818;
       padding: 4px 8px; 
-      font-size: 16px; 
-      display:flex; align-items:center;
-      height: 48px;
+      font-size: 19px; 
+      display :flex;
+      
+      height: 60px;
       border-bottom: 1px solid #ccc;
     }
-    #chatHeader img { margin-left: 8px; border-radius: 50%; height: 32px; width: 32px; }
-    #chatHeader #chatTitle { margin-left: 10px; font-weight: 400; }
+    
+    
+    #chatHeader img { margin-left: 8px; border-radius: 50%; height: 50px; width: 50px; }
+    #chatHeader #chatTitle {
+      margin-top: 14px;
+      margin-left: 12px; font-weight: 500; }
 
     #messages { flex: 1; padding: 10px; overflow-y: auto; display: flex; 
       flex-direction: column;
@@ -113,6 +118,7 @@ body.dark .reply-snippet {
 /* Dark Mode Toggle - Premium Style */
 /* Premium Toggle Base */
 #darkToggle {
+  margin-top: 14px;
   margin-left: auto;
   margin-right: 25px;
   width: 50px;
@@ -284,10 +290,13 @@ body.dark #msgInput::placeholder {
   <div id="chat">
     <div id="chatHeader">
       <img src="chat_logo.png" alt="logo" />
-      <b><div id="chatTitle">BaBu😘</div></b>
+      <b><div 
+      id="chatTitle">BaBu😘</div></b>
       
       
-  <span id="statusIndicator" style="font-size:15px; margin-left:8px;"></span>
+  <span id="statusIndicator" style="font-size:15px;
+  margin-top: 15.5px;
+  margin-left:8px;"></span>
 <span id="darkToggle" style="margin-left:auto;
 margin-right: 25px;
 background:none; border:none; font-size:25px; cursor:pointer;"></span>
