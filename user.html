@@ -344,19 +344,6 @@ let lastDateForDivider = '';
 msgInput.style.height = '40px'; // fixed default height
 
 
-// Optional throttled auto-resize if multiline needed:
-let lastHeight = msgInput.scrollHeight;
-
-msgInput.addEventListener('input', () => {
-  requestAnimationFrame(() => {
-    const newHeight = Math.min(msgInput.scrollHeight, 120);
-    if (newHeight !== lastHeight) {
-      msgInput.style.height = 'auto';
-      msgInput.style.height = newHeight + 'px';
-      lastHeight = newHeight;
-    }
-  });
-});
 
 /* --- Presence tracking --- */
 function trackPresence() {
