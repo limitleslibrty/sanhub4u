@@ -314,38 +314,39 @@ background:none; border:none; font-size:25px; cursor:pointer;"></span>
   </button>
 </div>
 
-     <!-- With this -->
-<div id="inputRow">
-  <input id="msgInput" placeholder="Type a message…" 
-    autocorrect="off" autocapitalize="off" spellcheck="false"
-    style="flex:1; padding:8px 12px; border:1px solid #ccc; border-radius:20px;" />
-  <button onclick="sendMessage()">Send</button>
-</div>
+      <div id="inputRow">
+<textarea id="msgInput" placeholder="Type a message…" rows="1"
+  autocorrect="off" autocapitalize="off" spellcheck="false"
+  style="flex:1; padding:8px 12px; border:1px solid #ccc; border-radius:20px; resize:none;"></textarea>
+        <button onclick="sendMessage()">Send</button>
+      </div>
     </div>
   </div>
 
   <script>
+/* =========================
+   Firebase + DOM handles
+   ========================= */
 const db = firebase.database();
-const startEl = document.getElementById('start');
-const chatEl = document.getElementById('chat');
+const startEl    = document.getElementById('start');
+const chatEl     = document.getElementById('chat');
 const messagesEl = document.getElementById('messages');
-const msgInput = document.getElementById('msgInput');
+const msgInput   = document.getElementById('msgInput');
 const emailInput = document.getElementById('emailInput');
-const passInput = document.getElementById('passInput');
-const replyBox = document.getElementById('replyBox');
+const passInput  = document.getElementById('passInput');
+const replyBox   = document.getElementById('replyBox');
+
+const FRIEND_KEY = 'brother'; // set your peer's id/name used in DB (case-insensitive)
 
 let userKey = '';
 let replyTo = null;
 let messageListener = null;
-let messageMap = {};
-let allMessages = [];
+let messageMap = {};           // key -> message
 let lastDateForDivider = '';
 
-
-
-
-
-/* --- Presence tracking --- */
+/* =========================
+   Presence
+   ========================= */
 function trackPresence() {
   if (!userKey) return;
   const userStatusRef = db.ref('status/' + userKey);
@@ -357,6 +358,25 @@ function trackPresence() {
   });
 }
 
+function listenToStatus(friendKey){
+  const statusIndicator=document.getElementById("statusIndicator");
+  db.ref("status/"+friendKey).on("value",(snapshot)=>{
+    const status=snapshot.val();
+    if(status && status.state==="online"){
+      statusIndicator.textContent="● Online"; statusIndicator.style.color="limegreen";
+    } else if(status){
+      statusIndicator.textContent="last seen "+formatLastSeen(status.last_changed);
+      statusIndicator.style.color="gray";
+    } else {
+      statusIndicator.textContent="● Offline"; statusIndicator.style.color="gray";
+    }
+  });
+}
+listenToStatus(FRIEND_KEY);
+
+/* =========================
+   Auth-ish gate
+   ========================= */
 window.onload = function() {
   const savedEmail = localStorage.getItem('userEmail');
   if (savedEmail) {
@@ -365,6 +385,7 @@ window.onload = function() {
     chatEl.classList.add('active');
     loadMessages();
     trackPresence();
+
     const pass = prompt("Enter your password:");
     if (pass !== "mahi@123") {
       alert("Incorrect password!");
@@ -378,9 +399,6 @@ window.onload = function() {
   }
 };
 
-listenToStatus("brother");
-
-/* --- Start chat --- */
 function startChat() {
   const email = emailInput.value.trim();
   const pass = passInput.value.trim();
@@ -395,66 +413,66 @@ function startChat() {
   trackPresence();
 }
 
-/* --- Load and render messages --- */
+/* =========================
+   Load last 50 + stream new
+   ========================= */
 function loadMessages() {
+  // reset UI state
   messagesEl.innerHTML = '';
   messageMap = {};
-  allMessages = [];
   lastDateForDivider = '';
 
-  const cached = localStorage.getItem('chatCache_' + userKey);
-  if (cached) {
-    const cachedMessages = JSON.parse(cached);
-    allMessages = cachedMessages;
-    renderMessages(allMessages);
-  }
-
+  // stop any prior listener
   if (messageListener) messageListener.off();
-  const ref = db.ref('chats/' + userKey).orderByChild('time');
-  ref.on('child_added', snap => {
-    const msg = { key: snap.key, ...snap.val() };
-    if (messageMap[msg.key]) return;
-    messageMap[msg.key] = msg;
-    allMessages.push(msg);
-    allMessages.sort((a,b)=>(a.time||a.key)-(b.time||b.key));
-    localStorage.setItem('chatCache_' + userKey, JSON.stringify(allMessages));
-    addSingleMessage(msg);
+
+  // Use orderByKey since your keys are Date.now() timestamps (strings).
+  const listRef = db.ref('chats/' + userKey).orderByKey().limitToLast(50);
+
+  listRef.once('value', snapshot => {
+    const msgs = [];
+    snapshot.forEach(child => msgs.push({ key: child.key, ...child.val() }));
+
+    // Ensure correct chronological order
+    msgs.sort((a,b) => Number(a.key) - Number(b.key));
+
+    msgs.forEach(m => addSingleMessage(m));
+    scrollToBottom();
+
+    const lastKey = msgs.length ? msgs[msgs.length - 1].key : '0';
+
+    // Now listen for *newer* items. startAt(lastKey) will also emit the last item once;
+    // our messageMap guard prevents duplicates.
+    messageListener = db.ref('chats/' + userKey).orderByKey().startAt(lastKey);
+    messageListener.on('child_added', snap => {
+      const msg = { key: snap.key, ...snap.val() };
+      if (messageMap[msg.key]) return; // skip already rendered
+      addSingleMessage(msg);
+      scrollToBottom();
+    });
   });
-  messageListener = ref;
 }
 
-function renderMessages(msgs) {
-  messagesEl.innerHTML = '';
-  messageMap = {};
-  lastDateForDivider = '';
-  msgs.forEach(msg => {
-    messageMap[msg.key] = msg;
-    const msgDate = new Date(parseInt(msg.time || msg.key)).toDateString();
-    if (msgDate !== lastDateForDivider) {
-      addDateDivider(msgDate);
-      lastDateForDivider = msgDate;
-    }
-    addBubble(msg);
-  });
-  scrollToBottom();
-}
-
-function addSingleMessage(msg) {
-  const msgDate = new Date(parseInt(msg.time || msg.key)).toDateString();
-  if (msgDate !== lastDateForDivider) {
-    addDateDivider(msgDate);
-    lastDateForDivider = msgDate;
-  }
-  addBubble(msg);
-  scrollToBottom();
-}
-
+/* =========================
+   Sending messages
+   ========================= */
 function sendMessage() {
   const msg = msgInput.value.trim();
   if (msg === '') return;
-  const key = Date.now();
-  const newMsg = { text: msg, from: 'user', time: key, replyTo: replyTo ? replyTo.key : null };
+
+  const key = String(Date.now());
+  const newMsg = {
+    text: msg,
+    // IMPORTANT: include a stable sender id so each client can classify correctly
+    sender: userKey,
+    // Keep old field for backward compatibility (some tools/UI may still read it)
+    from: 'user',
+    to: FRIEND_KEY,
+    time: Number(key),
+    replyTo: replyTo ? replyTo.key : null
+  };
+
   db.ref('chats/' + userKey).child(key).set(newMsg);
+
   msgInput.value = '';
   msgInput.style.height = '40px';
   replyTo = null;
@@ -462,7 +480,20 @@ function sendMessage() {
   msgInput.focus();
 }
 
-/* --- Date Divider --- */
+/* =========================
+   Rendering helpers
+   ========================= */
+function addSingleMessage(msg) {
+  const ts = Number(msg.time || msg.key);
+  const msgDate = new Date(ts).toDateString();
+
+  if (msgDate !== lastDateForDivider) {
+    addDateDivider(msgDate);
+    lastDateForDivider = msgDate;
+  }
+  addBubble(msg);
+}
+
 function addDateDivider(dateStr) {
   const div = document.createElement('div');
   div.className = 'date-divider';
@@ -474,30 +505,47 @@ function addDateDivider(dateStr) {
   messagesEl.appendChild(div);
 }
 
-/* --- Bubbles & swipe reply unchanged --- */
+function isFromMe(m) {
+  // Primary rule: explicit sender id
+  if (m.sender) return m.sender === userKey;
+
+  // Fallback for older rows that only had "from"
+  const f = (m.from || '').toString().toLowerCase();
+  if (f === 'user') return true;                    // was "me" on this device
+  if (f === FRIEND_KEY.toLowerCase()) return false; // explicit peer
+  return false; // default to "received" if unknown
+}
+
 function addBubble(data) {
   const div = document.createElement('div');
-  div.classList.add('bubble', data.from === 'user' ? 'from-user' : 'from-brother');
+  const mine = isFromMe(data);
+  div.classList.add('bubble', mine ? 'from-user' : 'from-brother');
+
   if (data.replyTo && messageMap[data.replyTo]) {
     const replyDiv = document.createElement('div');
     replyDiv.classList.add('reply-snippet');
     replyDiv.innerText = messageMap[data.replyTo].text;
     div.appendChild(replyDiv);
   }
+
   const textDiv = document.createElement('div');
-  textDiv.innerText = data.text;
+  textDiv.innerText = data.text || '';
   div.appendChild(textDiv);
+
   const timeDiv = document.createElement('div');
   timeDiv.className = 'msg-time';
-  const ts = data.time || data.key;
-  timeDiv.textContent = new Date(parseInt(ts)).toLocaleTimeString([], {hour:'numeric',minute:'2-digit',hour12:true});
+  const ts = Number(data.time || data.key);
+  timeDiv.textContent = new Date(ts).toLocaleTimeString([], {hour:'numeric',minute:'2-digit',hour12:true});
   div.appendChild(timeDiv);
+
   const indicator = document.createElement('div');
   indicator.className = 'reply-indicator';
   indicator.innerHTML = '&#8617;';
   div.appendChild(indicator);
   addSwipeListeners(div, data, indicator);
+
   messagesEl.appendChild(div);
+  messageMap[data.key] = data;
 }
 
 function addSwipeListeners(element, msgData, indicator) {
@@ -523,14 +571,14 @@ function addSwipeListeners(element, msgData, indicator) {
     element.style.transition="transform 0.25s ease";
     indicator.style.opacity="0";
     let diffX=currentX-startX;
-    if(Math.abs(diffX)>threshold){ setReply(msgData); if(navigator.vibrate)navigator.vibrate(20);}
+    if(Math.abs(diffX)>threshold){ setReply(msgData); if(navigator.vibrate)navigator.vibrate(20); }
     element.style.transform="translateX(0)";
   });
 }
 
 function setReply(msg) {
   replyTo = msg;
-  document.getElementById('replyText').innerText = "Replying to: " + msg.text;
+  document.getElementById('replyText').innerText = "Replying to: " + (msg.text || '');
   replyBox.style.display = 'flex';
 }
 document.getElementById('closeReply').addEventListener('click', () => {
@@ -540,7 +588,9 @@ document.getElementById('closeReply').addEventListener('click', () => {
 
 function scrollToBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
-/* --- Status Indicator --- */
+/* =========================
+   Utilities
+   ========================= */
 function formatLastSeen(timestamp) {
   const date = new Date(timestamp), now = new Date();
   const isToday = date.toDateString() === now.toDateString();
@@ -551,6 +601,9 @@ function formatLastSeen(timestamp) {
   else return date.toLocaleDateString() + " at " + time;
 }
 
+/* =========================
+   Dark mode toggle (unchanged)
+   ========================= */
 if (localStorage.getItem("darkMode") === "enabled") document.body.classList.add("dark");
 function updateToggleIcon(){
   const isDark=document.body.classList.contains("dark");
@@ -562,21 +615,6 @@ darkToggle.addEventListener("click",()=>{
   localStorage.setItem("darkMode", document.body.classList.contains("dark")?"enabled":"disabled");
   updateToggleIcon();
 });
-
-function listenToStatus(friendKey){
-  const statusIndicator=document.getElementById("statusIndicator");
-  db.ref("status/"+friendKey).on("value",(snapshot)=>{
-    const status=snapshot.val();
-    if(status && status.state==="online"){
-      statusIndicator.textContent="● Online"; statusIndicator.style.color="limegreen";
-    } else if(status){
-      statusIndicator.textContent="last seen "+formatLastSeen(status.last_changed);
-      statusIndicator.style.color="gray";
-    } else {
-      statusIndicator.textContent="● Offline"; statusIndicator.style.color="gray";
-    }
-  });
-}
 </script>
 
 
