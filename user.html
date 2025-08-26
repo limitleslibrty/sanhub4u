@@ -315,7 +315,9 @@ background:none; border:none; font-size:25px; cursor:pointer;"></span>
 </div>
 
       <div id="inputRow">
-     <textarea id="msgInput" placeholder="Type a message…" rows="1" style="flex:1; padding:8px 12px; border:1px solid #ccc; border-radius:20px; resize:none;"></textarea>
+<textarea id="msgInput" placeholder="Type a message…" rows="1"
+  autocorrect="off" autocapitalize="off" spellcheck="false"
+  style="flex:1; padding:8px 12px; border:1px solid #ccc; border-radius:20px; resize:none;"></textarea>
         <button onclick="sendMessage()">Send</button>
       </div>
     </div>
@@ -340,17 +342,20 @@ let lastDateForDivider = '';
 
 /* --- Performance tweaks for iOS input lag --- */
 msgInput.style.height = '40px'; // fixed default height
-msgInput.style.willChange = 'transform';
-msgInput.style.transform = 'translateZ(0)';
+
 
 // Optional throttled auto-resize if multiline needed:
-let resizeTimer;
+let lastHeight = msgInput.scrollHeight;
+
 msgInput.addEventListener('input', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    msgInput.style.height = 'auto';
-    msgInput.style.height = Math.min(msgInput.scrollHeight, 120) + 'px'; // cap height
-  }, 50);
+  requestAnimationFrame(() => {
+    const newHeight = Math.min(msgInput.scrollHeight, 120);
+    if (newHeight !== lastHeight) {
+      msgInput.style.height = 'auto';
+      msgInput.style.height = newHeight + 'px';
+      lastHeight = newHeight;
+    }
+  });
 });
 
 /* --- Presence tracking --- */
