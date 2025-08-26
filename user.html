@@ -379,23 +379,57 @@ function trackPresence() {
     }
   });
 }
+let typingTimeout;
 
-function listenToStatus(friendKey){
-  const statusIndicator=document.getElementById("statusIndicator");
-  db.ref("status/"+friendKey).on("value",(snapshot)=>{
-    const status=snapshot.val();
-    if(status && status.state==="online"){
-      statusIndicator.textContent="● Online"; statusIndicator.style.color="limegreen";
-    } else if(status){
-      statusIndicator.textContent="last seen "+formatLastSeen(status.last_changed);
-      statusIndicator.style.color="gray";
+msgInput.addEventListener("input", () => {
+  if (!userKey) return;
+  
+  // Mark typing
+  db.ref("status/" + userKey).update({ typing: true });
+  
+  // Reset typing after 2s of no input
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => {
+    db.ref("status/" + userKey).update({ typing: false });
+  }, 2000);
+});
+
+// When input loses focus, stop typing
+msgInput.addEventListener("blur", () => {
+  if (userKey) {
+    db.ref("status/" + userKey).update({ typing: false });
+  }
+});
+function listenToStatus(friendKey) {
+  const statusIndicator = document.getElementById("statusIndicator");
+  
+  db.ref("status/" + friendKey).on("value", (snapshot) => {
+    const status = snapshot.val();
+    
+    // Debug log
+    console.log("Status snapshot for", friendKey, status);
+    
+    if (!status) {
+      statusIndicator.textContent = "● Offline";
+      statusIndicator.style.color = "gray";
+      return;
+    }
+    
+    if (status.typing === true) {
+      statusIndicator.textContent = "typing...";
+      statusIndicator.style.color = "dodgerblue";
+    } else if (status.state === "online") {
+      statusIndicator.textContent = "● Online";
+      statusIndicator.style.color = "limegreen";
+    } else if (status.state === "offline") {
+      statusIndicator.textContent = "last seen " + formatLastSeen(status.last_changed);
+      statusIndicator.style.color = "gray";
     } else {
-      statusIndicator.textContent="● Offline"; statusIndicator.style.color="gray";
+      statusIndicator.textContent = "● Unknown";
+      statusIndicator.style.color = "red";
     }
   });
 }
-listenToStatus(FRIEND_KEY);
-
 /* =========================
    Auth-ish gate
    ========================= */
@@ -407,7 +441,7 @@ window.onload = function() {
     chatEl.classList.add('active');
     loadMessages();
     trackPresence();
-
+    
     const pass = prompt("Enter your password:");
     if (pass !== "mahi@123") {
       alert("Incorrect password!");
@@ -415,6 +449,10 @@ window.onload = function() {
       startEl.classList.add('active');
       chatEl.classList.remove('active');
     }
+    
+    // ✅ call here so DOM is ready
+    listenToStatus(FRIEND_KEY);
+    
   } else {
     startEl.classList.add('active');
     chatEl.classList.remove('active');
@@ -795,7 +833,7 @@ darkToggle.addEventListener("click",()=>{
 
 </script>
 
- 
+
 
 </body>
 </html> 
