@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <title>User feedback</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script src="firebase-config.js"></script>
@@ -22,35 +24,32 @@
     }
     #start button { background: #075E54; color: white; border: none; }
 
-    #chatHeader {
-      z-index: 10;
-      top: 0;
-      position: sticky;
-      background: #FFFFFF;
-      color: #191818;
-      padding: 4px 8px; 
-      font-size: 19px; 
-      display :flex;
-      
-      height: 60px;
-      border-bottom: 1px solid #ccc;
-    }
-    
+#chatHeader {
+  position: fixed;   /* pin to viewport */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #FFFFFF;
+  color: #191818;
+  padding: 4px 8px;
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  border-bottom: 1px solid #ccc;
+  /* ensure transforms behave smoothly */
+  will-change: transform;
+}
+
+
     
     #chatHeader img { margin-left: 8px; border-radius: 50%; height: 50px; width: 50px; }
     #chatHeader #chatTitle {
       margin-top: 14px;
       margin-left: 12px; font-weight: 500; }
 
-    #messages { flex: 1; padding: 10px; overflow-y: auto; display: flex; 
-      flex-direction: column;
-      background-image: url('chat.png');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center;
-      background-attachment: scroll;
-    }
-    
+
     /* Dark mode base */
 body.dark {
   background: #121212;
@@ -219,7 +218,30 @@ body.dark #replyBox {
   color: #fff;
 }
 
-    #inputArea { display: flex; padding: 10px; background: #fff; border-top: 1px solid #ccc; flex-direction: column; }
+    #messages {
+  position: absolute;
+  top: 60px;         /* below header (match header height) */
+  left: 0;
+  right: 0;
+  bottom: 70px;      /* above input area (match its height) */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+#inputArea {
+  position: fixed;   /* stick to bottom */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-top: 1px solid #ccc;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
     #inputRow { display: flex; }
     #inputRow input {
       flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 20px;
@@ -452,6 +474,79 @@ function loadMessages() {
   });
 }
 
+
+// --- VisualViewport-aware layout adaptation ---
+// Keeps header visually pinned and resizes messages area when keyboard opens (iOS/Android)
+// --- VisualViewport-aware layout adaptation ---
+// Keeps header pinned and inputArea above the keyboard (iOS/Android)
+// --- VisualViewport-aware layout adaptation (robust, avoid gaps) ---
+(function setupViewportAdjustments() {
+  const header = document.getElementById('chatHeader');
+  const inputArea = document.getElementById('inputArea');
+  const messages = document.getElementById('messages');
+
+  // helper to compute current input area height (reflow-safe)
+  function getInputHeight() {
+    // use offsetHeight (includes padding, border)
+    return inputArea.offsetHeight || 70;
+  }
+
+  function updateLayout() {
+    const vv = window.visualViewport;
+    const headerH = header.offsetHeight || 60;
+    const inputH = getInputHeight();
+
+    const viewH = vv ? vv.height : window.innerHeight;
+    const viewOffsetTop = vv ? vv.offsetTop : 0;
+
+    // keyboard height (0 when keyboard closed)
+    const offsetBottom = vv ? Math.max(0, window.innerHeight - (vv.height + vv.offsetTop)) : 0;
+
+    // place inputArea just above keyboard
+    inputArea.style.bottom = offsetBottom + "px";
+
+    // pin messages between header and input (avoid using fixed height)
+    messages.style.top = headerH + 'px';
+    messages.style.bottom = (inputH + offsetBottom) + 'px';
+
+    // ensure header stays visually pinned if visualViewport shifted (keyboard)
+    header.style.transform = `translateY(${viewOffsetTop}px)`;
+  }
+
+  // if you have CSS that sets bottom: 70px on #messages, override it via JS above.
+  // OPTIONAL: remove any hardcoded bottom in CSS or set it to 0 there.
+
+  // listen for visualViewport and window events
+  window.addEventListener('resize', updateLayout);
+  window.addEventListener('orientationchange', updateLayout);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateLayout);
+    window.visualViewport.addEventListener('scroll', updateLayout);
+  }
+
+  // auto-grow support: if the textarea changes size, recalc layout
+  // (also makes sure expanding textarea doesn't create a gap)
+  msgInput.addEventListener('input', () => {
+    // simple auto-grow
+    msgInput.style.height = 'auto';
+    msgInput.style.height = (msgInput.scrollHeight) + 'px';
+    setTimeout(updateLayout, 0);
+  });
+
+  // also update on focus/blur to react to keyboard
+  msgInput.addEventListener('focus', () => {
+    setTimeout(() => { updateLayout(); scrollToBottom(); }, 50);
+  });
+  msgInput.addEventListener('blur', () => {
+    setTimeout(updateLayout, 50);
+  });
+
+  // initial layout
+  setTimeout(updateLayout, 50);
+
+  // expose for debugging if needed
+  window.__chatUpdateLayout = updateLayout;
+})();
 /* =========================
    Sending messages
    ========================= */
@@ -586,8 +681,89 @@ document.getElementById('closeReply').addEventListener('click', () => {
   replyBox.style.display = 'none';
 });
 
-function scrollToBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
+function scrollToBottom() {
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
 
+// ✅ Mobile keyboard fix: keep input visible when typing
+msgInput.addEventListener("focus", () => {
+  setTimeout(() => {
+    scrollToBottom();
+  }, 300); // wait for keyboard animation
+});
+
+// --- VisualViewport-aware layout adaptation ---
+// Keeps header visually pinned and resizes messages area when keyboard opens (iOS/Android)
+// --- VisualViewport-aware layout adaptation ---
+// Keeps header pinned and inputArea above the keyboard (iOS/Android)
+// --- VisualViewport-aware layout adaptation (robust, avoid gaps) ---
+(function setupViewportAdjustments() {
+  const header = document.getElementById('chatHeader');
+  const inputArea = document.getElementById('inputArea');
+  const messages = document.getElementById('messages');
+
+  // helper to compute current input area height (reflow-safe)
+  function getInputHeight() {
+    // use offsetHeight (includes padding, border)
+    return inputArea.offsetHeight || 70;
+  }
+
+  function updateLayout() {
+    const vv = window.visualViewport;
+    const headerH = header.offsetHeight || 60;
+    const inputH = getInputHeight();
+
+    const viewH = vv ? vv.height : window.innerHeight;
+    const viewOffsetTop = vv ? vv.offsetTop : 0;
+
+    // keyboard height (0 when keyboard closed)
+    const offsetBottom = vv ? Math.max(0, window.innerHeight - (vv.height + vv.offsetTop)) : 0;
+
+    // place inputArea just above keyboard
+    inputArea.style.bottom = offsetBottom + "px";
+
+    // pin messages between header and input (avoid using fixed height)
+    messages.style.top = headerH + 'px';
+    messages.style.bottom = (inputH + offsetBottom) + 'px';
+
+    // ensure header stays visually pinned if visualViewport shifted (keyboard)
+    header.style.transform = `translateY(${viewOffsetTop}px)`;
+  }
+
+  // if you have CSS that sets bottom: 70px on #messages, override it via JS above.
+  // OPTIONAL: remove any hardcoded bottom in CSS or set it to 0 there.
+
+  // listen for visualViewport and window events
+  window.addEventListener('resize', updateLayout);
+  window.addEventListener('orientationchange', updateLayout);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateLayout);
+    window.visualViewport.addEventListener('scroll', updateLayout);
+  }
+
+  // auto-grow support: if the textarea changes size, recalc layout
+  // (also makes sure expanding textarea doesn't create a gap)
+  msgInput.addEventListener('input', () => {
+    // simple auto-grow
+    msgInput.style.height = 'auto';
+    msgInput.style.height = (msgInput.scrollHeight) + 'px';
+    setTimeout(updateLayout, 0);
+  });
+
+  // also update on focus/blur to react to keyboard
+  msgInput.addEventListener('focus', () => {
+    setTimeout(() => { updateLayout(); scrollToBottom(); }, 50);
+  });
+  msgInput.addEventListener('blur', () => {
+    setTimeout(updateLayout, 50);
+  });
+
+  // initial layout
+  setTimeout(updateLayout, 50);
+
+  // expose for debugging if needed
+  window.__chatUpdateLayout = updateLayout;
+})();
 /* =========================
    Utilities
    ========================= */
@@ -615,6 +791,8 @@ darkToggle.addEventListener("click",()=>{
   localStorage.setItem("darkMode", document.body.classList.contains("dark")?"enabled":"disabled");
   updateToggleIcon();
 });
+
+
 </script>
 
 
