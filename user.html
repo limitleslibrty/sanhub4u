@@ -314,12 +314,13 @@ background:none; border:none; font-size:25px; cursor:pointer;"></span>
   </button>
 </div>
 
-      <div id="inputRow">
-<textarea id="msgInput" placeholder="Type a message…" rows="1"
-  autocorrect="off" autocapitalize="off" spellcheck="false"
-  style="flex:1; padding:8px 12px; border:1px solid #ccc; border-radius:20px; resize:none;"></textarea>
-        <button onclick="sendMessage()">Send</button>
-      </div>
+     <!-- With this -->
+<div id="inputRow">
+  <input id="msgInput" placeholder="Type a message…" 
+    autocorrect="off" autocapitalize="off" spellcheck="false"
+    style="flex:1; padding:8px 12px; border:1px solid #ccc; border-radius:20px;" />
+  <button onclick="sendMessage()">Send</button>
+</div>
     </div>
   </div>
 
@@ -340,8 +341,7 @@ let messageMap = {};
 let allMessages = [];
 let lastDateForDivider = '';
 
-/* --- Performance tweaks for iOS input lag --- */
-msgInput.style.height = '40px'; // fixed default height
+
 
 
 
