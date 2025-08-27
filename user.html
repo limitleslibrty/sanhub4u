@@ -11,7 +11,7 @@
   <script src="firebase-config.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body, html { height: 100dvh; font-family: Arial, sans-serif;background-color: #C7C7C7; }
+    body, html { height: 100dvh; font-family: Arial, sans-serif; }
 
     
     #start, #chat { display: none; height: 100%; width: 100%; }
@@ -49,7 +49,21 @@
       margin-top: 14px;
       margin-left: 12px; font-weight: 500; }
 
-
+/* media image/gif style */
+img.msg-media{
+  max-width:260px;
+  max-height:260px;
+  border-radius:8px;
+  display:block;
+  margin-bottom:6px;
+}
+#gifModal{
+  position:fixed;left:0;right:0;top:0;bottom:0;display:none;
+  align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:9999;
+}
+#gifModal .panel{width:92%;max-width:720px;background:#fff;border-radius:12px;padding:10px;max-height:80vh;overflow:auto;}
+#gifResults{display:flex;flex-wrap:wrap;gap:8px;}
+#gifResults img{width:120px;height:90px;object-fit:cover;border-radius:8px;cursor:pointer;}
     /* Dark mode base */
 body.dark {
   background: #121212;
@@ -257,6 +271,10 @@ body.dark #replyBox {
       margin-top: 4px;
       align-self: flex-end;
     }
+    
+    body {
+  background: #D7D7D7; /* or any color/gradient/image */
+}
 
     .reply-indicator {
       position: absolute;
@@ -337,14 +355,25 @@ background:none; border:none; font-size:25px; cursor:pointer;"></span>
 </div>
 
       <div id="inputRow">
-<textarea id="msgInput" placeholder="Type a message…" rows="1"
-  autocorrect="off" autocapitalize="off" spellcheck="false"
-  style="flex:1; padding:8px 12px; border:1px solid #ccc; border-radius:20px; resize:none;"></textarea>
-        <button onclick="sendMessage()">Send</button>
+<textarea id="msgInput" placeholder="Type a message…" rows="1" ...></textarea>
+<button id="gifBtn" type="button" onclick="openGifModal()">GIF</button>
+<input type="file" id="imgInput" accept="image/*" style="display:none;" onchange="sendImage(event)">
+<button onclick="document.getElementById('imgInput').click()">📷</button>
+<button onclick="sendMessage()">Send</button>
       </div>
     </div>
   </div>
-
+<!-- GIF modal -->
+<div id="gifModal" aria-hidden="true">
+  <div class="panel" role="dialog" aria-modal="true">
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <input id="gifQuery" placeholder="Search GIFs (GIPHY)" style="flex:1;padding:8px;border-radius:8px;border:1px solid #ccc" />
+      <button id="gifSearchBtn" onclick="searchGiphy()">Search</button>
+      <button id="gifCloseBtn" onclick="closeGifModal()">Close</button>
+    </div>
+    <div id="gifResults">Type a query and press Search or click Close.</div>
+  </div>
+</div>
   <script>
 /* =========================
    Firebase + DOM handles
@@ -357,7 +386,8 @@ const msgInput   = document.getElementById('msgInput');
 const emailInput = document.getElementById('emailInput');
 const passInput  = document.getElementById('passInput');
 const replyBox   = document.getElementById('replyBox');
-
+// --- GIF config: set your GIPHY API key (get one at developers.giphy.com)
+const GIPHY_API_KEY = "e68mngd8xYdq05iTwWRZPlbK92CIPhMB"; // replace if you have your own key
 const FRIEND_KEY = 'brother'; // set your peer's id/name used in DB (case-insensitive)
 
 let userKey = '';
@@ -511,6 +541,37 @@ function loadMessages() {
     });
   });
 }
+function sendImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  
+  reader.onload = function(ev) {
+    const key = Date.now().toString();
+    // Reuse sendMediaMessage so DB shape is consistent with other media messages
+    sendMediaMessage({
+      type: 'image',
+      url: ev.target.result,
+      // optional: include original filename
+      filename: file.name
+    });
+    
+    // If you still want to write directly to DB you can:
+    // const msg = {
+    //   sender: userKey,
+    //   from: 'user',
+    //   to: FRIEND_KEY,
+    //   time: Number(key),
+    //   type: 'image',
+    //   url: ev.target.result
+    // };
+    // db.ref('chats/' + userKey).child(key).set(msg);
+  };
+  
+  reader.readAsDataURL(file);
+  // Reset file input so same file can be selected again
+  event.target.value = '';
+}
 
 
 // --- VisualViewport-aware layout adaptation ---
@@ -589,23 +650,29 @@ function loadMessages() {
    Sending messages
    ========================= */
 function sendMessage() {
-  const msg = msgInput.value.trim();
-  if (msg === '') return;
-
+  const raw = msgInput.value.trim();
+  if (raw === '') return;
+  
+  const isMediaUrl = raw.match(/^https?:\/\/.*\.(gif|png|jpg|jpeg|webp)(\?.*)?$/i) || raw.includes('giphy.com');
+  
   const key = String(Date.now());
-  const newMsg = {
-    text: msg,
-    // IMPORTANT: include a stable sender id so each client can classify correctly
+  const base = {
     sender: userKey,
-    // Keep old field for backward compatibility (some tools/UI may still read it)
     from: 'user',
     to: FRIEND_KEY,
     time: Number(key),
     replyTo: replyTo ? replyTo.key : null
   };
-
-  db.ref('chats/' + userKey).child(key).set(newMsg);
-
+  
+  if (isMediaUrl) {
+    // send as media message
+    const msg = Object.assign({}, base, { type: 'gif', url: raw });
+    db.ref('chats/' + userKey).child(key).set(msg);
+  } else {
+    const newMsg = Object.assign({}, base, { text: raw });
+    db.ref('chats/' + userKey).child(key).set(newMsg);
+  }
+  
   msgInput.value = '';
   msgInput.style.height = '40px';
   replyTo = null;
@@ -613,6 +680,63 @@ function sendMessage() {
   msgInput.focus();
 }
 
+// --- GIF modal controls ---
+function openGifModal(){
+  document.getElementById('gifModal').style.display = 'flex';
+  document.getElementById('gifResults').innerHTML = '';
+  document.getElementById('gifQuery').value = '';
+  document.getElementById('gifQuery').focus();
+}
+function closeGifModal(){ document.getElementById('gifModal').style.display = 'none'; }
+
+// --- Search GIPHY and render thumbnails ---
+async function searchGiphy(){
+  const q = (document.getElementById('gifQuery').value || '').trim();
+  if(!q) return;
+  const results = document.getElementById('gifResults');
+  results.innerHTML = 'Loading…';
+  try {
+    const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(q)}&limit=24&rating=pg`;
+    const res = await fetch(url);
+    const json = await res.json();
+    results.innerHTML = '';
+    (json.data || []).forEach(g => {
+      const thumb = g.images && (g.images.fixed_width_small || g.images.fixed_width);
+      const full = g.images && (g.images.original || g.images.fixed_width);
+      if (!thumb) return;
+      const img = document.createElement('img');
+      img.src = thumb.url;
+      img.alt = g.title || 'gif';
+      img.addEventListener('click', () => {
+        // send media message with full URL when selected
+        const mediaUrl = (full && full.url) ? full.url : thumb.url;
+        sendMediaMessage({ type: 'gif', url: mediaUrl });
+        closeGifModal();
+      });
+      results.appendChild(img);
+    });
+    if((json.data||[]).length === 0) results.innerHTML = 'No GIFs found.';
+  } catch (err) {
+    console.error(err);
+    results.innerHTML = 'Search failed.';
+  }
+}
+
+// --- Helper to send media message objects ---
+function sendMediaMessage(payload){
+  if (!userKey) { alert('Open chat first'); return; }
+  const key = String(Date.now());
+  const msg = {
+    sender: userKey,
+    from: 'user',
+    to: FRIEND_KEY,
+    time: Number(key),
+    type: payload.type || 'image',
+    url: payload.url || payload.mediaUrl || '',
+    replyTo: replyTo ? replyTo.key : null
+  };
+  db.ref('chats/' + userKey).child(key).set(msg);
+}
 /* =========================
    Rendering helpers
    ========================= */
@@ -653,30 +777,54 @@ function addBubble(data) {
   const div = document.createElement('div');
   const mine = isFromMe(data);
   div.classList.add('bubble', mine ? 'from-user' : 'from-brother');
-
+  
+  // reply snippet if present
   if (data.replyTo && messageMap[data.replyTo]) {
     const replyDiv = document.createElement('div');
     replyDiv.classList.add('reply-snippet');
-    replyDiv.innerText = messageMap[data.replyTo].text;
+    replyDiv.innerText = messageMap[data.replyTo].text || '[' + (messageMap[data.replyTo].type || 'media') + ']';
     div.appendChild(replyDiv);
   }
-
-  const textDiv = document.createElement('div');
-  textDiv.innerText = data.text || '';
-  div.appendChild(textDiv);
-
+  
+  // If message contains media (gif/image) show image
+  if (data.type === 'gif' || data.type === 'image' || data.url) {
+    const media = document.createElement('img');
+    media.className = 'msg-media';
+    media.src = data.url || data.mediaUrl || '';
+    media.alt = data.type || 'media';
+    // error fallback text node
+    media.addEventListener('error', () => {
+      const err = document.createElement('div');
+      err.style.fontSize = '12px';
+      err.style.color = '#b00';
+      err.textContent = '[Unable to load media]';
+      div.insertBefore(err, media.nextSibling);
+    });
+    div.appendChild(media);
+    if (data.text) {
+      const textDiv = document.createElement('div');
+      textDiv.innerText = data.text;
+      div.appendChild(textDiv);
+    }
+  } else {
+    // regular text-only message
+    const textDiv = document.createElement('div');
+    textDiv.innerText = data.text || '';
+    div.appendChild(textDiv);
+  }
+  
   const timeDiv = document.createElement('div');
   timeDiv.className = 'msg-time';
   const ts = Number(data.time || data.key);
-  timeDiv.textContent = new Date(ts).toLocaleTimeString([], {hour:'numeric',minute:'2-digit',hour12:true});
+  timeDiv.textContent = new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
   div.appendChild(timeDiv);
-
+  
   const indicator = document.createElement('div');
   indicator.className = 'reply-indicator';
   indicator.innerHTML = '&#8617;';
   div.appendChild(indicator);
   addSwipeListeners(div, data, indicator);
-
+  
   messagesEl.appendChild(div);
   messageMap[data.key] = data;
 }
@@ -830,7 +978,28 @@ darkToggle.addEventListener("click",()=>{
   updateToggleIcon();
 });
 
-
+// paste handler: if user pastes an image URL or Giphy link, send as media
+document.addEventListener('paste', (e) => {
+  const items = e.clipboardData && e.clipboardData.items;
+  if(!items) return;
+  for (const it of items) {
+    if (it.kind === 'file') {
+      const blob = it.getAsFile();
+      const reader = new FileReader();
+      reader.onload = (ev) => sendMediaMessage({ type: 'image', url: ev.target.result });
+      reader.readAsDataURL(blob);
+      e.preventDefault();
+      return;
+    }
+    if (it.kind === 'string' && it.type === 'text/plain') {
+      it.getAsString(str => {
+        if (str.match(/\.(gif|png|jpg|jpeg|webp)(\?.*)?$/i) || str.includes('giphy.com')) {
+          sendMediaMessage({ type: 'gif', url: str });
+        }
+      });
+    }
+  }
+});
 </script>
 
 
