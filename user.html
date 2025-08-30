@@ -368,7 +368,7 @@ background:none; border:none; font-size:25px; cursor:pointer;"></span>
   <div class="panel" role="dialog" aria-modal="true">
     <div style="display:flex;gap:8px;margin-bottom:8px;">
       <input id="gifQuery" placeholder="Search GIFs (GIPHY)" style="flex:1;padding:8px;border-radius:8px;border:1px solid #ccc" />
-      <button id="gifSearchBtn" onclick="searchGiphy()">Search</button>
+      <button id="gifSearchBtn" onclick="searchTenor()">Search</button>
       <button id="gifCloseBtn" onclick="closeGifModal()">Close</button>
     </div>
     <div id="gifResults">Type a query and press Search or click Close.</div>
@@ -387,7 +387,12 @@ const emailInput = document.getElementById('emailInput');
 const passInput  = document.getElementById('passInput');
 const replyBox   = document.getElementById('replyBox');
 // --- GIF config: set your GIPHY API key (get one at developers.giphy.com)
-const GIPHY_API_KEY = "e68mngd8xYdq05iTwWRZPlbK92CIPhMB"; // replace if you have your own key
+/* ===== Tenor config =====
+   Get a Tenor API key from Google Cloud Console (enable Tenor API, create API key).
+   Docs: https://developers.google.com/tenor/guides/quickstart
+*/
+const TENOR_API_KEY = "AIzaSyB_R_WfxdRYAnMCykNpxDAAJRqKkjpgUTs"; // <-- REPLACE with your Tenor v2 API key
+const TENOR_CLIENT_KEY = "user feedback"; // optional, stable client identifier // replace if you have your own key
 const FRIEND_KEY = 'brother'; // set your peer's id/name used in DB (case-insensitive)
 
 let userKey = '';
@@ -801,35 +806,82 @@ function openGifModal(){
 function closeGifModal(){ document.getElementById('gifModal').style.display = 'none'; }
 
 // --- Search GIPHY and render thumbnails ---
-async function searchGiphy(){
-  const q = (document.getElementById('gifQuery').value || '').trim();
-  if(!q) return;
-  const results = document.getElementById('gifResults');
-  results.innerHTML = 'Loading…';
+// --- Tenor search implementation (replaces searchGiphy) ---
+async function searchTenor(query) {
+  const resultsEl = document.getElementById('gifResults');
+  if (!resultsEl) return;
+  const q = (typeof query === 'undefined' || query === null) ? (document.getElementById('gifQuery').value || '') : query;
+  // If the caller passed explicit 'trending' -> use featured endpoint
+  const isTrending = (q === 'trending' || q.trim() === '');
+  resultsEl.innerHTML = 'Loading…';
+  
   try {
-    const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(q)}&limit=24&rating=pg`;
+    let url;
+    const encoded = encodeURIComponent(q.trim());
+    if (isTrending) {
+      // featured (trending) endpoint — returns recent/popular items
+      url = `https://tenor.googleapis.com/v2/featured?key=${TENOR_API_KEY}&client_key=${TENOR_CLIENT_KEY}&limit=24&contentfilter=low`;
+    } else {
+      // search endpoint
+      url = `https://tenor.googleapis.com/v2/search?q=${encoded}&key=${TENOR_API_KEY}&client_key=${TENOR_CLIENT_KEY}&limit=24&contentfilter=low`;
+    }
+    
     const res = await fetch(url);
+    if (!res.ok) throw new Error('Tenor fetch failed: ' + res.status);
     const json = await res.json();
-    results.innerHTML = '';
-    (json.data || []).forEach(g => {
-      const thumb = g.images && (g.images.fixed_width_small || g.images.fixed_width);
-      const full = g.images && (g.images.original || g.images.fixed_width);
-      if (!thumb) return;
+    resultsEl.innerHTML = '';
+    
+    const items = json.results || [];
+    if (items.length === 0) {
+      resultsEl.innerHTML = 'No GIFs found.';
+      return;
+    }
+    
+    items.forEach(item => {
+      // Tenor v2 returns `media_formats` map with different size formats.
+      // Prefer small thumbnails (tinygif/nanogif/nanowebp) for grid thumbnails,
+      // and prefer `gif` or `mediumgif` when sending the selected GIF.
+      const mf = item.media_formats || {};
+      const preview =
+        (mf.tinygif && mf.tinygif.url) ||
+        (mf.nanogif && mf.nanogif.url) ||
+        (mf.tinywebp && mf.tinywebp.url) ||
+        (mf.nanowebp && mf.nanowebp.url) ||
+        (mf.gif && mf.gif.url) ||
+        null;
+      
+      const full =
+        (mf.gif && mf.gif.url) ||
+        (mf.mediumgif && mf.mediumgif.url) ||
+        (mf.raw && mf.raw.url) ||
+        preview;
+      
+      if (!preview) return; // skip if we don't have anything to show
+      
       const img = document.createElement('img');
-      img.src = thumb.url;
-      img.alt = g.title || 'gif';
+      img.src = preview;
+      img.alt = item.content_description || item.id || 'gif';
+      img.title = item.content_description || '';
+      
       img.addEventListener('click', () => {
-        // send media message with full URL when selected
-        const mediaUrl = (full && full.url) ? full.url : thumb.url;
-        sendMediaMessage({ type: 'gif', url: mediaUrl });
+        // send selected GIF as media message (your existing helper)
+        sendMediaMessage({ type: 'gif', url: full });
+        // optional: call registershare (non-blocking) to help Tenor improve relevance
+        try {
+          const shareUrl = `https://tenor.googleapis.com/v2/registershare?id=${encodeURIComponent(item.id)}&key=${TENOR_API_KEY}&client_key=${TENOR_CLIENT_KEY}`;
+          // fire-and-forget
+          fetch(shareUrl).catch(() => {});
+        } catch (e) { /* ignore */ }
+        // close modal
         closeGifModal();
       });
-      results.appendChild(img);
+      
+      resultsEl.appendChild(img);
     });
-    if((json.data||[]).length === 0) results.innerHTML = 'No GIFs found.';
+    
   } catch (err) {
-    console.error(err);
-    results.innerHTML = 'Search failed.';
+    console.error('Tenor search error', err);
+    resultsEl.innerHTML = 'Search failed.';
   }
 }
 
