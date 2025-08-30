@@ -541,43 +541,154 @@ function loadMessages() {
     });
   });
 }
-function sendImage(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  
-  reader.onload = function(ev) {
-    const key = Date.now().toString();
-    // Reuse sendMediaMessage so DB shape is consistent with other media messages
-    sendMediaMessage({
-      type: 'image',
-      url: ev.target.result,
-      // optional: include original filename
-      filename: file.name
-    });
-    
-    // If you still want to write directly to DB you can:
-    // const msg = {
-    //   sender: userKey,
-    //   from: 'user',
-    //   to: FRIEND_KEY,
-    //   time: Number(key),
-    //   type: 'image',
-    //   url: ev.target.result
-    // };
-    // db.ref('chats/' + userKey).child(key).set(msg);
-  };
-  
-  reader.readAsDataURL(file);
-  // Reset file input so same file can be selected again
-  event.target.value = '';
+/**
+ * Compress an Image/File/Blob to a JPEG dataURL under maxKB (200 KB default).
+ * Returns a Promise that resolves to a dataURL string.
+ */
+function compressImageFile(fileOrBlob, maxKB = 200, maxWidth = 1280, maxHeight = 1280) {
+  return new Promise((resolve, reject) => {
+    // read file/blob as dataURL
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Invalid image file'));
+      img.onload = async () => {
+        try {
+          // compute target dimensions (fit within maxWidth/maxHeight)
+          let [w, h] = [img.naturalWidth, img.naturalHeight];
+          const ratio = Math.min(1, maxWidth / w, maxHeight / h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = w;
+          canvas.height = h;
+          ctx.drawImage(img, 0, 0, w, h);
+
+          // helper to get blob from canvas at given quality
+          function canvasToBlobPromise(quality) {
+            return new Promise(res => {
+              canvas.toBlob(blob => res(blob), 'image/jpeg', quality);
+            });
+          }
+
+          // first try with descending quality
+          let quality = 0.92;
+          let blob = await canvasToBlobPromise(quality);
+
+          // If already under target, return
+          const targetBytes = maxKB * 1024;
+
+          // Decrease quality in steps until target or minQuality
+          const minQuality = 0.40;
+          while (blob && blob.size > targetBytes && quality > minQuality) {
+            quality -= 0.07; // step down
+            if (quality < minQuality) quality = minQuality;
+            blob = await canvasToBlobPromise(quality);
+          }
+
+          // If still too big, progressively shrink dimensions and retry
+          let shrinkFactor = 0.9; // reduce to 90% each loop
+          while (blob && blob.size > targetBytes && (canvas.width > 300 && canvas.height > 300)) {
+            canvas.width = Math.round(canvas.width * shrinkFactor);
+            canvas.height = Math.round(canvas.height * shrinkFactor);
+            // redraw
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            // reset quality a bit
+            quality = Math.max(0.85, quality); // try decent quality first
+            blob = await canvasToBlobPromise(quality);
+
+            // if still large, reduce quality further
+            while (blob && blob.size > targetBytes && quality > minQuality) {
+              quality -= 0.07;
+              if (quality < minQuality) quality = minQuality;
+              blob = await canvasToBlobPromise(quality);
+            }
+            // loop until under target or image is very small
+          }
+
+          // fallback: if nothing worked, use the last blob (best effort)
+          if (!blob) return reject(new Error('Compression failed'));
+
+          // convert blob to dataURL
+          const fr = new FileReader();
+          fr.onload = () => resolve(fr.result);
+          fr.onerror = () => reject(new Error('Failed to read compressed blob'));
+          fr.readAsDataURL(blob);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      img.src = reader.result;
+    };
+
+    // If input is a Blob or File, read it
+    reader.readAsDataURL(fileOrBlob);
+  });
 }
 
+/**
+ * Replaces your previous sendImage(event) to compress before sending.
+ * Call this on file input change: onchange="sendImage(event)"
+ */
+function sendImage(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const maxKB = 200; // target size in KB
 
-// --- VisualViewport-aware layout adaptation ---
-// Keeps header visually pinned and resizes messages area when keyboard opens (iOS/Android)
-// --- VisualViewport-aware layout adaptation ---
-// Keeps header pinned and inputArea above the keyboard (iOS/Android)
+  // Provide UI feedback (optional)
+  const originalButton = event.target;
+  // compress
+  compressImageFile(file, maxKB).then(dataUrl => {
+    // payload shape matches your sendMediaMessage usage
+    sendMediaMessage({
+      type: 'image',
+      url: dataUrl,
+      filename: file.name
+    });
+  }).catch(err => {
+    console.error('Compression failed', err);
+    // fallback: send original as dataURL (may be large) - or notify user
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      sendMediaMessage({ type: 'image', url: ev.target.result, filename: file.name });
+    };
+    reader.readAsDataURL(file);
+  }).finally(() => {
+    // Reset file input so same file can be selected again
+    event.target.value = '';
+  });
+}
+
+/* Update paste handler so pasted image files are compressed before sending */
+document.addEventListener('paste', (e) => {
+  const items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  for (const it of items) {
+    if (it.kind === 'file') {
+      const blob = it.getAsFile();
+      // compress then send
+      compressImageFile(blob, 200).then(dataUrl => {
+        sendMediaMessage({ type: 'image', url: dataUrl });
+      }).catch(err => {
+        console.error('Paste compression failed', err);
+      });
+      e.preventDefault();
+      return;
+    }
+    if (it.kind === 'string' && it.type === 'text/plain') {
+      it.getAsString(str => {
+        if (str.match(/\.(gif|png|jpg|jpeg|webp)(\?.*)?$/i) || str.includes('giphy.com')) {
+          sendMediaMessage({ type: 'gif', url: str });
+        }
+      });
+    }
+  }
+});
+
 // --- VisualViewport-aware layout adaptation (robust, avoid gaps) ---
 (function setupViewportAdjustments() {
   const header = document.getElementById('chatHeader');
