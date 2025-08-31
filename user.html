@@ -85,16 +85,16 @@ body.dark #chatHeader {
 
 /* Input area */
 body.dark #inputArea {
-  background: #1f2c34;
-  border-top: 1px solid #333;
+  background: transparent;
+
 }
 body.dark #inputRow input {
-  background: #2a3942;
+  background: transparent;
   color: #fff;
   border: 1px solid #333;
 }
 body.dark #inputRow button {
-  background: #075E54;
+  background: transparent;
 }
 
 /* Bubbles */
@@ -216,7 +216,7 @@ body.dark #darkToggle::before {
 
   #replyBox {
   display: none;
-  background: #f1f0f0;
+  background: transparent;
   padding: 5px 10px;
   border-left: 4px solid #075E54;
   margin: 5px 10px;
@@ -227,17 +227,18 @@ body.dark #darkToggle::before {
 }
 
 body.dark #replyBox {
-  background: #2a3942;
+  background: transparent;
   border-left: 4px solid #34b7f1;
   color: #fff;
 }
 
-    #messages {
+  #messages {
+    background: lightgrey;
   position: absolute;
   top: 60px;         /* below header (match header height) */
   left: 0;
   right: 0;
-  bottom: 70px;      /* above input area (match its height) */
+  bottom: 0;         /* let messages go all the way under the input */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -246,24 +247,132 @@ body.dark #replyBox {
 }
 
 #inputArea {
-  position: fixed;   /* stick to bottom */
+  position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  background: #fff;
-  border-top: 1px solid #ccc;
   padding: 10px;
+  background: transparent !important; /* messages will show behind */
+  border-top: none;
   display: flex;
   flex-direction: column;
+  z-index: 1000; /* ensure input overlays messages */
+  pointer-events: auto; /* allow interaction */
+  /* optional: add subtle blur if you want better contrast:
+     backdrop-filter: blur(6px); - uncomment if desired */
 }
-    #inputRow { display: flex; }
-    #inputRow input {
-      flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 20px;
-    }
-    #inputRow button {
-      margin-left: 10px; padding: 8px 16px; background: #075E54;
-      color: #fff; border: none; border-radius: 20px;
-    }
+
+/* textarea with slight transparent background for visibility */
+#inputRow textarea,
+#msgInput {
+  max-height: 100px;
+  background: rgba(255, 255, 255, 0.85); /* almost solid white */
+  border: 1px solid grey;
+  border-radius: 20px;
+  padding: 8px 12px;
+  color: #000;
+  font-size: 15px;
+  line-height: 1.3;
+  flex: 1;
+  resize: none;
+}
+
+/* buttons with subtle background */
+#inputRow button,
+#gifBtn, #attachBtn, #sendBtn {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid grey;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color:grey;
+}
+
+/* reply preview */
+.reply-preview {
+  background: #f0f0f0;
+  border-left: 4px solid #4caf50;
+  color: #333;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 6px;
+  padding: 6px 10px;
+}
+
+/* dark mode overrides */
+body.dark #inputRow textarea,
+body.dark #msgInput {
+  background: #1F2C34BF;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+body.dark #inputRow button {
+  background: #1F2C34BF;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+body.dark .reply-preview {
+  background: rgba(42,42,42,0.85);
+  color: #e5e5e5;
+}
+
+
+
+/* Compact WhatsApp-like icon buttons for GIF & Attach */
+#inputRow {
+  display: flex;
+  align-items: center;   /* center vertically */
+  gap: 2px;              /* small spacing between controls */
+}
+
+#inputRow button.icon-btn,
+#gifBtn, /* fallback selector if you don't change HTML */
+#attachBtn {
+  width: 36px;
+  height: 36px;
+  margin-right: 1px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;      /* icon / emoji size */
+  line-height: 1;
+  flex: 0 0 36px;       /* don't grow or shrink */
+  cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(16,24,40,0.06);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+/* make sure textarea doesn’t push icons out on small screens */
+#inputRow textarea {
+  flex: 1 1 auto;    /* textarea grows, icons keep fixed size */
+  margin: 0;
+}
+
+/* slightly shrink the 'Send' button so it balances with icons */
+#inputRow button#sendBtn {
+  padding: 4px 6px;
+  border-radius: 18px;
+  margin-left: 2px;
+  flex: 0 0 auto;
+}
+
+
+/*comp*/
+  
+
+
+
+    
+
 
     .msg-time {
       font-size: 10px;
@@ -272,9 +381,7 @@ body.dark #replyBox {
       align-self: flex-end;
     }
     
-    body {
-  background: #D7D7D7; /* or any color/gradient/image */
-}
+    
 
     .reply-indicator {
       position: absolute;
@@ -299,24 +406,9 @@ body.dark #replyBox {
       margin: 10px 0;
     }
     
-    #msgInput {
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.4;
-  overflow-y: auto;
-}
+    
 
-/* Dark mode */
-body.dark #msgInput {
-  background: #2a3942; /* dark gray-blue */
-  color: #e0e0e0;      /* light text */
-  border: 1px solid #333; /* darker border */
-}
 
-/* Placeholder color for dark mode */
-body.dark #msgInput::placeholder {
-  color: #aaa;
-}
 
   </style>
 </head>
@@ -354,15 +446,59 @@ background:none; border:none; font-size:25px; cursor:pointer;"></span>
   </button>
 </div>
 
-      <div id="inputRow">
+      <div id="inputRow" style="background: transparent;">
 <textarea id="msgInput" placeholder="Type a message…" rows="1" ...></textarea>
-<button id="gifBtn" type="button" onclick="openGifModal()">GIF</button>
+<button id="gifBtn" type="button" onclick="openGifModal()">
+  <svg xmlns="http://www.w3.org/2000/svg" 
+     width="24" height="24" 
+     fill="none" 
+     stroke="grey" 
+     stroke-width="2" 
+     stroke-linecap="round" 
+     stroke-linejoin="round">
+
+  <!-- outer rounded square -->
+  <rect x="3" y="3" width="18" height="18" rx="6" ry="6"/>
+
+  <!-- eyes -->
+  <circle cx="9" cy="10" r="1"/>
+  <circle cx="15" cy="10" r="1"/>
+
+  <!-- mouth with folded corner -->
+  <path d="M8 15h4c1.5 0 3 1 3 2v1l3-3"/>
+</svg>
+  
+  
+</button>
 <input type="file" id="imgInput" accept="image/*" style="display:none;" onchange="sendImage(event)">
-<button onclick="document.getElementById('imgInput').click()">📷</button>
-<button onclick="sendMessage()">Send</button>
+<button onclick="document.getElementById('imgInput').click()">
+  
+    <svg xmlns="http://www.w3.org/2000/svg" 
+       width="24" height="24" 
+       fill="none" 
+       stroke="grey" 
+       stroke-width="2" 
+       stroke-linecap="round" 
+       stroke-linejoin="round">
+    <path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.19 9.19a2 2 0 0 1-2.83-2.83l8.48-8.48" />
+  </svg>
+  
+</button>
+<button onclick="sendMessage()">
+  
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="grey" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"></path>
+    <path d="M5 12l7-7 7 7"></path>
+  </svg>
+</button>
       </div>
     </div>
   </div>
+  
+    
+
+  
+  
 <!-- GIF modal -->
 <div id="gifModal" aria-hidden="true">
   <div class="panel" role="dialog" aria-modal="true">
@@ -371,6 +507,7 @@ background:none; border:none; font-size:25px; cursor:pointer;"></span>
       <button id="gifSearchBtn" onclick="searchTenor()">Search</button>
       <button id="gifCloseBtn" onclick="closeGifModal()">Close</button>
     </div>
+    
     <div id="gifResults">Type a query and press Search or click Close.</div>
   </div>
 </div>
@@ -722,7 +859,9 @@ document.addEventListener('paste', (e) => {
 
     // pin messages between header and input (avoid using fixed height)
     messages.style.top = headerH + 'px';
-    messages.style.bottom = (inputH + offsetBottom) + 'px';
+    // let messages go all the way to the bottom (so they appear behind the input),
+// but still account for on-screen keyboard offset so input stays above it.
+messages.style.bottom = offsetBottom + 'px';
 
     // ensure header stays visually pinned if visualViewport shifted (keyboard)
     header.style.transform = `translateY(${viewOffsetTop}px)`;
@@ -1073,7 +1212,9 @@ msgInput.addEventListener("focus", () => {
 
     // pin messages between header and input (avoid using fixed height)
     messages.style.top = headerH + 'px';
-    messages.style.bottom = (inputH + offsetBottom) + 'px';
+    // let messages go all the way to the bottom (so they appear behind the input),
+// but still account for on-screen keyboard offset so input stays above it.
+messages.style.bottom = offsetBottom + 'px';
 
     // ensure header stays visually pinned if visualViewport shifted (keyboard)
     header.style.transform = `translateY(${viewOffsetTop}px)`;
