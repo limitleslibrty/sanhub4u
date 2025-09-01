@@ -216,7 +216,7 @@ body.dark #darkToggle::before {
 
   #replyBox {
   display: none;
-  background: transparent;
+  background:rgba(255, 255, 255, 0.85) ;
   padding: 5px 10px;
   border-left: 4px solid #075E54;
   margin: 5px 10px;
@@ -226,8 +226,8 @@ body.dark #darkToggle::before {
   justify-content: space-between;
 }
 
-body.dark #replyBox {
-  background: transparent;
+ body.dark #replyBox {
+  background: #1F2C34BF;
   border-left: 4px solid #34b7f1;
   color: #fff;
 }
@@ -317,10 +317,7 @@ body.dark #inputRow button {
   color: #fff;
 }
 
-body.dark .reply-preview {
-  background: rgba(42,42,42,0.85);
-  color: #e5e5e5;
-}
+
 
 
 
@@ -863,6 +860,9 @@ document.addEventListener('paste', (e) => {
 // but still account for on-screen keyboard offset so input stays above it.
 messages.style.bottom = offsetBottom + 'px';
 
+// reserve scroll padding so last message isn't hidden behind the input
+messages.style.paddingBottom = (inputH + 10) + 'px'; // 8px breathing room
+
     // ensure header stays visually pinned if visualViewport shifted (keyboard)
     header.style.transform = `translateY(${viewOffsetTop}px)`;
   }
@@ -1215,6 +1215,9 @@ msgInput.addEventListener("focus", () => {
     // let messages go all the way to the bottom (so they appear behind the input),
 // but still account for on-screen keyboard offset so input stays above it.
 messages.style.bottom = offsetBottom + 'px';
+
+// reserve scroll padding so last message isn't hidden behind the input
+messages.style.paddingBottom = (inputH + 10) + 'px';
 
     // ensure header stays visually pinned if visualViewport shifted (keyboard)
     header.style.transform = `translateY(${viewOffsetTop}px)`;
