@@ -1,39 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <!-- Basic -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
-  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' data: blob: filesystem:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval' *">
-
-  <!-- Google Analytics -->
+  <!-- Title & description (keep title ≲60 chars, description ≲155 chars) -->
+  <title>SanHub4U — Movie Reviews, New Releases & Trailers</title>
+  <meta name="description" content="SanHub4U: Honest movie reviews, trailers, release dates, and cast info. Find what to watch next.">
+  
+  <!-- Canonical: point to the preferred URL for this page -->
+  <link rel="canonical" href="https://limitleslibrty.github.io/sanhub4u/">
+  
+  <!-- Robots: allow indexing by default (change to noindex when needed) -->
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph (social sharing) -->
+  <meta property="og:title" content="SanHub4U — Movie Reviews, New Releases & Trailers">
+  <meta property="og:description" content="Movie reviews, trailers, release dates and cast details. Keep up with the latest films.">
+  <meta property="og:url" content="https://limitleslibrty.github.io/sanhub4u/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://limitleslibrty.github.io/sanhub4u/og-image.jpg">
+  <meta property="og:image:alt" content="SanHub4U — movie portal">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SanHub4U — Movie Reviews, New Releases & Trailers">
+  <meta name="twitter:description" content="Movie reviews, trailers, release dates and cast details.">
+  <meta name="twitter:image" content="https://limitleslibrty.github.io/sanhub4u/og-image.jpg">
+  
+  <!-- Favicons / PWA -->
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="/logo192.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  
+  <!-- Google Site Verification -->
+  <meta name="google-site-verification" content="2lt-Ebawu2LuCLBPkpbVlZqha4xsuR5nxV49g3i7oRg">
+  
+  <!-- Analytics (keep, but consider cookie consent if required in your jurisdiction) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-TYV1T063RV"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
-    gtag('config', 'G-TYV1T063RV');
+    gtag('config', 'G-TYV1T063RV', { 'anonymize_ip': true });
   </script>
-
-  <meta name="google-site-verification" content="2lt-Ebawu2LuCLBPkpbVlZqha4xsuR5nxV49g3i7oRg" />
   
-  <!-- SEO Meta -->
-  <title>Sanhub4u</title>
-  <meta name="description" content="Sanhub4u Explore unique content, resources, and updates." />
+  <!-- Minimal Content-Security-Policy recommended (remove unsafe-* when possible).
+       THIS EXAMPLE IS CONSERVATIVE; test after changes. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.googletagmanager.com; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://www.googletagmanager.com;">
   
-  <!-- Open Graph (SEO + Social sharing) -->
-  <meta property="og:title" content="Sanhub4u" />
-  <meta property="og:description" content="Sanhub4u is the official website. Stay updated with latest resources and content." />
-  <meta property="og:url" content="https://limitleslibrty.github.io/sanhub4u/" />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://limitleslibrty.github.io/sanhub4u/logo192.png" />
-  
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ffffff" />
-  <link rel="apple-touch-icon" href="logo192.png">
-  
-  <link rel="stylesheet" href="style.css">
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
