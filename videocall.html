@@ -10,7 +10,7 @@
       width: 100%;
       margin: 0;
       padding: 0;
-      background: black; /* Default background */
+      background: black;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -19,7 +19,7 @@
     #video-container {
       width: 100%;
       height: 100%;
-      display: none; /* Always hidden until correct password */
+      display: none;
     }
     iframe {
       width: 100%;
@@ -28,14 +28,10 @@
     }
   </style>
   <script>
-    const correctPassword = "mahi@1234";
+    const correctPassword = "mahi@123";
     const redirectUrl = "https://limitleslibrty.github.io/sanhub4u/";
 
     function askPassword() {
-      // Hide video first so nothing is visible while asking
-      document.getElementById("video-container").style.display = "none";
-      document.body.style.background = "black";
-
       const entered = prompt("Enter password to continue:");
       if (entered === correctPassword) {
         document.getElementById("video-container").style.display = "block";
@@ -44,18 +40,8 @@
       }
     }
 
-    // Ask password when page loads
+    // Ask only once per refresh
     window.onload = askPassword;
-
-    // Ask password again when tab is focused or page is refreshed
-    window.onfocus = askPassword;
-
-    // Also recheck on visibility change (switching tabs, minimizing, etc.)
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) {
-        askPassword();
-      }
-    });
   </script>
 </head>
 <body>
