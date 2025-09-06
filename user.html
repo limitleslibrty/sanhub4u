@@ -1105,6 +1105,39 @@ function isFromMe(m) {
   return false; // default to "received" if unknown
 }
 
+// --- make links clickable (minimal, safe-ish) ---
+const urlRegex = /((?:https?:\/\/|www\.)\S+)/gi;
+function makeLinkedMessage(text) {
+  const frag = document.createDocumentFragment();
+  if (!text) return frag;
+  let lastIndex = 0;
+  let match;
+  while ((match = urlRegex.exec(text)) !== null) {
+    // add text before match
+    if (match.index > lastIndex) {
+      frag.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+    }
+    // create link node
+    const raw = match[0];
+    const href = raw.startsWith('www.') ? 'http://' + raw : raw;
+    const a = document.createElement('a');
+    a.href = href;
+    a.textContent = raw;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.style.cursor = 'pointer';
+    a.style.textDecoration = 'underline';
+    a.style.color = '#075E54'; // Whatsapp-like link color
+    frag.appendChild(a);
+    lastIndex = urlRegex.lastIndex;
+  }
+  // remaining text
+  if (lastIndex < text.length) {
+    frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+  }
+  return frag;
+}
+
 function addBubble(data) {
   const div = document.createElement('div');
   const mine = isFromMe(data);
@@ -1134,15 +1167,15 @@ function addBubble(data) {
     });
     div.appendChild(media);
     if (data.text) {
-      const textDiv = document.createElement('div');
-      textDiv.innerText = data.text;
-      div.appendChild(textDiv);
-    }
+  const textDiv = document.createElement('div');
+  textDiv.appendChild(makeLinkedMessage(data.text));
+  div.appendChild(textDiv);
+}  
   } else {
     // regular text-only message
     const textDiv = document.createElement('div');
-    textDiv.innerText = data.text || '';
-    div.appendChild(textDiv);
+textDiv.appendChild(makeLinkedMessage(data.text || ''));
+div.appendChild(textDiv);
   }
   
   const timeDiv = document.createElement('div');
