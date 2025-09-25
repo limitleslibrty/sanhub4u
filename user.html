@@ -134,7 +134,62 @@ body.dark .reply-snippet {
 }
 
 
+/* Three dots menu */
+.bubble-menu {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+}
 
+.bubble:hover .bubble-menu {
+  opacity: 1;
+}
+
+/* Context menu */
+.context-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.context-menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.context-menu-item:hover {
+  background: #f0f0f0;
+}
+
+.context-menu-item.delete {
+  color: #ff4444;
+}
+
+body.dark .bubble-menu {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+body.dark .context-menu {
+  background: #2a3942;
+  border-color: #444;
+  color: white;
+}
+
+body.dark .context-menu-item:hover {
+  background: #1f2c34;
+}
 /* Dark Mode Toggle - Premium Style */
 /* Premium Toggle Base */
 #darkToggle {
@@ -186,7 +241,40 @@ body.dark #darkToggle::before {
   box-shadow: 0 0 6px rgba(0, 255, 170, 0.8), 0 0 12px rgba(0, 255, 170, 0.6);
 }
 
+/* Fullscreen Media Preview */
+#mediaPreview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
 
+#mediaPreview img {
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+}
+
+#closePreview {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  font-size: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10001;
+}
 /* Optional: subtle glow when hovered */
 #darkToggle:hover {
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -1146,11 +1234,38 @@ function makeLinkedMessage(text) {
 }
 
 function addBubble(data) {
+  const ts = Number(data.time || data.key);
+  const msgDate = new Date(ts).toDateString();
+  
+  if (msgDate !== lastDateForDivider) {
+    addDateDivider(msgDate);
+    lastDateForDivider = msgDate;
+  }
+  addBubbleWithMenu(data);
+}
+
+function addBubbleWithMenu(data) {
   const div = document.createElement('div');
   const mine = isFromMe(data);
   div.classList.add('bubble', mine ? 'from-user' : 'from-brother');
   
-  // reply snippet if present
+  // Add message key as data attribute for precise identification
+  div.setAttribute('data-key', data.key);
+  
+  // Only add menu to user's own messages
+  if (mine) {
+    // Three dots menu button
+    const menuBtn = document.createElement('div');
+    menuBtn.className = 'bubble-menu';
+    menuBtn.innerHTML = '⋯'; // Three dots character
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showContextMenu(e, data);
+    });
+    div.appendChild(menuBtn);
+  }
+  
+  // Rest of your existing bubble content...
   if (data.replyTo && messageMap[data.replyTo]) {
     const replyDiv = document.createElement('div');
     replyDiv.classList.add('reply-snippet');
@@ -1158,13 +1273,17 @@ function addBubble(data) {
     div.appendChild(replyDiv);
   }
   
-  // If message contains media (gif/image) show image
   if (data.type === 'gif' || data.type === 'image' || data.url) {
-    const media = document.createElement('img');
-    media.className = 'msg-media';
-    media.src = data.url || data.mediaUrl || '';
-    media.alt = data.type || 'media';
-    // error fallback text node
+  const media = document.createElement('img');
+  media.className = 'msg-media';
+  media.src = data.url || data.mediaUrl || '';
+  media.alt = data.type || 'media';
+  media.style.cursor = 'pointer'; // Add pointer cursor
+  
+  // Make image clickable for fullscreen preview
+  media.addEventListener('click', () => {
+    openMediaPreview(data.url || data.mediaUrl || '');
+  });
     media.addEventListener('error', () => {
       const err = document.createElement('div');
       err.style.fontSize = '12px';
@@ -1174,15 +1293,14 @@ function addBubble(data) {
     });
     div.appendChild(media);
     if (data.text) {
-  const textDiv = document.createElement('div');
-  textDiv.appendChild(makeLinkedMessage(data.text));
-  div.appendChild(textDiv);
-}  
+      const textDiv = document.createElement('div');
+      textDiv.appendChild(makeLinkedMessage(data.text));
+      div.appendChild(textDiv);
+    }
   } else {
-    // regular text-only message
     const textDiv = document.createElement('div');
-textDiv.appendChild(makeLinkedMessage(data.text || ''));
-div.appendChild(textDiv);
+    textDiv.appendChild(makeLinkedMessage(data.text || ''));
+    div.appendChild(textDiv);
   }
   
   const timeDiv = document.createElement('div');
@@ -1199,6 +1317,70 @@ div.appendChild(textDiv);
   
   messagesEl.appendChild(div);
   messageMap[data.key] = data;
+}
+
+function showContextMenu(event, messageData) {
+  // Remove any existing context menu
+  const existingMenu = document.querySelector('.context-menu');
+  if (existingMenu) existingMenu.remove();
+  
+  const menu = document.createElement('div');
+  menu.className = 'context-menu';
+  
+  const deleteOption = document.createElement('div');
+  deleteOption.className = 'context-menu-item delete';
+  deleteOption.textContent = 'Delete';
+  deleteOption.addEventListener('click', () => {
+    deleteMessage(messageData);
+    menu.remove();
+  });
+  
+  menu.appendChild(deleteOption);
+  
+  // Position menu near click
+  menu.style.left = (event.clientX - 50) + 'px';
+  menu.style.top = (event.clientY - 10) + 'px';
+  
+  document.body.appendChild(menu);
+  
+  // Close menu when clicking elsewhere
+  const closeMenu = (e) => {
+    if (!menu.contains(e.target)) {
+      menu.remove();
+      document.removeEventListener('click', closeMenu);
+    }
+  };
+  
+  setTimeout(() => {
+    document.addEventListener('click', closeMenu);
+  }, 0);
+}
+
+function deleteMessage(messageData) {
+  if (!confirm('Delete this message?')) return;
+  
+  // Remove from Firebase
+  db.ref('chats/' + userKey).child(messageData.key).remove()
+    .then(() => {
+      // Remove from UI - use the message key instead of time
+      const bubble = Array.from(document.querySelectorAll('.bubble'))
+        .find(bubble => {
+          // Get the data-key attribute we'll add to each bubble
+          return bubble.getAttribute('data-key') === messageData.key;
+        });
+      
+      if (bubble) {
+        bubble.style.transform = 'scale(0)';
+        setTimeout(() => bubble.remove(), 200);
+      }
+      
+      // Remove from messageMap
+      delete messageMap[messageData.key];
+    })
+    .catch(error => {
+      console.error('Error deleting message:', error);
+      alert('Error deleting message');
+    });
 }
 
 function addSwipeListeners(element, msgData, indicator) {
@@ -1378,8 +1560,91 @@ document.addEventListener('paste', (e) => {
   }
 });
 </script>
+<script>
+  /* =========================
+   Fullscreen Media Preview
+   ========================= */
+/* =========================
+   Fullscreen Media Preview
+   ========================= */
+/* =========================
+   Fullscreen Media Preview
+   ========================= */
+function setupMediaPreview() {
+  const preview = document.getElementById('mediaPreview');
+  const closePreview = document.getElementById('closePreview');
+  
+  // Simple close function
+  function closePreviewModal() {
+    preview.style.display = 'none';
+  }
+  
+  // Attach close event to button
+  closePreview.onclick = closePreviewModal;
+  
+  // Close when clicking backdrop
+  preview.onclick = function(e) {
+    if (e.target === preview) {
+      closePreviewModal();
+    }
+  };
+  
+  // Close with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && preview.style.display === 'flex') {
+      closePreviewModal();
+    }
+  });
+}
 
 
+// Call this function after DOM is ready
+setupMediaPreview();
+
+// Function to open media in fullscreen
+/* =========================
+   Fullscreen Media Preview - SIMPLE VERSION
+   ========================= */
+
+// Function to open media in fullscreen
+function openMediaPreview(imageUrl) {
+  const preview = document.getElementById('mediaPreview');
+  const previewImage = document.getElementById('previewImage');
+  
+  if (preview && previewImage) {
+    previewImage.src = imageUrl;
+    preview.style.display = 'flex';
+    
+    // Add click handlers directly each time
+    const closePreview = document.getElementById('closePreview');
+    
+    // Remove any existing handlers and add new ones
+    closePreview.onclick = function() {
+      preview.style.display = 'none';
+    };
+    
+    preview.onclick = function(e) {
+      if (e.target === preview) {
+        preview.style.display = 'none';
+      }
+    };
+    
+    // Escape key to close
+    document.onkeydown = function(e) {
+      if (e.key === 'Escape' && preview.style.display === 'flex') {
+        preview.style.display = 'none';
+      }
+    };
+  }
+}
+
+
+</script>
+<!-- Media Preview Modal -->
+<div id="mediaPreview">
+  <button id="closePreview">&times;</button>
+  <img id="previewImage" src="" alt="Preview">
+</div>
 
 </body>
 </html> 
