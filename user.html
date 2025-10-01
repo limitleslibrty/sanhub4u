@@ -770,7 +770,7 @@ msgInput.addEventListener("input", () => {
   clearTimeout(typingTimeout);
   typingTimeout = setTimeout(() => {
     db.ref("status/" + userKey).update({ typing: false });
-  }, 2000);
+  }, 900);
 });
 
 // When input loses focus, stop typing
