@@ -663,13 +663,98 @@ let lastDateForDivider = '';
 /* =========================
    Presence
    ========================= */
+// ---- presence + heartbeat (replace your existing trackPresence()) ----
+let __presenceRef = null;
+let __connectedListener = null;
+let __heartbeatTimer = null;
+const HEARTBEAT_MS = 3000; // update every 15s (tune as needed)
+
+function startHeartbeat() {
+  // ensure only one heartbeat runs
+  stopHeartbeat();
+  if (!__presenceRef) return;
+  __heartbeatTimer = setInterval(() => {
+    // use server timestamp to avoid client clock skew
+    __presenceRef.update({
+      last_changed: firebase.database.ServerValue.TIMESTAMP,
+      state: 'online'
+    }).catch(() => { /* ignore transient errors */ });
+  }, HEARTBEAT_MS);
+}
+
+function stopHeartbeat() {
+  if (__heartbeatTimer) {
+    clearInterval(__heartbeatTimer);
+    __heartbeatTimer = null;
+  }
+}
+
 function trackPresence() {
   if (!userKey) return;
-  const userStatusRef = db.ref('status/' + userKey);
-  db.ref('.info/connected').on('value', snap => {
+  // clean previous listeners if any (helpful during reloads/dev)
+  if (__connectedListener) {
+    db.ref('.info/connected').off('value', __connectedListener);
+    __connectedListener = null;
+  }
+  // presence ref for this user
+  __presenceRef = db.ref('status/' + userKey);
+  
+  // Ensure onDisconnect sets offline with server timestamp
+  db.ref('.info/connected').on('value', __connectedListener = (snap) => {
     if (snap.val() === true) {
-      userStatusRef.onDisconnect().set({ state: 'offline', last_changed: Date.now() });
-      userStatusRef.set({ state: 'online', last_changed: Date.now() });
+      try {
+        // set a reliable onDisconnect (server sets offline when connection closes)
+        __presenceRef.onDisconnect().set({
+          state: 'offline',
+          last_changed: firebase.database.ServerValue.TIMESTAMP
+        }).catch(() => {});
+        // immediately mark online and set last_changed via server timestamp
+        __presenceRef.set({
+          state: 'online',
+          last_changed: firebase.database.ServerValue.TIMESTAMP,
+          typing: false
+        }).catch(() => {});
+        // start regular heartbeat updates so last_seen stays fresh
+        startHeartbeat();
+      } catch (e) {
+        console.warn('Presence setup error', e);
+      }
+    } else {
+      // not connected — stop local heartbeat timers
+      stopHeartbeat();
+    }
+  });
+  
+  // When page hidden, mark as 'away' (optional)
+  document.addEventListener('visibilitychange', () => {
+    if (!__presenceRef) return;
+    if (document.visibilityState === 'hidden') {
+      __presenceRef.update({
+        state: 'away',
+        last_changed: firebase.database.ServerValue.TIMESTAMP
+      }).catch(() => {});
+      stopHeartbeat();
+    } else {
+      __presenceRef.update({
+        state: 'online',
+        last_changed: firebase.database.ServerValue.TIMESTAMP
+      }).catch(() => {});
+      startHeartbeat();
+    }
+  });
+  
+  // On page unload, rely on onDisconnect; optionally attempt a final set
+  window.addEventListener('pagehide', () => {
+    // stop heartbeat to avoid errors while unloading
+    stopHeartbeat();
+    if (__presenceRef) {
+      try {
+        // onDisconnect will take care of the final state,
+        // but attempt a quick set if the navigator supports sendBeacon or synchronous XHR:
+        __presenceRef.update({
+          last_changed: firebase.database.ServerValue.TIMESTAMP
+        }).catch(() => {});
+      } catch (e) {}
     }
   });
 }
@@ -1432,11 +1517,7 @@ msgInput.addEventListener("focus", () => {
   }, 300); // wait for keyboard animation
 });
 
-// --- VisualViewport-aware layout adaptation ---
-// Keeps header visually pinned and resizes messages area when keyboard opens (iOS/Android)
-// --- VisualViewport-aware layout adaptation ---
-// Keeps header pinned and inputArea above the keyboard (iOS/Android)
-// --- VisualViewport-aware layout adaptation (robust, avoid gaps) ---
+
 (function setupViewportAdjustments() {
   const header = document.getElementById('chatHeader');
   const inputArea = document.getElementById('inputArea');
