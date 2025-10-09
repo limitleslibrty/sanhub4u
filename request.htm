@@ -1,123 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta http-equiv="content-type" content="text/html; charset=utf-8" />
- <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TYV1T063RV"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Your Movie</title>
 
-  gtag('config', 'G-TYV1T063RV');
-</script>
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
- 
-  <title>Request Movie</title>
-  
-  <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-   font{
-    margin-left: 30px;
+    /* Global Styles */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(180deg, #f0f2f5, #ffffff);
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
 
-}
-.txt{
-margin-left: 3px;
-}
-   
-   
+    .container {
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #e63946;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 40px;
+    }
+
+    form {
+      background: #fff;
+      padding: 35px 30px;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #222;
+      text-align: left;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    select {
+      padding: 14px 16px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      outline: none;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    select:focus {
+      border-color: #e63946;
+      box-shadow: 0 0 10px rgba(230,57,70,0.2);
+    }
+
+    button {
+      padding: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      background: #e63946;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #d62839;
+    }
+
+    .note {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    #seasonGroup {
+      display: none;
+    }
+
+    @media(max-width: 500px) {
+      h1 { font-size: 2rem; }
+      form { padding: 30px 20px; }
+    }
   </style>
-   
 </head>
 <body>
-<br /><hr />
-<h1 align="center">Request Movie</h1>
-<hr /><br /><br />
 
-  <center>
-   <div class="p">
-    "Request any movie ever <br /> made in the universe and we’ll bring it to you!" <br />
-   </div>
-  </center>
-  <br /><br />
-  <br />
-
-<form action="https://formspree.io/f/xovekqdk" method="POST" id="contactForm">
- 
-  <font size="4em">Name:</font>
-  <input type="text"  id="name" name="name" required ><br><br>
-
-   <font size="4em">Email:</font>
-  <input type="email" id="email" class="txt" name="email" required><br><br>
-
-
-   <select name="type" 
-   id="firstSelect" onchange="showInputIfFruits()" style="font-size: 0.9em;margin-left: 28px; width:54px">
-     
-     <option value="Movie">Movie
-     </option>
-     <option value="webseries">webseries</option>
-     
-     
-   </select>:
-   
-  <input type="movie" id="movie" name="movie" required ><br><br>
-
-  
-   <font size="4em" style="margin-left: 35px;">Size:</font>
-   
-  <select id="size" name="size" style="margin-left: 10.3px;
-  width:192px ;" required>
-    <option value="1080p">1080p</option>
-    <option value="480p">480p</option>
-    <option value="720p">720p</option>
-    <option value="4k">4k</option>
-  </select>
-  <br><br>
-  <font size="4em" style="
-     margin-left: 24px;
-     display: none;"
-     id="fruitText"
-     >Season:</font>
-     
-   <input type="text"
-   id="fruitInput" 
-   style=
-   "display: none; 
-    width:180px;
-    margin-right: 40px;" 
-    class="txt" name="season" ><br><br> 
+  <div class="container">
     
-    <center><button type="submit">Submit</button><center>
-</form>
+    <div class="subtitle">Request any movie or webseries, and we’ll deliver it to you</div>
 
-<br /><br />
-<center>
- <div class="pp">
-  
-note: You will be notified by email   once <br /> ur requested movie is live .
- 
-</div></center>
+    <form action="https://formspree.io/f/xovekqdk" method="POST" id="contactForm">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" required>
 
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" required>
 
+      <label for="type">Request Type</label>
+      <select name="type" id="firstSelect" onchange="showInputIfFruits()" required>
+        <option value="" disabled selected hidden>Select type</option>
+        <option value="Movie">Movie</option>
+        <option value="webseries">Webseries</option>
+      </select>
 
-  <!--script-->
+      <label for="movie">Movie / Webseries Name</label>
+      <input type="text" id="movie" name="movie" required>
 
+      <label for="size">Quality / Size</label>
+      <select id="size" name="size" required>
+        <option value="" disabled selected hidden>Select quality</option>
+        <option value="1080p">1080p</option>
+        <option value="480p">480p</option>
+        <option value="720p">720p</option>
+        <option value="4k">4k</option>
+      </select>
+
+      <div id="seasonGroup">
+        <label for="fruitInput">Season (Webseries)</label>
+        <input type="text" id="fruitInput" name="season">
+      </div>
+
+      <button type="submit">Submit Request</button>
+    </form>
+
+    <div class="note">
+      You will be notified by email once your requested movie is live.
+    </div>
+  </div>
 
   <script>
     function showInputIfFruits() {
       const value = document.getElementById("firstSelect").value;
-      const text = document.getElementById("fruitText");
-      const input = document.getElementById("fruitInput");
-
-      if (value === "webseries") {
-        text.style.display = "inline";
-        input.style.display = "inline";
-      } else {
-        text.style.display = "none";
-        input.style.display = "none";
-      }
+      const seasonGroup = document.getElementById("seasonGroup");
+      seasonGroup.style.display = value === "webseries" ? "block" : "none";
     }
   </script>
 
