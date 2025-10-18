@@ -3,13 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Request Your Movie</title>
-
-  <!-- Google Fonts -->
+  <title>Movie Request - Normal & Premium</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-
   <style>
-    /* Global Styles */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Montserrat', sans-serif;
@@ -28,17 +24,83 @@
       text-align: center;
     }
 
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #e63946;
-      margin-bottom: 10px;
-    }
-
     .subtitle {
       font-size: 1.1rem;
       color: #555;
       margin-bottom: 40px;
+    }
+
+    /* Plan Toggle Styles */
+    .plan-toggle {
+      display: flex;
+      background: #f1f1f1;
+      border-radius: 50px;
+      padding: 5px;
+      margin-bottom: 30px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .plan-option {
+      flex: 1;
+      padding: 12px 20px;
+      text-align: center;
+      cursor: pointer;
+      z-index: 1;
+      transition: color 0.3s ease;
+      font-weight: 600;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+
+    .plan-option.active {
+      color: #fff;
+    }
+
+    .slider {
+      position: absolute;
+      height: calc(100% - 10px);
+      width: calc(50% - 5px);
+      background: #e63946;
+      border-radius: 50px;
+      transition: transform 0.3s ease;
+      top: 5px;
+    }
+
+    .slider.normal {
+      transform: translateX(0);
+    }
+
+    .slider.premium {
+      transform: translateX(100%);
+    }
+
+    .plan-details {
+      background: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      text-align: left;
+    }
+
+    .plan-details h3 {
+      color: #e63946;
+      margin-bottom: 8px;
+      font-size: 1.2rem;
+    }
+
+    .plan-details p {
+      color: #555;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    .plan-details .highlight {
+      color: #e63946;
+      font-weight: 600;
     }
 
     form {
@@ -100,23 +162,72 @@
       color: #777;
     }
 
+    .mail-link {
+      color: #e63946;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .mail-link:hover {
+      text-decoration: underline;
+    }
+
     #seasonGroup {
       display: none;
     }
 
+    .hidden-input {
+      display: none;
+    }
+
+    .mail-note {
+      font-style: italic;
+      color: #e63946;
+      font-size: 0.85rem;
+      margin-top: 5px;
+      text-align: center;
+    }
+
+    /* Remove blue selection highlight */
+    .plan-toggle * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
     @media(max-width: 500px) {
-      h1 { font-size: 2rem; }
       form { padding: 30px 20px; }
     }
   </style>
 </head>
 <body>
-
   <div class="container">
+    <div class="subtitle">Request any movie or webseries, and we'll deliver it to you</div>
     
-    <div class="subtitle">Request any movie or webseries, and we’ll deliver it to you</div>
+    <!-- Plan Toggle -->
+    <div class="plan-toggle">
+      <div class="slider normal"></div>
+      <div class="plan-option active" data-plan="normal">Normal</div>
+      <div class="plan-option" data-plan="premium">Premium</div>
+    </div>
+    
+    <!-- Plan Details -->
+    <div class="plan-details" id="normalDetails">
+      <h3>Normal Plan</h3>
+      <p>Supports quality up to <span class="highlight">4K</span></p>
+      <p>File size: <span class="highlight">Up to 6GB</span> per movie</p>
+      <p>Perfect for most viewing needs</p>
+    </div>
+    
+    <div class="plan-details" id="premiumDetails" style="display: none;">
+      <h3>Premium Plan</h3>
+      <p>Supports quality up to <span class="highlight">16K</span> and above</p>
+      <p>File size: <span class="highlight">Above 10GB</span> per movie</p>
+      <p>Ideal for high-end home theaters exp</p>
+    </div>
 
     <form action="https://formspree.io/f/xovekqdk" method="POST" id="contactForm">
+      <!-- Hidden input to store the selected plan -->
+      <input type="hidden" id="selectedPlan" name="plan" value="normal">
+      
       <label for="name">Your Name</label>
       <input type="text" id="name" name="name" required>
 
@@ -136,11 +247,14 @@
       <label for="size">Quality / Size</label>
       <select id="size" name="size" required>
         <option value="" disabled selected hidden>Select quality</option>
-        <option value="1080p">1080p</option>
+        <option value="360p">360p</option>
         <option value="480p">480p</option>
         <option value="720p">720p</option>
-        <option value="4k">4k</option>
+        <option value="1080p">1080p</option>
+        <option value="4k">4K</option>
       </select>
+      
+      <!-- Mail note will be inserted here when premium is selected -->
 
       <div id="seasonGroup">
         <label for="fruitInput">Season no.</label>
@@ -161,7 +275,100 @@
       const seasonGroup = document.getElementById("seasonGroup");
       seasonGroup.style.display = value === "webseries" ? "block" : "none";
     }
-  </script>
 
+    // Plan toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const planOptions = document.querySelectorAll('.plan-option');
+      const slider = document.querySelector('.slider');
+      const normalDetails = document.getElementById('normalDetails');
+      const premiumDetails = document.getElementById('premiumDetails');
+      const qualitySelect = document.getElementById('size');
+      const selectedPlanInput = document.getElementById('selectedPlan');
+      
+      // Initialize form based on selected plan
+      updateFormForPlan('normal');
+      
+      planOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          const plan = this.getAttribute('data-plan');
+          
+          // Update active class
+          planOptions.forEach(opt => opt.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Move slider
+          slider.className = 'slider ' + plan;
+          
+          // Show appropriate details
+          if (plan === 'normal') {
+            normalDetails.style.display = 'block';
+            premiumDetails.style.display = 'none';
+          } else {
+            normalDetails.style.display = 'none';
+            premiumDetails.style.display = 'block';
+          }
+          
+          // Update form options
+          updateFormForPlan(plan);
+          
+          // Update the hidden input with the selected plan
+          selectedPlanInput.value = plan;
+        });
+      });
+      
+      function updateFormForPlan(plan) {
+        // Clear existing options except the placeholder
+        while (qualitySelect.options.length > 1) {
+          qualitySelect.remove(1);
+        }
+        
+        if (plan === 'normal') {
+          // Normal plan options
+          const normalOptions = [
+            { value: '360p', text: '360p' },
+            { value: '480p', text: '480p' },
+            { value: '720p', text: '720p' },
+            { value: '1080p', text: '1080p' },
+            { value: '4k', text: '4K' }
+          ];
+          
+          normalOptions.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option.value;
+            opt.textContent = option.text;
+            qualitySelect.appendChild(opt);
+          });
+          
+          // Remove mail note if it exists
+          const existingNote = document.getElementById('mailNote');
+          if (existingNote) {
+            existingNote.remove();
+          }
+        } else {
+          // Premium plan options
+          const premiumOptions = [
+            { value: '8k', text: '8K' },
+            { value: '16k', text: '16K' }
+          ];
+          
+          premiumOptions.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option.value;
+            opt.textContent = option.text;
+            qualitySelect.appendChild(opt);
+          });
+          
+          // Add mail note after the quality select
+          const mailNote = document.createElement('div');
+          mailNote.id = 'mailNote';
+          mailNote.className = 'mail-note';
+          mailNote.innerHTML = 'If you want quality above 16K, kindly <a href="mailto:sanhub4u01@gmail.com" class="mail-link">mail us</a>.';
+          
+          // Insert after the quality select
+          qualitySelect.parentNode.insertBefore(mailNote, qualitySelect.nextSibling);
+        }
+      }
+    });
+  </script>
 </body>
 </html>
