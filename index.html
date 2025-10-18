@@ -50,12 +50,180 @@
     gtag('config', 'G-TYV1T063RV', { 'anonymize_ip': true });
   </script>
   
-  <!-- Minimal Content-Security-Policy recommended (remove unsafe-* when possible).
-       THIS EXAMPLE IS CONSERVATIVE; test after changes. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.googletagmanager.com; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://www.googletagmanager.com;">
-  
+
   <!-- Main stylesheet -->
-  <link rel="stylesheet" href="style.css">
+  <style>
+    #searchBox {
+    width: 92%;
+    margin-left: 2px;
+    padding: 10px;
+    font-size: 16px;
+    
+}
+
+.movie-card {
+    display: inline-block;
+    width:149px;
+    height: 318px;
+    padding: 1px;
+    margin: 8px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    
+}
+
+.movie-card img {
+    width: 150px;
+    height: 219px;
+    border-radius: 5px;
+    
+}
+
+
+.box{
+	padding: 6px;
+	outline: solid 1px #0DC2E3;
+	border-radius: 5px;
+	background-color: #D8F9FF;
+	color: #0C4D6A;
+}
+.boxw{
+	padding: 10px;
+	outline: solid 1px #0DC2E3;
+	border-radius: 5px;
+	background-color: #D8F9FF;
+	width: 230px;
+	margin-top: 14px;
+	
+}
+.a{
+ color: #1F63A6;
+ font-size: 1.6em;
+}
+a{
+ text-decoration:none;
+ color: inherit;
+ font-size: 0.95rem;
+}
+
+.button{
+ outline: solid 0.5px #848080;
+ border-radius:2px;
+ padding-top: 1px;
+ padding-bottom: 1px;
+ padding-left:3px;
+ padding-right: 3px;
+ margin-right: 3px;
+ background-color:#F4F4F4;
+ 
+}
+
+.p{
+ font-size: 1.4em;
+ color: #096458;
+ margin-top: 2px;
+ margin-bottom: 4px;
+}
+
+.latest{
+ margin-left: 10px;
+ font-size: 1.5em;
+ letter-spacing: 1.2px;
+ color:#323232;
+}
+
+.secpg{
+	padding: 7px;
+	outline: solid 1px #0984AA;
+	border-radius: 5px;
+	width: 180px;
+	margin: auto ;
+	}
+.asecpg{
+ color: #1F63A6;
+ font-size: 1.3em;
+}
+
+.request{
+ padding: 1px;
+ outline: solid 2px #0984AA;
+ border-radius: 5px;
+ width: 120px;
+
+}
+.pp{
+ font-size: 1em;
+ color: #E2E2E2;
+ margin-top: 2px;
+ margin-bottom: 4px;
+}
+
+/* New styles for search dropdown */
+.search-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  margin-bottom:5px;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 5px 5px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: none;
+}
+
+.search-result-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+}
+
+.search-result-item:hover {
+  background-color: #f5f5f5;
+}
+
+.search-result-item img {
+  width: 40px;
+  height: 60px;
+  object-fit: cover;
+  margin-right: 10px;
+  border-radius: 3px;
+}
+
+.search-result-item .movie-info {
+  flex: 1;
+}
+
+.no-results {
+  padding: 15px;
+  text-align: center;
+  color: #666;
+}
+
+.request-link {
+  color: #0C4D6A;
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.request-link:hover {
+  color: #0984AA;
+}
+  </style>
 </head>
 
 <body>
@@ -64,14 +232,11 @@
   </div>
   
   
-   
-   
-  
-  
-  <input type="text" id="searchBox" placeholder="Search movies..." onkeyup="searchMovies()">
-  
-  <br /><br />
-  
+<div class="search-container">
+  <input type="text" id="searchBox" placeholder="Search movies...">
+  <div class="search-results" id="searchResults"></div>
+</div>
+<br />
   <div style="display: inline-block;">
    
 
@@ -115,7 +280,7 @@
   
   <br />
   <br />
-  <br />
+  
   
   <div>
    <hr />
@@ -127,10 +292,7 @@
   
   
  <!--movies container-->
-  
-  
-
-<div id="moviesContainer">
+  <div id="moviesContainer">
  
   
   
@@ -1251,23 +1413,118 @@
        </div>  </a>
 </div>
 
-
-
-
-
   <!-- Project -->
-  <script src="main.js"></script>
+
+
 
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(() => console.log("✅ Service Worker Registered"))
-      .catch(err => console.log("❌ Service Worker Failed", err));
-  }
+  // Enhanced search functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchBox = document.getElementById('searchBox');
+    const searchResults = document.getElementById('searchResults');
+    
+    // Function to extract movie data from HTML
+    function getMovieData() {
+      const movieCards = document.querySelectorAll('#moviesContainer .movie-card');
+      const movies = [];
+      
+      movieCards.forEach(card => {
+        const title = card.querySelector('.movie-title').textContent.trim();
+        const image = card.querySelector('img').src;
+        const link = card.closest('a').href;
+        
+        movies.push({
+          title: title,
+          image: image,
+          url: link
+        });
+      });
+      
+      return movies;
+    }
+    
+    // Function to perform search
+    function performSearch(query) {
+      const movies = getMovieData();
+      const results = [];
+      
+      // Filter movies based on query
+      movies.forEach(movie => {
+        if (movie.title.toLowerCase().includes(query.toLowerCase())) {
+          results.push(movie);
+        }
+      });
+      
+      return results;
+    }
+    
+    // Function to display search results
+    function displayResults(results) {
+      searchResults.innerHTML = '';
+      
+      if (results.length > 0) {
+        results.forEach(movie => {
+          const resultItem = document.createElement('div');
+          resultItem.className = 'search-result-item';
+          resultItem.innerHTML = `
+            <img src="${movie.image}" alt="${movie.title}">
+            <div class="movie-info">
+              <strong>${movie.title}</strong>
+            </div>
+          `;
+          
+          resultItem.addEventListener('click', function() {
+            window.location.href = movie.url;
+          });
+          
+          searchResults.appendChild(resultItem);
+        });
+        
+        searchResults.style.display = 'block';
+      } else {
+        // No results found
+        const noResults = document.createElement('div');
+        noResults.className = 'no-results';
+        noResults.innerHTML = `
+          Can't find movie just <span class="request-link" id="requestLink">request it</span>
+        `;
+        
+        searchResults.appendChild(noResults);
+        searchResults.style.display = 'block';
+        
+        // Add event listener to request link
+        document.getElementById('requestLink').addEventListener('click', function() {
+          window.location.href = 'request.htm';
+        });
+      }
+    }
+    
+    // Event listener for search input
+    searchBox.addEventListener('input', function() {
+      const query = this.value.trim();
+      
+      if (query.length > 0) {
+        const results = performSearch(query);
+        displayResults(results);
+      } else {
+        searchResults.style.display = 'none';
+      }
+    });
+    
+    // Hide search results when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!searchBox.contains(event.target) && !searchResults.contains(event.target)) {
+        searchResults.style.display = 'none';
+      }
+    });
+    
+    // Hide search results when pressing Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        searchResults.style.display = 'none';
+      }
+    });
+  });
 </script>
-
-
-
-
 </body>
 </html>
