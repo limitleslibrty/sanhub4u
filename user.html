@@ -1726,6 +1726,116 @@ function openMediaPreview(imageUrl) {
   <button id="closePreview">&times;</button>
   <img id="previewImage" src="" alt="Preview">
 </div>
-
+<script>
+  let modalCreated = false;
+  let diwaliModal = null;
+  let diwaliIframe = null;
+  
+  function checkAndOpenModal() {
+    const chatEl = document.getElementById('chat');
+    if (chatEl && chatEl.classList.contains('active') && !modalCreated) {
+      openDiwaliModal();
+    }
+  }
+  
+  // Check every 500ms if chat is active
+  setInterval(checkAndOpenModal, 500);
+  
+  function openDiwaliModal() {
+    if (!diwaliModal) {
+      diwaliModal = document.createElement('div');
+      diwaliModal.id = 'diwali-modal';
+      diwaliModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            z-index: 9999;
+            display: none;
+        `;
+      
+      const closeButton = document.createElement('button');
+      closeButton.innerHTML = '&times;';
+      closeButton.style.cssText = `
+            position: absolute;
+            top: 6px;
+            right: 50px;
+            background: transparent;
+            color: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 10000;
+        `;
+      
+      diwaliIframe = document.createElement('iframe');
+      diwaliIframe.src = 'diwali.html';
+      diwaliIframe.style.cssText = `
+            width: 100%;
+            height: 100%;
+            border: none;
+        `;
+      diwaliIframe.id = 'diwali-iframe';
+      
+      // Proper close function that stops the iframe
+      closeButton.addEventListener('click', function() {
+        closeDiwaliModal();
+      });
+      
+      diwaliModal.appendChild(closeButton);
+      diwaliModal.appendChild(diwaliIframe);
+      document.body.appendChild(diwaliModal);
+      
+      modalCreated = true;
+    }
+    
+    // Only show if not already showing
+    if (diwaliModal.style.display !== 'block') {
+      diwaliModal.style.display = 'block';
+    }
+  }
+  
+  function closeDiwaliModal() {
+    if (diwaliModal) {
+      diwaliModal.style.display = 'none';
+      
+      // Completely stop the iframe content
+      if (diwaliIframe) {
+        // Method 1: Remove the iframe completely and recreate it next time
+        diwaliIframe.remove();
+        diwaliIframe = null;
+        
+        // Method 2: Or reload to blank page
+        // diwaliIframe.src = 'about:blank';
+      }
+    }
+  }
+  
+  // Close with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeDiwaliModal();
+    }
+  });
+  
+  // Also close when clicking outside the iframe (on the modal background)
+  document.addEventListener('click', function(e) {
+    if (diwaliModal && e.target === diwaliModal) {
+      closeDiwaliModal();
+    }
+  });
+  
+  // Also stop audio when page is hidden or user navigates away
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden && diwaliModal && diwaliModal.style.display === 'block') {
+      closeDiwaliModal();
+    }
+  });
+</script>
 </body>
 </html> 
