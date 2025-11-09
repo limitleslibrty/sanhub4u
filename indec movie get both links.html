@@ -1,0 +1,131 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Google Drive Link Generator — Download & Watch</title>
+  <style>
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:28px;background:#f7fafc;color:#0f172a}
+    .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(2,6,23,0.08);max-width:760px;margin:0 auto}
+    h1{font-size:20px;margin:0 0 12px}
+    label{display:block;margin-top:12px;font-size:13px;color:#334155}
+    input[type=text]{width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px}
+    button{margin-top:12px;padding:10px 14px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer}
+    button.copy{background:#10b981;margin-left:8px}
+    .output-box{margin-top:16px;padding:10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    input.link-display{flex:1;border:none;background:transparent;font-size:14px;outline:none;color:#0f172a}
+    .note{margin-top:14px;font-size:13px;color:#475569}
+    iframe{width:100%;height:480px;border-radius:8px;border:1px solid #e2e8f0;margin-top:12px}
+    .row{display:flex;gap:8px;align-items:center}
+    .small{font-size:12px;color:#64748b}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Google Drive Link Generator — Download & Watch</h1>
+    <p class="small">Paste a Google Drive sharing link or the file ID, then click <strong>Generate</strong>.</p><label for="input">File URL or File ID</label>
+<input id="input" type="text" placeholder="e.g. https://drive.google.com/file/d/FILEID/view or 1a2B3c..." />
+
+<div class="row">
+  <button id="gen">Generate Links</button>
+  <button id="clear" style="background:#e2e8f0;color:#0f172a">Clear</button>
+  <label style="display:flex;align-items:center;margin-left:auto;gap:8px"><input id="embed" type="checkbox" /> <span class="small">Show embedded preview</span></label>
+</div>
+
+<div id="out"></div>
+
+<p class="note">If the file is private or permission-restricted, the generated links will only work for users with access. For large files, Google may show a virus-scan confirmation page before downloading.</p>
+
+  </div>  <script>
+    function extractFileId(text){
+      if(!text) return null;
+      text = text.trim();
+      const patterns = [
+        /\/d\/([a-zA-Z0-9_-]{10,})/,
+        /id=([a-zA-Z0-9_-]{10,})/,
+        /open\?id=([a-zA-Z0-9_-]{10,})/,
+        /^[a-zA-Z0-9_-]{10,}$/
+      ];
+      for(const p of patterns){
+        const m = text.match(p);
+        if(m && m[1]) return m[1];
+      }
+      return null;
+    }
+
+    function makeLinks(fileId){
+      return {
+        download: `https://drive.google.com/uc?export=download&id=${fileId}`,
+        preview: `https://drive.google.com/file/d/${fileId}/preview`
+      };
+    }
+
+    function copyToClipboard(text){
+      navigator.clipboard.writeText(text).then(()=>{
+        alert('Link copied to clipboard!');
+      });
+    }
+
+    function render(fileId){
+      const out = document.getElementById('out');
+      out.innerHTML = '';
+      if(!fileId){
+        out.innerHTML = '<div class="small" style="color:#ef4444">Invalid or missing file ID.</div>';
+        return;
+      }
+      const { download, preview } = makeLinks(fileId);
+
+      // Direct Download Box
+      const box1 = document.createElement('div');
+      box1.className = 'output-box';
+      const input1 = document.createElement('input');
+      input1.className = 'link-display';
+      input1.value = download;
+      input1.readOnly = true;
+      const copyBtn1 = document.createElement('button');
+      copyBtn1.className = 'copy';
+      copyBtn1.textContent = 'Copy Download Link';
+      copyBtn1.onclick = () => copyToClipboard(download);
+      box1.appendChild(input1);
+      box1.appendChild(copyBtn1);
+
+      // Watch/Preview Box
+      const box2 = document.createElement('div');
+      box2.className = 'output-box';
+      const input2 = document.createElement('input');
+      input2.className = 'link-display';
+      input2.value = preview;
+      input2.readOnly = true;
+      const copyBtn2 = document.createElement('button');
+      copyBtn2.className = 'copy';
+      copyBtn2.textContent = 'Copy Watch Link';
+      copyBtn2.onclick = () => copyToClipboard(preview);
+      box2.appendChild(input2);
+      box2.appendChild(copyBtn2);
+
+      out.appendChild(box1);
+      out.appendChild(box2);
+
+      // Embed preview option
+      const embedCheckbox = document.getElementById('embed');
+      if(embedCheckbox.checked){
+        const iframe = document.createElement('iframe');
+        iframe.src = preview;
+        iframe.loading = 'lazy';
+        out.appendChild(iframe);
+      }
+    }
+
+    document.getElementById('gen').addEventListener('click',()=>{
+      const raw = document.getElementById('input').value;
+      const id = extractFileId(raw);
+      render(id);
+    });
+
+    document.getElementById('clear').addEventListener('click',()=>{
+      document.getElementById('input').value='';
+      document.getElementById('out').innerHTML='';
+    });
+  </script></body>
+</html>
