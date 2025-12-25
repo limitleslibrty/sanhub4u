@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Direct File Download</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 26px;
+            color: #222;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .download-btn {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 14px 28px;
+            background: #4a90e2;
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #357bd8;
+        }
+
+        .email-box {
+            margin-top: 35px;
+            padding: 15px;
+            background: #f1f4f8;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .email-text {
+            font-size: 15px;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            padding: 8px 14px;
+            background: #2ecc71;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #27ae60;
+        }
+
+        .footer {
+            margin-top: 25px;
+            font-size: 13px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>File Download</h1>
+        <p>Click the button below to download the file directly.</p>
+
+        <!-- Direct Download Link -->
+        <a class="download-btn"
+           href="app-download.apk"
+           target="_blank">
+            Download File
+        </a>
+
+        <!-- Email Section -->
+        <div class="email-box">
+            <span class="email-text" id="email">
+                adarshpatel8099@gmail.com
+            </span>
+            <button class="copy-btn" onclick="copyEmail()">Copy</button>
+        </div>
+
+        <div class="footer">
+            © 2025 | Simple Download Page
+        </div>
+    </div>
+
+    <script>
+        function copyEmail() {
+            const emailText = document.getElementById("email").innerText;
+            navigator.clipboard.writeText(emailText).then(() => {
+                alert("Email copied to clipboard!");
+            });
+        }
+    </script>
+
+</body>
+</html>
