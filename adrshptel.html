@@ -43,15 +43,11 @@
             text-decoration: none;
             font-size: 16px;
             border-radius: 6px;
-            transition: background 0.3s ease;
         }
 
-        .download-btn:hover {
-            background: #357bd8;
-        }
-
-        .email-box {
-            margin-top: 35px;
+        .email-box,
+        .password-box {
+            margin-top: 25px;
             padding: 15px;
             background: #f1f4f8;
             border-radius: 6px;
@@ -74,15 +70,31 @@
             color: #fff;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.3s ease;
         }
 
-        .copy-btn:hover {
-            background: #27ae60;
+        .code-input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        /* Remove number arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
         }
 
         .footer {
-            margin-top: 25px;
+            margin-top: 30px;
             font-size: 13px;
             color: #888;
         }
@@ -90,38 +102,65 @@
 </head>
 <body>
 
-    <div class="container">
-        <h1>File Download</h1>
-        <p>Click the button below to download the file directly.</p>
+<div class="container">
+    <h1>File Download</h1>
+    <p>Click the button below to download the file directly.</p>
 
-        <!-- Direct Download Link -->
-        <a class="download-btn"
-           href="app-download.apk"
-           target="_blank">
-            Download File
-        </a>
+    <!-- Download Button -->
+    <a class="download-btn" href="app-download.apk" target="_blank">
+        Download File
+    </a>
 
-        <!-- Email Section -->
-        <div class="email-box">
-            <span class="email-text" id="email">
-                adarshpatel8099@gmail.com
-            </span>
-            <button class="copy-btn" onclick="copyEmail()">Copy</button>
-        </div>
-
-        <div class="footer">
-            © 2025 | Simple Download Page
-        </div>
+    <!-- Email Section -->
+    <div class="email-box">
+        <span class="email-text" id="email">
+            adarshpatel8099@gmail.com
+        </span>
+        <button class="copy-btn" onclick="copyEmail()">Copy</button>
     </div>
 
-    <script>
-        function copyEmail() {
-            const emailText = document.getElementById("email").innerText;
-            navigator.clipboard.writeText(emailText).then(() => {
-                alert("Email copied to clipboard!");
-            });
-        }
-    </script>
+    <!-- Code Input -->
+    <input
+        type="number"
+        class="code-input"
+        placeholder="Enter code to view password"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        maxlength="2"
+        oninput="this.value=this.value.slice(0,2); checkCode(this.value);"
+    >
+
+    <!-- Password Section -->
+    <div class="password-box" id="passwordBox" style="display:none;">
+        <span class="email-text" id="passwordText">
+            mobiletracker@8099
+        </span>
+        <button class="copy-btn" onclick="copyPassword()">Copy</button>
+    </div>
+
+    <div class="footer">
+        © 2025 | Simple Download Page
+    </div>
+</div>
+
+<script>
+    function copyEmail() {
+        const email = document.getElementById("email").innerText;
+        navigator.clipboard.writeText(email);
+        alert("Email copied to clipboard!");
+    }
+
+    function checkCode(value) {
+        const passwordBox = document.getElementById("passwordBox");
+        passwordBox.style.display = value === "99" ? "flex" : "none";
+    }
+
+    function copyPassword() {
+        const password = document.getElementById("passwordText").innerText;
+        navigator.clipboard.writeText(password);
+        alert("Password copied to clipboard!");
+    }
+</script>
 
 </body>
 </html>
