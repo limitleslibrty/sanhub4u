@@ -1,0 +1,621 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TYV1T063RV"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-TYV1T063RV');
+</script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: white; }
+    input, button { padding: 10px; font-size: 16px; }
+    button { cursor: pointer; }
+    #movieDetails, .static-template {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    
+    .episodes-container {
+  margin-top: 20px;
+}
+.episode-box {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.reviews-box {
+  width: 90%;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: block;
+}
+.reviews-box:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+.button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #0056b3;
+}
+    
+    
+.trailer-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.trailer-container iframe {
+  width: 100%;
+  max-width: 720px;
+  height: 205px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+    
+    .related-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px;
+}
+
+.related-card {
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.related-card img {
+  width: 100px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.backdrop-container img {
+  width: 100%;
+  height: auto;
+  max-height: 250px; /* optional, to limit vertical size */
+  border-radius: 8px;
+  object-fit: cover;
+}
+.backdrop-img {
+  width: 160%;
+  max-width: 300px;     /* ⬅️ Increased size */
+  height: auto;
+  border-radius: 16px;  /* ⬅️ Increased border radius */
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional: adds a soft shadow */
+}
+
+    .cast-container{ display:flex; gap:10px; overflow-x:auto; padding:10px 0; }
+    .cast-card{
+      width: 120px;
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color:inherit;
+    }
+    .cast-card img{
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    .cast-card strong{
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+
+
+
+
+
+    .card { background: #eeeeee; padding: 15px; border-radius: 10px; margin-bottom: 20px; } 
+    .info-box { background: #e0ecf4; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+     
+    .button { background: #007B9E; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer; }
+
+
+    img.main-img { width: 100%; max-width: 100%; border-radius: 10px; }
+    textarea { width: 100%; height: 300px; margin-top: 20px; font-family: monospace; }
+    @media screen and (max-width: 600px) {
+      .cast-card { min-width: 100px; font-size: 14px; }
+      .button { width: 100%; margin: 5px 0; }
+    }
+  </style>
+  
+  
+  </head>
+  <body>
+    
+    <div>
+    <img src="https://image.tmdb.org/t/p/w500/p0qM8hhlMF5DuxHBzl2EZR6TehX.jpg" alt="Mirzapur" class="main-img">
+      <h2 align="center">Mirzapur</h2>
+      <p align="center" style="font-size: 16px;">IMDb Rating: 8.0 ⭐</p>
+      <div class="card"><p align="center">The iron-fisted Akhandanand Tripathi is a millionaire carpet exporter and the mafia don of Mirzapur. His son, Munna, is an unworthy, power-hungry heir who will stop at nothing to inherit his father's legacy. An incident at a wedding procession forces him to cross paths with Ramakant Pandit, an upstanding lawyer, and his sons, Guddu and Bablu. It snowballs into a game of ambition, power and greed that threatens the fabric of this lawless city.</p></div>
+      <div class="info-box">
+        <p><strong>Release S01:</strong> 2018-11-15</p>
+      
+       <p><strong>Language:</strong>Hindi &amp; English</p>
+      </div>
+      <br>
+      
+  <h3 align="center">Season 1 Episodes</h3>
+  
+  <div class="episodes-container">
+    
+      <div class="episode-box">
+        <p><strong>Episode 1</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1jxesbE_C-jxNSnrFu-x73Bj2uhHpudFp/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1jxesbE_C-jxNSnrFu-x73Bj2uhHpudFp" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 2</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1d0zyRB0f50yiw4-gO9D0wCzm7Yj079Ke/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1d0zyRB0f50yiw4-gO9D0wCzm7Yj079Ke" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 3</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1vWiMFxmXlkzKF2jBTqyH8NhqRBa3BTAo/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1vWiMFxmXlkzKF2jBTqyH8NhqRBa3BTAo" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 4</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1pxHHa5QHwUYQP2QTxFPxqj-OJLgTNghf/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1pxHHa5QHwUYQP2QTxFPxqj-OJLgTNghf" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 5</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1wVpR-svVveOn85KG39zA9EU40J3U2J3R/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1wVpR-svVveOn85KG39zA9EU40J3U2J3R" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 6</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/17MnNcVQn7JNlaW_ZReonKN2Dvm7efrBR/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=17MnNcVQn7JNlaW_ZReonKN2Dvm7efrBR" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 7</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1iaExHcOZKaXsoh_ERok1Yfachv2PbEfe/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1iaExHcOZKaXsoh_ERok1Yfachv2PbEfe" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 8</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1YRGztl5yffzCIHr3cHlB0IM4Twb2a-pw/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1YRGztl5yffzCIHr3cHlB0IM4Twb2a-pw" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+      <div class="episode-box">
+        <p><strong>Episode 9</strong></p>
+        <div class="button-row">
+          <a href="https://drive.google.com/file/d/1N-l2O-dmXH8wgpW9QRtooL9Vwp-TIKRd/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+<a href="https://drive.google.com/uc?export=download&amp;id=1N-l2O-dmXH8wgpW9QRtooL9Vwp-TIKRd" class="button" target="_blank">Download</a>
+</div>
+      </div>
+    
+  </div>
+    <h3 align="center">Season 2 Episodes</h3>
+  
+  <div class="episodes-container">
+    
+    <div class="episode-box">
+      <p><strong>Episode 1</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1gmpFlJH7GMORmtsgrRGGU8GrcoPLeStA/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1gmpFlJH7GMORmtsgrRGGU8GrcoPLeStA" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 2</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1gyAPyxI-dIm29GEz7sih3FY3PVrXWEjK/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1gyAPyxI-dIm29GEz7sih3FY3PVrXWEjK" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 3</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1XzdhCyk9uDBEldlzAqvplMs6U75iglyC/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1XzdhCyk9uDBEldlzAqvplMs6U75iglyC" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 4</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1EnGUq07zaPyksjkth-T2TyRl3swTbQVI/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1EnGUq07zaPyksjkth-T2TyRl3swTbQVI" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 5</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1LiVyrR-uCjcqLfOklaBdA_ioRRDKTwgj/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1LiVyrR-uCjcqLfOklaBdA_ioRRDKTwgj" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 6</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/11yjeuX6SinoH4XPPaOgjwejGoNEbD1x5/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=11yjeuX6SinoH4XPPaOgjwejGoNEbD1x5" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 7</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1SQxJf7IQDSjLIsv9XWFEvZ2HW1IBeq-v/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1SQxJf7IQDSjLIsv9XWFEvZ2HW1IBeq-v" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 8</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1_ws4pV1Uy7SbcwjGmIrcvtUh1Q7gTrOZ/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1_ws4pV1Uy7SbcwjGmIrcvtUh1Q7gTrOZ" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 9</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1wqYhzzPW7JhCYC4FYYse_Fb6CMcdnIxH/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1wqYhzzPW7JhCYC4FYYse_Fb6CMcdnIxH" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 10</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1hzB4kg0UidTTw5i4pfEuck-KzXa3XVES/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1hzB4kg0UidTTw5i4pfEuck-KzXa3XVES" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+  </div>
+    <h3 align="center">Season 3 Episodes</h3>
+  
+  <div class="episodes-container">
+    
+    <div class="episode-box">
+      <p><strong>Episode 1</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1u4hmNZLGjqm4FUivo2LaBjdt86Jx3xNH/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1u4hmNZLGjqm4FUivo2LaBjdt86Jx3xNH" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 2</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1SQIMar-uULK69YQmpjb1fEM4sfA980TN/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1SQIMar-uULK69YQmpjb1fEM4sfA980TN" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 3</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1csIYHepx_d-IBDCBNTG0CUtOt28ERTHQ/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1csIYHepx_d-IBDCBNTG0CUtOt28ERTHQ" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 4</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1ocfsNpyKMHFdGpY-QIMo_E_agFlEJPYd/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1ocfsNpyKMHFdGpY-QIMo_E_agFlEJPYd" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 5</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/19LtO9_Ki4GV6IJ9XsHRyxZ_smelmbjx_/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=19LtO9_Ki4GV6IJ9XsHRyxZ_smelmbjx_" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 6</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1MQFXmWxCOJlRr67TZpB7MZ1XFoQX4jJ6/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1MQFXmWxCOJlRr67TZpB7MZ1XFoQX4jJ6" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 7</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/17fXjLTHbLTh1GK7mcLI1nQsd6oLyk6g4/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=17fXjLTHbLTh1GK7mcLI1nQsd6oLyk6g4" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 8</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1G9L_CLvbNUMlcbN1u0xSMGs42G0W4csR/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1G9L_CLvbNUMlcbN1u0xSMGs42G0W4csR" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 9</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1dxCNW0xO9Vix7ckiK88ZAkEOe26bykxr/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1dxCNW0xO9Vix7ckiK88ZAkEOe26bykxr" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+    <div class="episode-box">
+      <p><strong>Episode 10</strong></p>
+      <div class="button-row">
+        <a href="https://drive.google.com/file/d/1i4j4VrjAthVGZufSaMYprhJ3NKsJbl7q/view?usp=drivesdk" target="_blank" class="button">Watch</a>
+        <a href="https://drive.google.com/uc?export=download&amp;id=1i4j4VrjAthVGZufSaMYprhJ3NKsJbl7q" class="button" target="_blank">Download</a>
+      </div>
+    </div>
+    
+  </div>
+  
+ <br>
+            <h3 align="center">Top Cast</h3>
+      <div class="cast-container">
+        
+        
+          <a href="https://www.google.com/search?q=Ali%20Fazal" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/lLDmx3RDuMXObASvdFXeUh1GOgd.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Ali Fazal"> 
+            <br><br>
+            <strong>Ali Fazal</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Pankaj%20Tripathi" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/f3Vxz0QB7PHeyPcXrfJX14Xkxnu.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Pankaj Tripathi"> 
+            <br><br>
+            <strong>Pankaj Tripathi</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Shweta%20Tripathi%20Sharma" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/xZ0pk5qKzfK1oB54Mmfo1lUSSEu.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Shweta Tripathi Sharma"> 
+            <br><br>
+            <strong>Shweta Tripathi Sharma</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Rasika%20Dugal" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/cMJP2OEOrKwF05BFh3zI3TyS5Ft.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Rasika Dugal"> 
+            <br><br>
+            <strong>Rasika Dugal</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Harshita%20Gaur" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/rYO4VrYRiCWrEq5MgM0fZnlAMwX.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Harshita Gaur"> 
+            <br><br>
+            <strong>Harshita Gaur</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Sheeba%20Chaddha" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/yWBQeR47GmnGJn33w4c8QzakkSh.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Sheeba Chaddha"> 
+            <br><br>
+            <strong>Sheeba Chaddha</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Rajesh%20Tailang" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/ou1zcrNfhXBKcpnPgtKs64SRGXm.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Rajesh Tailang"> 
+            <br><br>
+            <strong>Rajesh Tailang</strong>
+          </a>
+        
+        
+          <a href="https://www.google.com/search?q=Anjum%20Sharma" target="_blank" class="cast-card">
+          
+            <img src="https://image.tmdb.org/t/p/w500/75uWNWhYgYxRlXw4Hhrl5R86mpK.jpg" onerror="this.onerror=null; this.src='your-cast-image.jpg';" alt="Anjum Sharma"> 
+            <br><br>
+            <strong>Anjum Sharma</strong>
+          </a>
+        
+      </div>
+      <br>
+      <center>
+        
+     
+      
+  <h3> Trailer</h3><h3>
+  <div class="trailer-container">
+    <iframe src="https://www.youtube.com/embed/33o3s4Vs4Sw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+  </div>
+      
+      </h3><h3 align="center">
+        Backdrops
+      </h3> <br>
+        
+  <div>
+  
+    <div class="backdrop-container">
+      
+<img src="https://image.tmdb.org/t/p/w500/3dV7pWAdwIPKR2lMIACMfObXdgK.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/n5iWhlELwAXEeBqBpJa2cVtrCKS.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/qCtSF2xvjiEPszmjor8Mpsqip9p.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/gR33y5RTQbuIRXlRYLAUTWta3PK.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/uNJ5yV4c7OR8UB45OoPpWxDvFhq.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/C7114AWPFF5KoWnhv47gw2nSgi.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/zUj8nrZfGWUPnEjIPmuUPeAej3W.jpg" class="backdrop-img">
+<img src="https://image.tmdb.org/t/p/w500/pKgh9dANyv268hkohua4YZodJ12.jpg" class="backdrop-img">
+    </div>
+  </div>
+
+
+<br>
+<h3>
+  Reviews
+</h3>
+
+
+
+
+
+
+
+  <div class="reviews-box" onclick="window.open('https://www.themoviedb.org/tv/84105/reviews', '_blank')">
+    <p>📖 Click to Read Reviews</p>
+  </div>
+
+
+
+
+
+
+
+
+
+<br>
+<h3 align="center">Related Shows</h3>
+<div class="cast-container">
+  
+  <a href="https://www.google.com/search?q=Social" target="_blank" class="cast-card">  
+    <img src="https://via.placeholder.com/100x150?text=No+Image" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Social">
+    <strong>Social</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=The%20Princess%20Weiyoung" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/4lojcsfBAH10W64k6JnerDeLd5A.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="The Princess Weiyoung">
+    <strong>The Princess Weiyoung</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Delhi%20Crime" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/xkpkTj6KGsjSaet0VQaq0aTn31D.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Delhi Crime">
+    <strong>Delhi Crime</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Selection%20Day" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/4vzDZD4vvhsC5zLHrkQAYYp1idJ.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Selection Day">
+    <strong>Selection Day</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=TVF%20Bachelors" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/udJ1ec7a6rFgx9ejouaGdO3rbKh.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="TVF Bachelors">
+    <strong>TVF Bachelors</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Maharani" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/g3ublqmXx9SH8ksY61OPkZRoN3I.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Maharani">
+    <strong>Maharani</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Adulting" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/kbXAKBYR5ui7eDgJz3kxCF9Ddkn.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Adulting">
+    <strong>Adulting</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Bose%3A%20Dead%2FAlive" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/avXCgz1dJAZwCUxPyLrFbNZWHJL.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Bose: Dead/Alive">
+    <strong>Bose: Dead/Alive</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Sagwa%20The%20Chinese%20Siamese%20Cat" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/7EFeMmdmFEYEaFfitNXCB45CQWv.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Sagwa The Chinese Siamese Cat">
+    <strong>Sagwa The Chinese Siamese Cat</strong></a>
+  
+  
+  <a href="https://www.google.com/search?q=Breathe" target="_blank" class="cast-card">  
+    <img src="https://image.tmdb.org/t/p/w500/cCgpMmMt73bp2sLQOmbXPIHAgWS.jpg" onerror="this.onerror=null; this.src='your-movie-image.jpg';" alt="Breathe">
+    <strong>Breathe</strong></a>
+  
+  
+</div>
+
+
+    </center></div>
+  
+  </body>
+  </html>
+  
